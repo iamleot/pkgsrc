@@ -5,13 +5,19 @@
 #
 # User-settable variables:
 #
-# PKG_DEBUGDATA: TODO: document me
+# PKG_DEBUGDATA
+#	If "yes", install stripped debug symbols for all programs and shared
+#	libraries.
 #
-# PKG_DEBUGLEVEL: TODO: document me
+# PKG_DEBUGLEVEL
+#	Used to control the granularity of the debug information. Can be
+#	"small", "default", "detailed".
 #
 # Package-settable variables:
 #
-# DEBUGDATA_FILES: TODO: document me
+# DEBUGDATA_FILES
+#	A list of programs and shared libraries for which the debug symbols
+#	should be stripped off
 #
 # See also:
 #	INSTALL_UNSTRIPPED	
