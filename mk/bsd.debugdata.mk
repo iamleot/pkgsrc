@@ -24,3 +24,12 @@
 #
 # Keywords: debug
 #
+
+.if !defined(BSD_DEBUGDATA_MK)
+BSD_DEBUGDATA_MK=	# defined
+
+#
+# TODO
+#
+
+.endif	# BSD_DEBUGDATA_MK
