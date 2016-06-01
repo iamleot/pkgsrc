@@ -682,6 +682,9 @@ _SHORT_UNAME_R=	${:!${UNAME} -r!:C@\.([0-9]*)[_.-].*@.\1@} # n.n[_.]anything => 
 #
 .include "pax.mk"
 
+# Strip debug symbols off programs and libraries
+.include "bsd.debugdata.mk"
+
 .PHONY: show-pkgtools-version
 .if !target(show-pkgtools-version)
 show-pkgtools-version:
