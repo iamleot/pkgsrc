@@ -86,6 +86,11 @@ TOOLS_PLATFORM.mtree?=		/usr/sbin/mtree
 TOOLS_PLATFORM.mv?=		/bin/mv
 TOOLS_PLATFORM.nice?=		/usr/bin/nice
 TOOLS_PLATFORM.nroff?=		/usr/bin/nroff
+.if empty(USE_CROSS_COMPILE:M[yY][eE][sS])
+TOOLS_PLATFORM.objcopy?=	/usr/bin/objcopy
+.else
+TOOLS_PLATFORM.objcopy?=	${TOOLDIR}/bin/${MACHINE_GNU_PLATFORM}-objcopy
+.endif
 TOOLS_PLATFORM.openssl?=	/usr/bin/openssl
 TOOLS_PLATFORM.patch?=		/usr/bin/patch
 TOOLS_PLATFORM.pax?=		/bin/pax
