@@ -43,7 +43,7 @@
 BSD_DEBUGDATA_MK=	# defined
 
 #
-# WIP
+# WIP and still EXPERIMENTAL!
 #
 .if !empty(PKG_DEBUGDATA:M[yY][eE][sS])
 
@@ -52,6 +52,14 @@ BSD_DEBUGDATA_MK=	# defined
 _INSTALL_UNSTRIPPED=	# defined
 
 .if !empty(DEBUGDATA_FILES)
+
+# Pass debug flags to the compiler
+# TODO: honor PKG_DEBUGLEVEL!
+_WRAP_EXTRA_ARGS.CC+=	-g
+CWRAPPERS_APPEND.cc+=	-g
+
+_INSTALL_ALL_TARGETS+=	post-install-strip-debugdata
+
 .PHONY: post-install-strip-debugdata
 post-install: post-install-strip-debugdata
 post-install-strip-debugdata:
