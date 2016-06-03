@@ -7,7 +7,8 @@
 #
 # PKG_DEBUGDATA
 #	If "yes", install stripped debug symbols for all programs and shared
-#	libraries.
+#	libraries. Please notice that if it is defined INSTALL_UNSTRIPPED will
+#	be also defined internally.
 #
 # PKG_DEBUGLEVEL
 #	Used to control the granularity of the debug information. Can be
@@ -42,7 +43,19 @@
 BSD_DEBUGDATA_MK=	# defined
 
 #
-# TODO
+# WIP
 #
+.  if !empty(PKG_DEBUGDATA:M[yY][eE][sS])
+
+# Avoid to pass options to strip to cc(1) and install(1) as we need to handle
+# theme here differently.
+_INSTALL_UNSTRIPPED=	# defined
+
+.PHONY: post-install-strip-debugdata
+post-install: post-install-strip-debugdata
+post-install-strip-debugdata:
+	${DO_NADA}	# TODO: only ATM!
+
+.  endif # PKG_DEBUG_DATA
 
 .endif	# BSD_DEBUGDATA_MK
