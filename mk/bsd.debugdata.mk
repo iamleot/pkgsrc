@@ -45,17 +45,28 @@ BSD_DEBUGDATA_MK=	# defined
 #
 # WIP
 #
-.  if !empty(PKG_DEBUGDATA:M[yY][eE][sS])
+.if !empty(PKG_DEBUGDATA:M[yY][eE][sS])
 
 # Avoid to pass options to strip to cc(1) and install(1) as we need to handle
 # theme here differently.
 _INSTALL_UNSTRIPPED=	# defined
 
+.if !empty(DEBUGDATA_FILES)
 .PHONY: post-install-strip-debugdata
 post-install: post-install-strip-debugdata
 post-install-strip-debugdata:
-	${DO_NADA}	# TODO: only ATM!
+	@${STEP_MSG} "Stripping debug symbols"
+	${RUN}									\
+	for f in ${DEBUGDATA_FILES}; do						\
+		( ${TOOLS_PLATFORM.objcopy} --only-keep-debug			\
+			${DESTDIR}${PREFIX}/$$f ${DESTDIR}${PREFIX}/$${f}.debug	\
+		&& ${TOOLS_PLATFORM.objcopy} --strip-debug -p -R .gnu_debuglink	\
+			--add-gnu-debuglink=${DESTDIR}${PREFIX}/$${f}.debug	\
+			${DESTDIR}${PREFIX}/$$f					\
+		) || (rm -f ${DESTDIR}${PREFIX}/$${f}.debug; false)		\
+	done
+.endif	# DEBUGDATA_FILES
 
-.  endif # PKG_DEBUG_DATA
+.endif	# PKG_DEBUG_DATA
 
 .endif	# BSD_DEBUGDATA_MK
