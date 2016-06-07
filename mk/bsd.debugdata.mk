@@ -52,7 +52,7 @@ BSD_DEBUGDATA_MK=	# defined
 _INSTALL_UNSTRIPPED=	# defined
 
 # PLIST containing all stripped debugging symbols
-_PLIST_DEBUGDATA=	${WRKDIR}/PLIST-debugdata
+_PLIST_DEBUGDATA=	${WRKDIR}/.PLIST-debugdata
 
 .if !empty(DEBUGDATA_FILES)
 
