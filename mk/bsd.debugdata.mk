@@ -51,6 +51,9 @@ BSD_DEBUGDATA_MK=	# defined
 # theme here differently.
 _INSTALL_UNSTRIPPED=	# defined
 
+# PLIST containing all stripped debugging symbols
+_PLIST_DEBUGDATA=	${WRKDIR}/PLIST-debugdata
+
 .if !empty(DEBUGDATA_FILES)
 
 # Pass debug flags to the compiler
@@ -58,10 +61,7 @@ _INSTALL_UNSTRIPPED=	# defined
 _WRAP_EXTRA_ARGS.CC+=	-g
 CWRAPPERS_APPEND.cc+=	-g
 
-.for _f_ in ${DEBUGDATA_FILES}
-GENERATE_PLIST+=	${ECHO} "${_f_}.debug";
-PRINT_PLIST_AWK+=	/^${_f_:S|/|\\/|g}/ { next; }
-.endfor
+PLIST_SRC_DFLT+=	${_PLIST_DEBUGDATA}
 
 .PHONY: generate-strip-debugdata
 post-install: generate-strip-debugdata
@@ -74,6 +74,8 @@ generate-strip-debugdata:
 		&& ${TOOLS_PLATFORM.objcopy} --strip-debug -p -R .gnu_debuglink	\
 			--add-gnu-debuglink=${DESTDIR}${PREFIX}/$${f}.debug	\
 			${DESTDIR}${PREFIX}/$$f					\
+		&& ${ECHO} "$${f}.debug"					\
+			>> ${_PLIST_DEBUGDATA}					\
 		) || (rm -f ${DESTDIR}${PREFIX}/$${f}.debug; false)		\
 	done
 
