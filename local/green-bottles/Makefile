@@ -20,12 +20,6 @@ INSTALLATION_DIRS=	bin
 
 DEBUGDATA_FILES+=	bin/green-bottles
 
-# XXX: Kludge for the PLIST (this is temporary and should be killed ASAP!)
-PLIST_VARS+=	debug
-.if !empty(PKG_DEBUGDATA:M[yY][eE][sS])
-PLIST.debug=	yes
-.endif
-
 do-extract:
 	${CP} -r ${FILESDIR}/green-bottles ${WRKDIR}
 

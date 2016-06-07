@@ -1,3 +1,2 @@
 @comment $NetBSD$
 bin/green-bottles
-${PLIST.debug}bin/green-bottles.debug
