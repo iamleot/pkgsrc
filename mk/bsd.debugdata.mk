@@ -58,6 +58,11 @@ _INSTALL_UNSTRIPPED=	# defined
 _WRAP_EXTRA_ARGS.CC+=	-g
 CWRAPPERS_APPEND.cc+=	-g
 
+.for _f_ in ${DEBUGDATA_FILES}
+GENERATE_PLIST+=	${ECHO} "${_f_}.debug";
+PRINT_PLIST_AWK+=	/^${_f_:S|/|\\/|g}/ { next; }
+.endfor
+
 .PHONY: generate-strip-debugdata
 post-install: generate-strip-debugdata
 generate-strip-debugdata:
@@ -71,6 +76,7 @@ generate-strip-debugdata:
 			${DESTDIR}${PREFIX}/$$f					\
 		) || (rm -f ${DESTDIR}${PREFIX}/$${f}.debug; false)		\
 	done
+
 .endif	# DEBUGDATA_FILES
 
 .endif	# PKG_DEBUG_DATA
