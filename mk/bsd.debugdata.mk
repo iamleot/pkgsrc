@@ -58,9 +58,9 @@ _INSTALL_UNSTRIPPED=	# defined
 _WRAP_EXTRA_ARGS.CC+=	-g
 CWRAPPERS_APPEND.cc+=	-g
 
-.PHONY: post-install-strip-debugdata
-post-install: post-install-strip-debugdata
-post-install-strip-debugdata:
+.PHONY: generate-strip-debugdata
+post-install: generate-strip-debugdata
+generate-strip-debugdata:
 	@${STEP_MSG} "Stripping debug symbols"
 	${RUN}									\
 	for f in ${DEBUGDATA_FILES}; do						\
