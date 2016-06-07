@@ -58,8 +58,6 @@ _INSTALL_UNSTRIPPED=	# defined
 _WRAP_EXTRA_ARGS.CC+=	-g
 CWRAPPERS_APPEND.cc+=	-g
 
-_INSTALL_ALL_TARGETS+=	post-install-strip-debugdata
-
 .PHONY: post-install-strip-debugdata
 post-install: post-install-strip-debugdata
 post-install-strip-debugdata:
