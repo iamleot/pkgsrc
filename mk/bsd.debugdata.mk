@@ -41,25 +41,32 @@ _INSTALL_UNSTRIPPED=	# defined
 # PLIST containing all stripped debugging symbols
 _PLIST_DEBUGDATA=	${WRKDIR}/.PLIST-debugdata
 
+PKG_DEBUGLEVEL?=	default
+
+.if ${PKG_DEBUGLEVEL} != "small" && ${PKG_DEBUGLEVEL} != "default" && \
+   ${PKG_DEBUGLEVEL} != "detailed"
+PKG_FAIL_REASON+=	"[bsd.debugdata.mk] ${PKG_DEBUGLEVEL} is not a valid PKG_DEBUGLEVEL."
+.endif
+
 .if !empty(DEBUGDATA_FILES)
 
 # Pass debug flags and debug level to the compiler
 .if !empty(PKGSRC_COMPILER:Mclang)
-.  if !empty(PKG_DEBUGLEVEL:Msmall) || !empty(PKG_DEBUGLEVEL:Mdefault)
+.  if ${PKG_DEBUGLEVEL} == "small" || ${PKG_DEBUGLEVEL} == "default"
 _WRAP_EXTRA_ARGS.CC+=	-g
 CWRAPPERS_APPEND.cc+=	-g
-.  elif !empty(PKG_DEBUGLEVEL:Mdetailed)
+.  elif ${PKG_DEBUGLEVEL} == "detailed"
 _WRAP_EXTRA_ARGS.CC+=	-g3
 CWRAPPERS_APPEND.cc+=	-g3
 .  endif
 .elif !empty(PKGSRC_COMPILER:Mgcc)
-.  if !empty(PKG_DEBUGLEVEL:Msmall)
+.  if ${PKG_DEBUGLEVEL} == "small"
 _WRAP_EXTRA_ARGS.CC+=	-g1
 CWRAPPERS_APPEND.cc+=	-g1
-.  elif !empty(PKG_DEBUGLEVEL:Mdefault)
+.  elif ${PKG_DEBUGLEVEL} == "default"
 _WRAP_EXTRA_ARGS.CC+=	-g
 CWRAPPERS_APPEND.cc+=	-g
-.  elif !empty(PKG_DEBUGLEVEL:Mdetailed)
+.  elif ${PKG_DEBUGLEVEL} == "detailed"
 _WRAP_EXTRA_ARGS.CC+=	-g3
 CWRAPPERS_APPEND.cc+=	-g3
 .  endif
