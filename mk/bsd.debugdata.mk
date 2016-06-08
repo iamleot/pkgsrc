@@ -43,10 +43,25 @@ _PLIST_DEBUGDATA=	${WRKDIR}/.PLIST-debugdata
 
 .if !empty(DEBUGDATA_FILES)
 
-# Pass debug flags to the compiler
-# TODO: honor PKG_DEBUGLEVEL!
+# Pass debug flags and debug level to the compiler
+.if !empty(PKGSRC_COMPILER:Mclang)
 _WRAP_EXTRA_ARGS.CC+=	-g
 CWRAPPERS_APPEND.cc+=	-g
+.elif !empty(PKGSRC_COMPILER:Mgcc)
+.  if !empty(PKG_DEBUGLEVEL:Msmall)
+_WRAP_EXTRA_ARGS.CC+=	-g1
+CWRAPPERS_APPEND.cc+=	-g1
+.  elif !empty(PKG_DEBUGLEVEL:Mdetailed)
+_WRAP_EXTRA_ARGS.CC+=	-g3
+CWRAPPERS_APPEND.cc+=	-g3
+.  else
+_WRAP_EXTRA_ARGS.CC+=	-g
+CWRAPPERS_APPEND.cc+=	-g
+.  endif
+.else
+_WRAP_EXTRA_ARGS.CC+=	-g
+CWRAPPERS_APPEND.cc+=	-g
+.endif
 
 PLIST_SRC_DFLT+=	${_PLIST_DEBUGDATA}
 
