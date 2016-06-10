@@ -91,6 +91,11 @@ TOOLS_PLATFORM.objcopy?=	/usr/bin/objcopy
 .else
 TOOLS_PLATFORM.objcopy?=	${TOOLDIR}/bin/${MACHINE_GNU_PLATFORM}-objcopy
 .endif
+.if empty(USE_CROSS_COMPILE:M[yY][eE][sS])
+TOOLS_PLATFORM.objdump?=	/usr/bin/objdump
+.else
+TOOLS_PLATFORM.objdump?=	${TOOLDIR}/bin/${MACHINE_GNU_PLATFORM}-objdump
+.endif
 TOOLS_PLATFORM.openssl?=	/usr/bin/openssl
 TOOLS_PLATFORM.patch?=		/usr/bin/patch
 TOOLS_PLATFORM.pax?=		/bin/pax
