@@ -25,6 +25,7 @@
 #    check-interpreter, check-shlibs, check-vulnerable, check-wrkref
 #
 
+.include "check-debugdata.mk"
 .include "check-files.mk"
 .include "check-headers.mk"
 .include "check-interpreter.mk"
