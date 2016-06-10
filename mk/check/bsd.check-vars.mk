@@ -5,6 +5,7 @@
 # bsd.check.mk is included.
 #
 
+CHECK_DEBUGDATA_SUPPORTED?=	yes
 CHECK_FILES_SUPPORTED?=		yes
 CHECK_SHLIBS_SUPPORTED?=	yes
 
