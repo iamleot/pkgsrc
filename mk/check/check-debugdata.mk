@@ -80,15 +80,19 @@ _check-debugdata: error-check .PHONY
 			   "[check-debugdata.mk] File \"$${dpfile}.debug\" does not exists."; \
 			continue;					\
 		fi;							\
-		${TOOLS_PLATFORM.objdump} -hw -j '.gnu_debuglink' "$$dpfile" \
-		    1>/dev/null 2>/dev/null;				\
+		odoutput=`LC_ALL=C ${TOOLS_PLATFORM.objdump} -hw	\
+		    -j '.gnu_debuglink' "$$dpfile" 2>&1`;		\
 		exitcode=$$?;						\
-		if [ $$exitcode -ne 0 ]; then				\
+		case $$odoutput in					\
+		*File\ format\ not\ recognized*) : ${INFO_MSG} "[check-debugdata.mk] " \
+		    "File format of $${dpfile} not recognized (ok).";;	\
+		*) if [ $$exitcode -ne 0 ]; then			\
 			${DELAYED_ERROR_MSG}				\
 			   "[check-debugdata.mk] File \"$$dpfile\" does not have " \
 			   ".gnu_debuglink section.";			\
 			continue;					\
 		fi;							\
+		esac;							\
 	done
 
 .else
