@@ -77,6 +77,9 @@ CWRAPPERS_APPEND.cc+=	-g
 
 PLIST_SRC_DFLT+=	${_PLIST_DEBUGDATA}
 
+# TODO: add a target that parses every OBJ_FMT files and fill _PLIST_DEBUGDATA.
+# TODO: In this way we can get rid of DEBUGDATA_FILES.
+
 .PHONY: generate-strip-debugdata
 post-install: generate-strip-debugdata
 generate-strip-debugdata:
