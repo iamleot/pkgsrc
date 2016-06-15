@@ -51,12 +51,6 @@ privileged-install-hook: _check-debugdata
 
 USE_TOOLS+=		objdump
 
-#
-# TODO: correctly handle non-${OBJ_FMT} files!
-# TODO: Probably we will need to parse objdump `File format not recognized'
-# TODO: output (unfortunately the errorcode is the same for non-existing
-# TODO: section).
-#
 _check-debugdata: error-check .PHONY
 	@${STEP_MSG} "Checking for missing debug data in ${PKGNAME}"
 	${RUN} rm -f ${ERROR_DIR}/${.TARGET}
