@@ -38,9 +38,9 @@ CHECK_DEBUGDATA_SUPPORTED?=	yes
 CHECK_DEBUGDATA_SKIP?=		# none
 
 # All binaries and shared libraries.
-_CHECK_DEBUGDATA_ERE=	(bin/|sbin/|libexec/|\.(dylib|sl|so)$$|lib/lib.*\.(dylib|sl|so))
+_CHECK_DEBUGGABLEDATA_ERE=	(bin/|sbin/|libexec/|\.(dylib|sl|so)$$|lib/lib.*\.(dylib|sl|so))
 
-_CHECK_DEBUGDATA_FILELIST_CMD?=	${SED} -e '/^@/d' -e '/\.debug$$/d' ${PLIST} |	\
+_CHECK_DEBUGGABLEDATA_FILELIST_CMD?=	${SED} -e '/^@/d' -e '/\.debug$$/d' ${PLIST} |	\
 	(while read file; do							\
 		${TEST} -h "$$file" || ${ECHO} "$$file";			\
 	done)
@@ -56,8 +56,8 @@ _check-debugdata: error-check .PHONY
 	${RUN} rm -f ${ERROR_DIR}/${.TARGET}
 	${RUN}								\
 	cd ${DESTDIR:Q}${PREFIX:Q};					\
-	${_CHECK_DEBUGDATA_FILELIST_CMD} |				\
-	${EGREP} -h ${_CHECK_DEBUGDATA_ERE:Q} |				\
+	${_CHECK_DEBUGGABLEDATA_FILELIST_CMD} |				\
+	${EGREP} -h ${_CHECK_DEBUGGABLEDATA_ERE:Q} |			\
 	while read file; do						\
 		case "$$file" in					\
 		${CHECK_DEBUGDATA_SKIP:@p@${p}) continue ;;@}		\
