@@ -69,10 +69,20 @@ _check-debugdata: error-check .PHONY
 			    "[check-debugdata.mk] File \"$$dpfile\" cannot be read."; \
 			continue;					\
 		fi;							\
-		if [ ! -f "$${dpfile}.debug" ]; then			\
+		if [ -r "$${dpfile}.debug" ]; then			\
+			${TOOLS_PLATFORM.objdump} -hw -j '.debug_info'	\
+			    "$${dpfile}.debug" 2>&1 >/dev/null;		\
+			exitcode=$$?;					\
+			if [ $$exitcode -ne 0 ]; then			\
+				${DELAYED_WARNING_MSG}			\
+				    "[check-debugdata.mk] File "	\
+				    "\"$${dpfile}.debug\" does not "	\
+				    "contain .debug_info section.";	\
+			fi;						\
+		else							\
 			${DELAYED_ERROR_MSG}				\
-			   "[check-debugdata.mk] File \"$${dpfile}.debug\" does not exists."; \
-			continue;					\
+			   "[check-debugdata.mk] File "			\
+			   "\"$${dpfile}.debug\" cannot be read.";	\
 		fi;							\
 		odoutput=`LC_ALL=C ${TOOLS_PLATFORM.objdump} -hw	\
 		    -j '.gnu_debuglink' "$$dpfile" 2>&1`;		\
