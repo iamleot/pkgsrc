@@ -13,6 +13,8 @@
 # PKG_DEBUGLEVEL
 #	Used to control the granularity of the debug information. Can be
 #	"small", "default", "detailed".
+#	TODO: the name of this variable should be changed because it can be
+#	TODO: easily confused with PKG_DEBUG_LEVEL!
 #
 # Package-settable variables:
 #
