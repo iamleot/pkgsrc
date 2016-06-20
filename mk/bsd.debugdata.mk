@@ -16,12 +16,6 @@
 #	TODO: the name of this variable should be changed because it can be
 #	TODO: easily confused with PKG_DEBUG_LEVEL!
 #
-# Package-settable variables:
-#
-# DEBUGDATA_FILES
-#	A list of programs and shared libraries for which the debug symbols
-#	should be stripped off
-#
 # See also:
 #	INSTALL_UNSTRIPPED	
 #
@@ -60,8 +54,6 @@ _FIND_DEBUGGABLEDATA_FILELIST_CMD?=					\
 		${TEST} -h "$$file" || ${ECHO} "$$file";		\
 	done)
 
-#.if !empty(DEBUGDATA_FILES)
-
 # Pass debug flags and debug level to the compiler
 .if !empty(PKGSRC_COMPILER:Mclang)
 .  if ${PKG_DEBUGLEVEL} == "small" || ${PKG_DEBUGLEVEL} == "default"
@@ -89,9 +81,6 @@ CWRAPPERS_APPEND.cc+=	-g
 
 PLIST_SRC_DFLT+=	${_PLIST_DEBUGDATA}
 
-# TODO: add a target that parses every OBJ_FMT files and fill _PLIST_DEBUGDATA.
-# TODO: In this way we can get rid of DEBUGDATA_FILES.
-
 .PHONY: generate-strip-debugdata
 post-install: generate-strip-debugdata
 generate-strip-debugdata:
@@ -111,8 +100,6 @@ generate-strip-debugdata:
 			>> ${_PLIST_DEBUGDATA}					\
 		) || (rm -f ${DESTDIR}${PREFIX}/$${f}.debug; false)		\
 	done
-
-#.endif	# DEBUGDATA_FILES
 
 .endif	# PKG_DEBUG_DATA
 
