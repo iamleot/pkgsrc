@@ -50,7 +50,17 @@ PKG_DEBUGLEVEL?=	default
 PKG_FAIL_REASON+=	"[bsd.debugdata.mk] ${PKG_DEBUGLEVEL} is not a valid PKG_DEBUGLEVEL."
 .endif
 
-.if !empty(DEBUGDATA_FILES)
+# All binaries and shared libraries.
+_FIND_DEBUGGABLEDATA_ERE=	(bin/|sbin/|libexec/|\.(dylib|sl|so)$$|lib/lib.*\.(dylib|sl|so))
+
+_FIND_DEBUGGABLEDATA_FILELIST_CMD?=					\
+	${FIND} ${DESTDIR}${PREFIX} \! -type d -print | ${SORT} |	\
+	${SED} -e "s|^${DESTDIR}${PREFIX}/||" |				\
+	(while read file; do						\
+		${TEST} -h "$$file" || ${ECHO} "$$file";		\
+	done)
+
+#.if !empty(DEBUGDATA_FILES)
 
 # Pass debug flags and debug level to the compiler
 .if !empty(PKGSRC_COMPILER:Mclang)
@@ -86,8 +96,12 @@ PLIST_SRC_DFLT+=	${_PLIST_DEBUGDATA}
 post-install: generate-strip-debugdata
 generate-strip-debugdata:
 	@${STEP_MSG} "Stripping debug symbols"
-	${RUN}									\
-	for f in ${DEBUGDATA_FILES}; do						\
+	${RUN}								\
+	cd ${DESTDIR:Q}${PREFIX:Q};					\
+	${_FIND_DEBUGGABLEDATA_FILELIST_CMD} |				\
+	${EGREP} -h ${_FIND_DEBUGGABLEDATA_ERE:Q} |			\
+	while read f; do						\
+		${TOOLS_PLATFORM.objdump} -f $${f} >/dev/null 2>&1 || continue;	\
 		( ${TOOLS_PLATFORM.objcopy} --only-keep-debug			\
 			${DESTDIR}${PREFIX}/$$f ${DESTDIR}${PREFIX}/$${f}.debug	\
 		&& ${TOOLS_PLATFORM.objcopy} --strip-debug -p -R .gnu_debuglink	\
@@ -98,7 +112,7 @@ generate-strip-debugdata:
 		) || (rm -f ${DESTDIR}${PREFIX}/$${f}.debug; false)		\
 	done
 
-.endif	# DEBUGDATA_FILES
+#.endif	# DEBUGDATA_FILES
 
 .endif	# PKG_DEBUG_DATA
 
