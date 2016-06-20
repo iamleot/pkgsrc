@@ -18,8 +18,6 @@ USE_BSD_MAKEFILE=	yes
 
 INSTALLATION_DIRS=	bin
 
-DEBUGDATA_FILES+=	bin/green-bottles
-
 do-extract:
 	${CP} -r ${FILESDIR}/green-bottles ${WRKDIR}
 
