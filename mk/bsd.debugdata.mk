@@ -101,6 +101,12 @@ generate-strip-debugdata:
 		) || (rm -f ${DESTDIR}${PREFIX}/$${f}.debug; false)		\
 	done
 
+# TODO: Modify generate-strip-debugdata in order to generate the `.debug' files
+# TODO: in an directory, not directly in ${DESTDIR}${PREFIX}.
+# TODO: Write a install-strip-debugdata that INSTALL the `.debug' files in the
+# TODO: ${DESTDIR}${PREFIX} with the proper permissions. In this way we will
+# TODO: have some kind of "control" over that.
+
 .endif	# PKG_DEBUG_DATA
 
 .endif	# BSD_DEBUGDATA_MK
