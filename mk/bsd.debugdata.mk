@@ -37,6 +37,9 @@ _INSTALL_UNSTRIPPED=	# defined
 # PLIST containing all stripped debugging symbols
 _PLIST_DEBUGDATA=	${WRKDIR}/.PLIST-debugdata
 
+# Temporary directory where all the `.debug' files are stored
+_DEBUGDATA_WRKDIR=	${WRKDIR}/.debugdata
+
 PKG_DEBUGLEVEL?=	default
 
 .if ${PKG_DEBUGLEVEL} != "small" && ${PKG_DEBUGLEVEL} != "default" && \
@@ -90,22 +93,31 @@ generate-strip-debugdata:
 	${_FIND_DEBUGGABLEDATA_FILELIST_CMD} |				\
 	${EGREP} -h ${_FIND_DEBUGGABLEDATA_ERE:Q} |			\
 	while read f; do						\
+		d=$${f%/*};						\
+		if [ ! -d ${_DEBUGDATA_WRKDIR}/$${d} ]; then		\
+			${MKDIR} -p ${_DEBUGDATA_WRKDIR}/$${d};		\
+		fi;							\
 		${TOOLS_PLATFORM.objdump} -f $${f} >/dev/null 2>&1 || continue;	\
 		( ${TOOLS_PLATFORM.objcopy} --only-keep-debug			\
-			${DESTDIR}${PREFIX}/$$f ${DESTDIR}${PREFIX}/$${f}.debug	\
+			${DESTDIR}${PREFIX}/$$f ${_DEBUGDATA_WRKDIR}/$${f}.debug	\
 		&& ${TOOLS_PLATFORM.objcopy} --strip-debug -p -R .gnu_debuglink	\
-			--add-gnu-debuglink=${DESTDIR}${PREFIX}/$${f}.debug	\
+			--add-gnu-debuglink=${_DEBUGDATA_WRKDIR}/$${f}.debug	\
 			${DESTDIR}${PREFIX}/$$f					\
 		&& ${ECHO} "$${f}.debug"					\
 			>> ${_PLIST_DEBUGDATA}					\
-		) || (rm -f ${DESTDIR}${PREFIX}/$${f}.debug; false)		\
+		) || (rm -f ${_DEBUGDATA_WRKDIR}/$${f}.debug; false)		\
 	done
 
-# TODO: Modify generate-strip-debugdata in order to generate the `.debug' files
-# TODO: in an directory, not directly in ${DESTDIR}${PREFIX}.
-# TODO: Write a install-strip-debugdata that INSTALL the `.debug' files in the
-# TODO: ${DESTDIR}${PREFIX} with the proper permissions. In this way we will
-# TODO: have some kind of "control" over that.
+.PHONY: install-strip-debugdata
+post-install: install-strip-debugdata
+install-strip-debugdata: generate-strip-debugdata
+	@${STEP_MSG} "Installing debug data"
+	${RUN}								\
+	cat ${_PLIST_DEBUGDATA} |					\
+	while read f; do						\
+		${INSTALL_DATA} ${_DEBUGDATA_WRKDIR}/$${f}		\
+		    ${DESTDIR}${PREFIX}/$${f};				\
+	done
 
 .endif	# PKG_DEBUG_DATA
 
