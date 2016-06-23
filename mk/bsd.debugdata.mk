@@ -85,7 +85,6 @@ CWRAPPERS_APPEND.cc+=	-g
 PLIST_SRC_DFLT+=	${_PLIST_DEBUGDATA}
 
 .PHONY: generate-strip-debugdata
-post-install: generate-strip-debugdata
 generate-strip-debugdata:
 	@${STEP_MSG} "Stripping debug symbols"
 	${RUN}								\
