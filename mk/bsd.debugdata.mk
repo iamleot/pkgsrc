@@ -92,11 +92,11 @@ generate-strip-debugdata:
 	${_FIND_DEBUGGABLEDATA_FILELIST_CMD} |				\
 	${EGREP} -h ${_FIND_DEBUGGABLEDATA_ERE:Q} |			\
 	while read f; do						\
+		${TOOLS_PLATFORM.objdump} -f $${f} >/dev/null 2>&1 || continue;	\
 		d=$${f%/*};						\
 		if [ ! -d ${_DEBUGDATA_WRKDIR}/$${d} ]; then		\
 			${MKDIR} -p ${_DEBUGDATA_WRKDIR}/$${d};		\
 		fi;							\
-		${TOOLS_PLATFORM.objdump} -f $${f} >/dev/null 2>&1 || continue;	\
 		( ${TOOLS_PLATFORM.objcopy} --only-keep-debug			\
 			${DESTDIR}${PREFIX}/$$f ${_DEBUGDATA_WRKDIR}/$${f}.debug	\
 		&& ${TOOLS_PLATFORM.objcopy} --strip-debug -p -R .gnu_debuglink	\
