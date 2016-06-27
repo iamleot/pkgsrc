@@ -61,7 +61,7 @@ ${_BUILD_INFO_FILE}: ${_PLIST_NOKEYWORDS}
 	"")	ldd=`${TYPE} ldd 2>/dev/null | ${AWK} '{ print $$NF }'` ;; \
 	*)	ldd=${LDD:Q} ;;						\
 	esac;								\
-	bins=`${AWK} '/(^|\/)(bin|sbin|libexec)\// { print "${DESTDIR}${PREFIX}/" $$0 } END { exit 0 }' ${_PLIST_NOKEYWORDS}`; \
+	bins=`${AWK} '/(^|\/)(bin|sbin|libexec)\// && !/.debug$$/ { print "${DESTDIR}${PREFIX}/" $$0 } END { exit 0 }' ${_PLIST_NOKEYWORDS}`; \
 	case ${OBJECT_FMT:Q}"" in					\
 	ELF)								\
 		libs=`${AWK} '/\/lib.*\.so(\.[0-9]+)*$$/ { print "${DESTDIR}${PREFIX}/" $$0 } END { exit 0 }' ${_PLIST_NOKEYWORDS}`; \
