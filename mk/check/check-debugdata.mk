@@ -69,10 +69,26 @@ _check-debugdata: error-check .PHONY
 			    "[check-debugdata.mk] File \"$$dpfile\" cannot be read."; \
 			continue;					\
 		fi;							\
+		{ odoutput=`LC_ALL=C ${TOOLS_PLATFORM.objdump} -hw	\
+		    -j '.gnu_debuglink' "$$dpfile" 2>&1`; exitcode=$$?; }	\
+		    || true;							\
+		case $$odoutput in					\
+		*File\ format\ not\ recognized*) : ${INFO_MSG} "[check-debugdata.mk] " \
+		    "File format of $${dpfile} not recognized (ok).";	\
+		    continue;						\
+		    ;;							\
+		*) if [ $$exitcode -ne 0 ]; then			\
+			${DELAYED_ERROR_MSG}				\
+			   "[check-debugdata.mk] File \"$$dpfile\" does not have " \
+			   ".gnu_debuglink section.";			\
+			continue;					\
+		fi;							\
+		;;							\
+		esac;							\
 		if [ -r "$${dpfile}.debug" ]; then			\
-			${TOOLS_PLATFORM.objdump} -hw -j '.debug_info'	\
-			    "$${dpfile}.debug" 2>&1 >/dev/null;		\
-			exitcode=$$?;					\
+			{ ${TOOLS_PLATFORM.objdump} -hw -j '.debug_info'	\
+			    "$${dpfile}.debug" 2>&1 >/dev/null; exitcode=$$?; }	\
+			    || true;						\
 			if [ $$exitcode -ne 0 ]; then			\
 				${DELAYED_WARNING_MSG}			\
 				    "[check-debugdata.mk] File "	\
@@ -84,19 +100,6 @@ _check-debugdata: error-check .PHONY
 			   "[check-debugdata.mk] File "			\
 			   "\"$${dpfile}.debug\" cannot be read.";	\
 		fi;							\
-		odoutput=`LC_ALL=C ${TOOLS_PLATFORM.objdump} -hw	\
-		    -j '.gnu_debuglink' "$$dpfile" 2>&1`;		\
-		exitcode=$$?;						\
-		case $$odoutput in					\
-		*File\ format\ not\ recognized*) : ${INFO_MSG} "[check-debugdata.mk] " \
-		    "File format of $${dpfile} not recognized (ok).";;	\
-		*) if [ $$exitcode -ne 0 ]; then			\
-			${DELAYED_ERROR_MSG}				\
-			   "[check-debugdata.mk] File \"$$dpfile\" does not have " \
-			   ".gnu_debuglink section.";			\
-			continue;					\
-		fi;							\
-		esac;							\
 	done
 
 .else
