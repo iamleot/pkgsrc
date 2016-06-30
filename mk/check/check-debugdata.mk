@@ -87,7 +87,7 @@ _check-debugdata: error-check .PHONY
 		esac;							\
 		if [ -r "$${dpfile}.debug" ]; then			\
 			{ ${TOOLS_PLATFORM.objdump} -hw -j '.debug_info'	\
-			    "$${dpfile}.debug" 2>&1 >/dev/null; exitcode=$$?; }	\
+			    "$${dpfile}.debug" >/dev/null 2>&1; exitcode=$$?; }	\
 			    || true;						\
 			if [ $$exitcode -ne 0 ]; then			\
 				${DELAYED_WARNING_MSG}			\
