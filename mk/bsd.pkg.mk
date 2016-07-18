@@ -835,17 +835,3 @@ ${_MAKEVARS_MK.${_phase_}}: ${WRKDIR}
 .include "misc/import.mk"
 .endif
 .include "misc/can-be-built-here.mk"
-
-#
-# Verbosely print all pkgsrc targets
-#
-# XXX: avoid to inject ${WRKOBJDIR}* targets because they can conflicts with
-# XXX: existent ones.
-#
-.if defined(PKG_VERBOSE_PHASES)
-.for t in ${.ALLTARGETS:N${WRKOBJDIR}*}
-${t}:	_${t}_verbose
-_${t}_verbose:
-	@${STEP_MSG} "Running ${t}"
-.endfor
-.endif
