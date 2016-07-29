@@ -292,8 +292,6 @@ GENERATE_PLIST?=	${TRUE};
 
 _BUILD_DEFS+=		_PLIST_IGNORE_FILES
 
-# TODOleot: continue here!
-
 .if ${PLIST_TYPE} == "dynamic"
 _PLIST_IGNORE_CMD=							\
 	( while read i; do						\
@@ -315,8 +313,16 @@ _GENERATE_PLIST=							\
 		${SED} -e "s|^${DESTDIR}${PREFIX}/|@unexec ${RMDIR} -p %D/|"	\
 		       -e "s,$$, 2>/dev/null || ${TRUE},";
 .else
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_GENERATE_PLIST.${_spkg_}=	${CAT} /dev/null ${PLIST_SRC.${_spkg_}}; ${GENERATE_PLIST.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 _GENERATE_PLIST=	${CAT} /dev/null ${PLIST_SRC}; ${GENERATE_PLIST}
+.endif	# SUBPACKAGES
 .endif
+
+# TODOleot: continue here!
 
 .PHONY: plist
 plist: ${PLIST} ${_PLIST_NOKEYWORDS}
