@@ -54,27 +54,53 @@ PLIST_TYPE?=	static
 
 ######################################################################
 
-.if exists(${PKGDIR}/PLIST.common)
-PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.common
-.endif
-.if exists(${PKGDIR}/PLIST.${OPSYS})
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.    if exists(${PKGDIR}/PLIST.${_spkg_}.common)
+PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.common
+.    endif
+.    if exists(${PKGDIR}/PLIST.${_spkg_}.${OPSYS})
+PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.${OPSYS}
+.    endif
+.    if exists(${PKGDIR}/PLIST.${_spkg_}.${MACHINE_ARCH:C/i[3-6]86/i386/g})
+PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.${MACHINE_ARCH:C/i[3-6]86/i386/g}
+.    endif
+.    if exists(${PKGDIR}/PLIST.${_spkg_}.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g})
+PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g}
+.    endif
+.    if defined(EMUL_PLATFORM) && exists(${PKGDIR}/PLIST.${_spkg_}.${EMUL_PLATFORM})
+PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.${EMUL_PLATFORM}
+.    endif
+.    if exists(${PKGDIR}/PLIST.${_spkg_})
+PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}
+.    endif
+.    if exists(${PKGDIR}/PLIST.${_spkg_}.common_end)
+PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.common_end
+.    endif
+.  endfor
+.else	# !SUBPACKAGES
+.  if exists(${PKGDIR}/PLIST.common)
+PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.common
+.  endif
+.  if exists(${PKGDIR}/PLIST.${OPSYS})
 PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${OPSYS}
-.endif
-.if exists(${PKGDIR}/PLIST.${MACHINE_ARCH:C/i[3-6]86/i386/g})
+.  endif
+.  if exists(${PKGDIR}/PLIST.${MACHINE_ARCH:C/i[3-6]86/i386/g})
 PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${MACHINE_ARCH:C/i[3-6]86/i386/g}
-.endif
-.if exists(${PKGDIR}/PLIST.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g})
+.  endif
+.  if exists(${PKGDIR}/PLIST.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g})
 PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g}
-.endif
-.if defined(EMUL_PLATFORM) && exists(${PKGDIR}/PLIST.${EMUL_PLATFORM})
+.  endif
+.  if defined(EMUL_PLATFORM) && exists(${PKGDIR}/PLIST.${EMUL_PLATFORM})
 PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${EMUL_PLATFORM}
-.endif
-.if exists(${PKGDIR}/PLIST)
+.  endif
+.  if exists(${PKGDIR}/PLIST)
 PLIST_SRC_DFLT+=	${PKGDIR}/PLIST
-.endif
-.if exists(${PKGDIR}/PLIST.common_end)
+.  endif
+.  if exists(${PKGDIR}/PLIST.common_end)
 PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.common_end
-.endif
+.  endif
+.endif	# SUBPACKAGES
 
 #
 # If the following 3 conditions hold, then fail the package build:
@@ -83,17 +109,40 @@ PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.common_end
 #    (2) The package doesn't set GENERATE_PLIST.
 #    (3) There are no PLIST files.
 #
-.if !defined(PLIST_SRC) && !defined(GENERATE_PLIST)
-.  if !defined(PLIST_SRC_DFLT) || empty(PLIST_SRC_DFLT)
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.    if !defined(PLIST_SRC.${_spkg_}) && !defined(GENERATE_PLIST.${_spkg_})
+.      if !defined(PLIST_SRC_DFLT.${_spkg_}) || empty(PLIST_SRC_DFLT.${_spkg_})
+PKG_FAIL_REASON+=      "Missing PLIST.${_spkg_} file or PLIST.${_spkg_}/GENERATE_PLIST.${_spkg_} definition."
+.      endif
+.    endif
+.  endfor
+.else	# !SUBPACKAGES
+.  if !defined(PLIST_SRC) && !defined(GENERATE_PLIST)
+.    if !defined(PLIST_SRC_DFLT) || empty(PLIST_SRC_DFLT)
 PKG_FAIL_REASON+=      "Missing PLIST file or PLIST/GENERATE_PLIST definition."
+.    endif
 .  endif
-.endif
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PLIST_SRC.${_spkg_}?=		${PLIST_SRC_DFLT.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 PLIST_SRC?=		${PLIST_SRC_DFLT}
+.endif	# SUBPACKAGES
 
 # This is the path to the generated PLIST file.
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PLIST.${_spkg_}=		${WRKDIR}/.PLIST.${_spkg_}
+_PLIST_NOKEYWORDS.${_spkg_}=${PLIST}.${_spkg_}_nokeywords
+.  endfor
+.else	# !SUBPACKAGES
 PLIST=		${WRKDIR}/.PLIST
 _PLIST_NOKEYWORDS=${PLIST}_nokeywords
+.endif	# SUBPACKAGES
 
 ######################################################################
 
