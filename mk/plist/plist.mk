@@ -33,9 +33,13 @@
 #	PLIST
 #	PLIST.common_end
 #
+#	TODOleot: this is per-subpackage, document that!
+#
 #    GENERATE_PLIST is a sequence of commands, terminating in a semicolon,
 #	that outputs contents for a PLIST to stdout and is appended to
 #	the contents of ${PLIST_SRC}.
+#
+#	TODOleot: this is per-subpackage, document that!
 #
 #    IGNORE_INFO_DIRS is a list of ${PREFIX}-relative paths that do
 #	*not* contain info files.
@@ -103,13 +107,18 @@ PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.common_end
 .endif	# SUBPACKAGES
 
 #
-# If the following 3 conditions hold, then fail the package build:
+# If the following 4 conditions hold, then fail the package build:
 #
 #    (1) The package doesn't set PLIST_SRC.
 #    (2) The package doesn't set GENERATE_PLIST.
 #    (3) There are no PLIST files.
+#    (4) PLIST_TYPE dynamic set for SUBPACKAGES.
+#
 #
 .if !empty(SUBPACKAGES)
+.  if ${PLIST_TYPE} == "dynamic"
+PKG_FAIL_REASON+=      "PLIST_TYPE dynamic conflicts with SUBPACKAGES."
+.  endif
 .  for _spkg_ in ${SUBPACKAGES}
 .    if !defined(PLIST_SRC.${_spkg_}) && !defined(GENERATE_PLIST.${_spkg_})
 .      if !defined(PLIST_SRC_DFLT.${_spkg_}) || empty(PLIST_SRC_DFLT.${_spkg_})
@@ -266,13 +275,24 @@ _SHLIB_AWKFILE.none=	${.CURDIR}/../../mk/plist/shlib-none.awk
 #	that outputs contents for a PLIST to stdout and is appended to
 #	the contents of ${PLIST_SRC}.
 #
-.if empty(PLIST_SRC)
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.    if empty(PLIST_SRC.${_spkg_})
+GENERATE_PLIST.${_spkg_}?=	${ECHO} "@comment "${PKGNAME:Q}" has no files.";
+.    else
+GENERATE_PLIST.${_spkg_}?=	${TRUE};
+.    endif
+.else	# !SUBPACKAGES
+.  if empty(PLIST_SRC)
 GENERATE_PLIST?=	${ECHO} "@comment "${PKGNAME:Q}" has no files.";
-.else
+.  else
 GENERATE_PLIST?=	${TRUE};
-.endif
+.  endif
+.endif	# SUBPACKAGES
 
 _BUILD_DEFS+=		_PLIST_IGNORE_FILES
+
+# TODOleot: continue here!
 
 .if ${PLIST_TYPE} == "dynamic"
 _PLIST_IGNORE_CMD=							\
