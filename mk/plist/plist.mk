@@ -335,19 +335,50 @@ plist: ${PLIST.${_spkg_}} ${_PLIST_NOKEYWORDS.${_spkg_}}
 plist: ${PLIST} ${_PLIST_NOKEYWORDS}
 .endif	# SUBPACKAGES
 
-# TODOleot: continue here!
-
-.if (${PLIST_TYPE} == "static") && !empty(PLIST_SRC)
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${PLIST.${_spkg_}}: ${PLIST_SRC.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
+.  if (${PLIST_TYPE} == "static") && !empty(PLIST_SRC)
 ${PLIST}: ${PLIST_SRC}
-.endif
+.  endif
+.endif	# SUBPACKAGES
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${PLIST.${_spkg_}}:
+	${RUN} ${MKDIR} ${.TARGET:H}
+	${RUN} { ${_GENERATE_PLIST.${_spkg_}} } > ${.TARGET}-1src
+	${RUN} ${PKGSRC_SETENV} ${_PLIST_AWK_ENV} ${AWK} ${_PLIST_1_AWK} < ${.TARGET}-1src > ${.TARGET}-2mac
+	${RUN} ${PKGSRC_SETENV} ${_PLIST_AWK_ENV} ${AWK} ${_PLIST_AWK} < ${.TARGET}-2mac > ${.TARGET}-3mag
+	${RUN} ${PKGSRC_SETENV} ${_PLIST_AWK_ENV} ${AWK} ${_PLIST_SHLIB_AWK} < ${.TARGET}-3mag > ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 ${PLIST}:
 	${RUN} ${MKDIR} ${.TARGET:H}
 	${RUN} { ${_GENERATE_PLIST} } > ${.TARGET}-1src
 	${RUN} ${PKGSRC_SETENV} ${_PLIST_AWK_ENV} ${AWK} ${_PLIST_1_AWK} < ${.TARGET}-1src > ${.TARGET}-2mac
 	${RUN} ${PKGSRC_SETENV} ${_PLIST_AWK_ENV} ${AWK} ${_PLIST_AWK} < ${.TARGET}-2mac > ${.TARGET}-3mag
 	${RUN} ${PKGSRC_SETENV} ${_PLIST_AWK_ENV} ${AWK} ${_PLIST_SHLIB_AWK} < ${.TARGET}-3mag > ${.TARGET}
+.endif	# SUBPACKAGES
 
 # for list of keywords see pkg_create(1)
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_PLIST_NOKEYWORDS.${_spkg_}}: ${PLIST.${_spkg_}
+	${RUN} ${AWK} < ${PLIST.${_spkg_}} > ${.TARGET} '	\
+		BEGIN {							\
+			FILTER="@(";					\
+			FILTER=FILTER"cd|cwd|src|exec|unexec|mode|option";\
+			FILTER=FILTER"|owner|group|comment|ignore";	\
+			FILTER=FILTER"|ignore_inst|name|dirrm|mtree";	\
+			FILTER=FILTER"|display|pkgdep|blddep|pkgcfl";	\
+			FILTER=FILTER")[[:space:]]";			\
+		};							\
+		$$0 ~ FILTER { next };					\
+		{ print }'
+.  endfor
+.else	# !SUBPACKAGES
 ${_PLIST_NOKEYWORDS}: ${PLIST}
 	${RUN} ${AWK} < ${PLIST} > ${.TARGET} '	\
 		BEGIN {							\
@@ -360,6 +391,9 @@ ${_PLIST_NOKEYWORDS}: ${PLIST}
 		};							\
 		$$0 ~ FILTER { next };					\
 		{ print }'
+.endif	# SUBPACKAGES
+
+# TODOleot: continue here
 
 .if defined(INFO_FILES)
 INFO_FILES_cmd=								\
