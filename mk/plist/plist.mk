@@ -334,7 +334,6 @@ plist: ${PLIST.${_spkg_}} ${_PLIST_NOKEYWORDS.${_spkg_}}
 .else	# !SUBPACKAGES
 plist: ${PLIST} ${_PLIST_NOKEYWORDS}
 .endif	# SUBPACKAGES
-.endif
 
 # TODOleot: continue here!
 
