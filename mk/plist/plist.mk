@@ -322,10 +322,19 @@ _GENERATE_PLIST=	${CAT} /dev/null ${PLIST_SRC}; ${GENERATE_PLIST}
 .endif	# SUBPACKAGES
 .endif
 
-# TODOleot: continue here!
-
 .PHONY: plist
+plist:	# do nothing
+
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+plist: ${PLIST.${_spkg_}} ${_PLIST_NOKEYWORDS.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 plist: ${PLIST} ${_PLIST_NOKEYWORDS}
+.endif	# SUBPACKAGES
+.endif
+
+# TODOleot: continue here!
 
 .if (${PLIST_TYPE} == "static") && !empty(PLIST_SRC)
 ${PLIST}: ${PLIST_SRC}
