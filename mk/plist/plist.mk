@@ -393,8 +393,12 @@ ${_PLIST_NOKEYWORDS}: ${PLIST}
 		{ print }'
 .endif	# SUBPACKAGES
 
-# TODOleot: continue here
-
+#
+# TODOleot: This need to be modified for SUBPACKAGES!
+# TODOleot: Doing that does not seem trivial and also
+# TODOleot: pkginstall/bsd.pkginstall.mk need to be refactored regarding
+# TODOleot: this changes.
+#
 .if defined(INFO_FILES)
 INFO_FILES_cmd=								\
 	${CAT} ${PLIST} |						\
@@ -410,4 +414,10 @@ INFO_FILES_cmd=								\
 ###
 .PHONY: plist-clean
 plist-clean:
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} ${RM} -f ${PLIST.${_spkg_}} ${_PLIST_NOKEYWORDS.${_spkg_}} ${_DEPENDS_PLIST.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN} ${RM} -f ${PLIST} ${_PLIST_NOKEYWORDS} ${_DEPENDS_PLIST}
+.endif	# SUBPACKAGES
