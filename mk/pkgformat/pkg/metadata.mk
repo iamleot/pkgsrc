@@ -271,9 +271,33 @@ ${_PRESERVE_FILE}:
 ###
 ### This is the total size of the files contained in the package.
 ###
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_SIZE_PKG_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+SIZE_PKG
+_METADATA_TARGETS+=		${_SIZE_PKG_FILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 _SIZE_PKG_FILE=		${PKG_DB_TMPDIR}/+SIZE_PKG
 _METADATA_TARGETS+=	${_SIZE_PKG_FILE}
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_SIZE_PKG_FILE.${_spkg_}}: ${PLIST.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN} \
+	${CAT} ${PLIST.${_spkg_}} |					\
+	${AWK} 'BEGIN { base = "${PREFIX}/" }				\
+		/^@cwd/ { base = $$2 "/" }				\
+		/^@/ { next }						\
+		{ print base $$0 }' |					\
+	${SORT} -u |							\
+	${SED} -e "s,^/,${DESTDIR}/," -e "s/'/'\\\\''/g" -e "s/.*/'&'/" | \
+	${XARGS} -n 256 ${LS} -ld 2>/dev/null |				\
+	${AWK} 'BEGIN { s = 0 } { s += $$5 } END { print s }'		\
+		> ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 ${_SIZE_PKG_FILE}: ${PLIST}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN} \
@@ -287,6 +311,7 @@ ${_SIZE_PKG_FILE}: ${PLIST}
 	${XARGS} -n 256 ${LS} -ld 2>/dev/null |				\
 	${AWK} 'BEGIN { s = 0 } { s += $$5 } END { print s }'		\
 		> ${.TARGET}
+.endif	# SUBPACKAGES
 
 ######################################################################
 ###
@@ -295,9 +320,31 @@ ${_SIZE_PKG_FILE}: ${PLIST}
 ### This is the total size of the dependencies that this package was
 ### built against and the package itself.
 ###
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_SIZE_ALL_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+SIZE_ALL
+_METADATA_TARGETS+=		${_SIZE_ALL_FILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 _SIZE_ALL_FILE=		${PKG_DB_TMPDIR}/+SIZE_ALL
 _METADATA_TARGETS+=	${_SIZE_ALL_FILE}
+.endif	# SUBPACKAGES
 
+# TODOleot: SUBPACKAGES-ify _RDEPENDS_FILE!
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_SIZE_ALL_FILE.${_spkg_}}: ${_RDEPENDS_FILE} ${_SIZE_PKG_FILE.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	{								\
+		${CAT} ${_SIZE_PKG_FILE.${_spkg_}} &&			\
+		${_FULL_DEPENDS_CMD} | ${SORT} -u |			\
+		${XARGS} -n 256 ${PKG_INFO} -qs;			\
+	} |								\
+	${AWK} 'BEGIN { s = 0 } /^[0-9]+$$/ { s += $$1 } END { print s }' \
+		> ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 ${_SIZE_ALL_FILE}: ${_RDEPENDS_FILE} ${_SIZE_PKG_FILE}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}								\
@@ -308,6 +355,7 @@ ${_SIZE_ALL_FILE}: ${_RDEPENDS_FILE} ${_SIZE_PKG_FILE}
 	} |								\
 	${AWK} 'BEGIN { s = 0 } /^[0-9]+$$/ { s += $$1 } END { print s }' \
 		> ${.TARGET}
+.endif	# SUBPACKAGES
 
 ######################################################################
 ###
@@ -335,9 +383,29 @@ ${_SIZE_ALL_FILE}: ${_RDEPENDS_FILE} ${_SIZE_PKG_FILE}
 ### This file contains the list of files and checksums, along with
 ### any special "@" commands, e.g. @dirrm.
 ###
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_CONTENTS_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+CONTENTS
+_METADATA_TARGETS.${_spkg_}+=	${_CONTENTS_FILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 _CONTENTS_FILE=		${PKG_DB_TMPDIR}/+CONTENTS
 _METADATA_TARGETS+=	${_CONTENTS_FILE}
+.endif	# SUBPACKAGES
 
+# TODOleot: SUBPACKAGES-ify _RDEPENDS_FILE!
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_DEPENDS_PLIST.${_spkg_}=		${WRKDIR}/.PLIST_deps.${_spkg_}
+
+${_DEPENDS_PLIST.${_spkg_}}: ${PLIST.${_spkg_}}
+	${RUN} { \
+	${ECHO} "@name ${PKGNAME}"; \
+	${AWK} '$$1 == "full" { printf "@blddep %s\n@pkgdep %s\n", $$3, $$2; }' < ${_RDEPENDS_FILE}; \
+	${AWK} '$$1 == "bootstrap" || $$1 == "build" { printf "@blddep %s\n", $$3; }' < ${_RDEPENDS_FILE}; \
+	${CAT} ${PLIST.${_spkg_}}; } > ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 _DEPENDS_PLIST=		${WRKDIR}/.PLIST_deps
 
 ${_DEPENDS_PLIST}: ${PLIST}
@@ -346,6 +414,7 @@ ${_DEPENDS_PLIST}: ${PLIST}
 	${AWK} '$$1 == "full" { printf "@blddep %s\n@pkgdep %s\n", $$3, $$2; }' < ${_RDEPENDS_FILE}; \
 	${AWK} '$$1 == "bootstrap" || $$1 == "build" { printf "@blddep %s\n", $$3; }' < ${_RDEPENDS_FILE}; \
 	${CAT} ${PLIST}; } > ${.TARGET}
+.endif	# SUBPACKAGES
 
 _PKG_CREATE_ARGS+=				-l -U
 _PKG_CREATE_ARGS+=				-B ${_BUILD_INFO_FILE}
