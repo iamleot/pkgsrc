@@ -48,7 +48,7 @@ package-create: ${PKGFILE}
 .if !empty(SUBPACKAGES)
 stage-package-create:	stage-install
 .  for _spkg_ in ${SUBPACKAGES}
-stage-package-create:	stage-install ${STAGE_PKGFILE.${_spkg_}}
+stage-package-create:	${STAGE_PKGFILE.${_spkg_}}
 .  endfor
 .else	# !SUBPACKAGES
 stage-package-create:	stage-install ${STAGE_PKGFILE}
