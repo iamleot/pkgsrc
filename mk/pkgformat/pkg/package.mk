@@ -11,9 +11,17 @@ WARNINGS+=		"Unsupported value for PKG_SUFX"
 .  endif
 .endif
 PKG_SUFX?=		.tgz
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+FILEBASE.${_spkg_}?=		${PKGBASE.${_spkg_}}
+PKGFILE.${_spkg_}?=		${PKGREPOSITORY}/${FILEBASE.${_spkg_}}-${PKGVERSION}${PKG_SUFX}
+STAGE_PKGFILE.${_spkg_}?=	${WRKDIR}/.packages/${FILEBASE.${_spkg_}}-${PKGVERSION}${PKG_SUFX}
+.  endfor
+.else	# !SUBPACKAGES
 FILEBASE?=		${PKGBASE}
 PKGFILE?=		${PKGREPOSITORY}/${FILEBASE}-${PKGVERSION}${PKG_SUFX}
 STAGE_PKGFILE?=		${WRKDIR}/.packages/${FILEBASE}-${PKGVERSION}${PKG_SUFX}
+.endif	# SUBPACKAGES
 PKGREPOSITORY?=		${PACKAGES}/${PKGREPOSITORYSUBDIR}
 PKGREPOSITORYSUBDIR?=	All
 
