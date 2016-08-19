@@ -224,6 +224,26 @@ real-package-install: su-real-package-install
 real-package-install: su-target
 .endif
 
+# XXXleot: does PKGNAME_REQD need to be SUBPACKAGES-ified?
+.if !empty(SUBPACKAGES)
+MAKEFLAGS.su-real-package-install=	PKGNAME_REQD=${PKGNAME_REQD:Q}
+su-real-package-install:
+.  for _spkg_ in ${SUBPACKAGES}
+	@${PHASE_MSG} "Installing binary package of "${PKGNAME.${_spkg_}:Q}
+.if !empty(USE_CROSS_COMPILE:M[yY][eE][sS])
+	@${MKDIR} ${_CROSS_DESTDIR}${PREFIX}
+	${PKG_ADD} -m ${MACHINE_ARCH} -I -p ${_CROSS_DESTDIR}${PREFIX} ${STAGE_PKGFILE.${_spkg_}}
+	@${ECHO} "Fixing recorded cwd..."
+	@${SED} -e 's|@cwd ${_CROSS_DESTDIR}|@cwd |' ${_CONTENTS_FILE.${_spkg_}} > ${_CONTENTS_FILE.${_spkg_}}.tmp 
+	@${MV} ${_CONTENTS_FILE.${_spkg_}}.tmp ${_CONTENTS_FILE.${_spkg_}}
+.else
+	${RUN} case ${_AUTOMATIC:Q}"" in					\
+	[yY][eE][sS])	${PKG_ADD} -A ${STAGE_PKGFILE.${_spkg_}} ;;		\
+	*)		${PKG_ADD} ${STAGE_PKGFILE.${_spkg_}} ;;			\
+	esac
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 MAKEFLAGS.su-real-package-install=	PKGNAME_REQD=${PKGNAME_REQD:Q}
 su-real-package-install:
 	@${PHASE_MSG} "Installing binary package of "${PKGNAME:Q}
@@ -231,6 +251,8 @@ su-real-package-install:
 	@${MKDIR} ${_CROSS_DESTDIR}${PREFIX}
 	${PKG_ADD} -m ${MACHINE_ARCH} -I -p ${_CROSS_DESTDIR}${PREFIX} ${STAGE_PKGFILE}
 	@${ECHO} "Fixing recorded cwd..."
+# TODOleot: Probably reference to +CONTENTS file can be substituted with just
+# TODOleot: ${_CONTENTS_FILE} like in the SUBPACKAGES case.
 	@${SED} -e 's|@cwd ${_CROSS_DESTDIR}|@cwd |' ${_PKG_DBDIR}/${PKGNAME:Q}/+CONTENTS > ${_PKG_DBDIR}/${PKGNAME:Q}/+CONTENTS.tmp
 	@${MV} ${_PKG_DBDIR}/${PKGNAME:Q}/+CONTENTS.tmp ${_PKG_DBDIR}/${PKGNAME:Q}/+CONTENTS
 .else
@@ -239,3 +261,4 @@ su-real-package-install:
 	*)		${PKG_ADD} ${STAGE_PKGFILE} ;;			\
 	esac
 .endif
+.endif	# SUBPACKAGES
