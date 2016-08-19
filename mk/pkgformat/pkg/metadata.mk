@@ -416,6 +416,53 @@ ${_DEPENDS_PLIST}: ${PLIST}
 	${CAT} ${PLIST}; } > ${.TARGET}
 .endif	# SUBPACKAGES
 
+# TODOleot: SUBPACKAGES-ify more _CONTENTS_TARGETS!
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_PKG_CREATE_ARGS.${_spkg_}+=				-l -U
+_PKG_CREATE_ARGS.${_spkg_}+=				-B ${_BUILD_INFO_FILE}
+_PKG_CREATE_ARGS.${_spkg_}+=				-b ${_BUILD_VERSION_FILE}
+_PKG_CREATE_ARGS.${_spkg_}+=				-c ${_COMMENT_FILE}
+_PKG_CREATE_ARGS.${_spkg_}+=	${_MESSAGE_FILE:D	-D ${_MESSAGE_FILE}}
+_PKG_CREATE_ARGS.${_spkg_}+=				-d ${_DESCR_FILE}
+_PKG_CREATE_ARGS.${_spkg_}+=				-f ${_DEPENDS_PLIST}
+_PKG_CREATE_ARGS.${_spkg_}+=	${PKG_PRESERVE:D	-n ${_PRESERVE_FILE}}
+_PKG_CREATE_ARGS.${_spkg_}+=				-S ${_SIZE_ALL_FILE.${_spkg_}}
+_PKG_CREATE_ARGS.${_spkg_}+=				-s ${_SIZE_PKG_FILE.${_spkg_}}
+_PKG_CREATE_ARGS.${_spkg_}+=	${CONFLICTS:D		-C ${CONFLICTS:Q}}
+_PKG_CREATE_ARGS.${_spkg_}+=	${INSTALL_FILE:D	${_INSTALL_ARG_cmd:sh}}
+_PKG_CREATE_ARGS.${_spkg_}+=	${DEINSTALL_FILE:D	${_DEINSTALL_ARG_cmd:sh}}
+
+_PKG_ARGS_INSTALL.${_spkg_}+=	${_PKG_CREATE_ARGS.${_spkg_}}
+_PKG_ARGS_INSTALL.${_spkg_}+=	-I ${PREFIX} -p ${DESTDIR}${PREFIX}
+
+_DEINSTALL_ARG_cmd=	if ${TEST} -f ${DEINSTALL_FILE}; then		\
+				${ECHO} "-k "${DEINSTALL_FILE:Q};	\
+			else						\
+				${ECHO};				\
+			fi
+_INSTALL_ARG_cmd=	if ${TEST} -f ${INSTALL_FILE}; then		\
+				${ECHO} "-i "${INSTALL_FILE:Q};		\
+			else						\
+				${ECHO};				\
+			fi
+
+_CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_INFO_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_VERSION_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_COMMENT_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_DESCR_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_MESSAGE_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_PLIST}
+_CONTENTS_TARGETS.${_spkg_}+=	${_PRESERVE_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_SIZE_ALL_FILE.${_spkg_}}
+_CONTENTS_TARGETS.${_spkg_}+=	${_SIZE_PKG_FILE.${_spkg_}}
+
+${_CONTENTS_FILE.${_spkg_}}: ${_CONTENTS_TARGETS.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${PKG_CREATE} ${_PKG_ARGS_INSTALL} -O ${PKGFILE.${_spkg_}:T} > ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 _PKG_CREATE_ARGS+=				-l -U
 _PKG_CREATE_ARGS+=				-B ${_BUILD_INFO_FILE}
 _PKG_CREATE_ARGS+=				-b ${_BUILD_VERSION_FILE}
@@ -471,6 +518,7 @@ _CONTENTS_TARGETS+=	${_SIZE_PKG_FILE}
 ${_CONTENTS_FILE}: ${_CONTENTS_TARGETS}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${PKG_CREATE} ${_PKG_ARGS_INSTALL} -O ${PKGFILE:T} > ${.TARGET}
+.endif	# SUBPACKAGES
 
 ######################################################################
 ### _pkgformat-generate-metadata (PRIVATE)
