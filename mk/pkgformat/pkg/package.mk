@@ -31,7 +31,13 @@ PKGREPOSITORYSUBDIR?=	All
 ### package-create creates the binary package.
 ###
 .PHONY: package-create
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+package-create: ${PKGFILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 package-create: ${PKGFILE}
+.endif	# SUBPACKAGES
 
 ######################################################################
 ### stage-package-create (PRIVATE, pkgsrc/mk/package/package.mk)
@@ -39,8 +45,54 @@ package-create: ${PKGFILE}
 ### stage-package-create creates the binary package for stage install.
 ###
 .PHONY: stage-package-create
+.if !empty(SUBPACKAGES)
+stage-package-create:	stage-install
+.  for _spkg_ in ${SUBPACKAGES}
+stage-package-create:	stage-install ${STAGE_PKGFILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 stage-package-create:	stage-install ${STAGE_PKGFILE}
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_PKG_ARGS_PACKAGE.${_spkg_}+=	${_PKG_CREATE_ARGS.${_spkg_}}
+_PKG_ARGS_PACKAGE.${_spkg_}+=	-F ${PKG_COMPRESSION}
+_PKG_ARGS_PACKAGE.${_spkg_}+=	-I ${PREFIX} -p ${DESTDIR}${PREFIX}
+.if ${_USE_DESTDIR} == "user-destdir"
+_PKG_ARGS_PACKAGE.${_spkg_}+=	-u ${REAL_ROOT_USER} -g ${REAL_ROOT_GROUP}
+.endif
+
+${STAGE_PKGFILE.${_spkg_}}: ${_CONTENTS_TARGETS.${_spkg_}}
+	@${STEP_MSG} "Creating binary package ${.TARGET}"
+	${RUN} ${MKDIR} ${.TARGET:H}; ${_ULIMIT_CMD}			\
+	tmpname=${.TARGET:S,${PKG_SUFX}$,.tmp${PKG_SUFX},};		\
+	if ! ${PKG_CREATE} ${_PKG_ARGS_PACKAGE.${_spkg_}} "$$tmpname"; then	\
+		exitcode=$$?; ${RM} -f "$$tmpname"; exit $$exitcode;	\
+	fi
+.if !empty(SIGN_PACKAGES:U:Mgpg)
+	@${STEP_MSG} "Signing binary package ${.TARGET} (GPG)"
+	${RUN} tmpname=${.TARGET:S,${PKG_SUFX}$,.tmp${PKG_SUFX},};	\
+	${PKG_ADMIN} gpg-sign-package "$$tmpname" ${.TARGET}
+.elif !empty(SIGN_PACKAGES:U:Mx509)
+	@${STEP_MSG} "Signing binary package ${.TARGET} (X509)"
+	${RUN} tmpname=${.TARGET:S,${PKG_SUFX}$,.tmp${PKG_SUFX},};	\
+	${PKG_ADMIN} x509-sign-package "$$tmpname" ${.TARGET}		\
+		${X509_KEY} ${X509_CERTIFICATE}
+.else
+	${RUN} tmpname=${.TARGET:S,${PKG_SUFX}$,.tmp${PKG_SUFX},};	\
+	${MV} -f "$$tmpname" ${.TARGET}
+.endif
+
+.if ${PKGFILE.${_spkg_}} != ${STAGE_PKGFILE.${_spkg_}}
+${PKGFILE.${_spkg_}}: ${STAGE_PKGFILE.${_spkg_}}
+	@${STEP_MSG} "Creating binary package ${.TARGET}"
+	${RUN} ${MKDIR} ${.TARGET:H};					\
+	${LN} -f ${STAGE_PKGFILE.${_spkg_}} ${PKGFILE.${_spkg_}} 2>/dev/null ||		\
+		${CP} -pf ${STAGE_PKGFILE.${_spkg_}} ${PKGFILE.${_spkg_}}
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 _PKG_ARGS_PACKAGE+=	${_PKG_CREATE_ARGS}
 _PKG_ARGS_PACKAGE+=	-F ${PKG_COMPRESSION}
 _PKG_ARGS_PACKAGE+=	-I ${PREFIX} -p ${DESTDIR}${PREFIX}
@@ -76,6 +128,7 @@ ${PKGFILE}: ${STAGE_PKGFILE}
 	${LN} -f ${STAGE_PKGFILE} ${PKGFILE} 2>/dev/null ||		\
 		${CP} -pf ${STAGE_PKGFILE} ${PKGFILE}
 .endif
+.endif	# SUBPACKAGES
 
 ######################################################################
 ### package-remove (PRIVATE)
