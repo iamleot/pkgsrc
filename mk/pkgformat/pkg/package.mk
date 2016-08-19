@@ -137,8 +137,15 @@ ${PKGFILE}: ${STAGE_PKGFILE}
 ### repository.
 ###
 .PHONY: package-remove
+.if !empty(SUBPACKAGES)
+package-remove:
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} ${RM} -f ${PKGFILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 package-remove:
 	${RUN} ${RM} -f ${PKGFILE}
+.endif	# SUBPACKAGES
 
 ######################################################################
 ### stage-package-remove (PRIVATE)
@@ -146,8 +153,15 @@ package-remove:
 ### stage-package-remove removes the binary package for stage install
 ###
 .PHONY: stage-package-remove
+.if !empty(SUBPACKAGES)
+stage-package-remove:
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} ${RM} -f ${STAGE_PKGFILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 stage-package-remove:
 	${RUN} ${RM} -f ${STAGE_PKGFILE}
+.endif	# SUBPACKAGES
 
 ######################################################################
 ### tarup (PUBLIC)
@@ -166,11 +180,21 @@ tarup: package-remove tarup-pkg
 ### tarup-pkg creates a binary package from an installed package instance
 ### using "pkg_tarup".
 ###
+.if !empty(SUBPACKAGES)
+tarup-pkg:
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} [ -x ${_PKG_TARUP_CMD} ] || exit 1;			\
+	${PKGSRC_SETENV} PKG_DBDIR=${_PKG_DBDIR} PKG_SUFX=${PKG_SUFX}	\
+		PKGREPOSITORY=${PKGREPOSITORY}				\
+		${_PKG_TARUP_CMD} -f ${FILEBASE.${_spkg_}} ${PKGNAME.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 tarup-pkg:
 	${RUN} [ -x ${_PKG_TARUP_CMD} ] || exit 1;			\
 	${PKGSRC_SETENV} PKG_DBDIR=${_PKG_DBDIR} PKG_SUFX=${PKG_SUFX}	\
 		PKGREPOSITORY=${PKGREPOSITORY}				\
 		${_PKG_TARUP_CMD} -f ${FILEBASE} ${PKGNAME}
+.endif	# SUBPACKAGES
 
 ######################################################################
 ### package-install (PUBLIC)
