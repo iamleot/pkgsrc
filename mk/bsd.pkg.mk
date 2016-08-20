@@ -29,6 +29,26 @@
 
 ##### PKGBASE, PKGNAME[_NOREV], PKGVERSION
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PKGBASE.${_spkg_}?=		${PKGNAME.${_spkg_}:C/-[^-]*$//}
+PKGVERSION.${_spkg_}?=		${PKGNAME.${_spkg_}:C/^.*-//}
+.if defined(PKGREVISION.${_spkg_}) && !empty(PKGREVISION.${_spkg_}) && (${PKGREVISION.${_spkg_}} != "0")
+.  if defined(PKGNAME.${_spkg_})
+PKGNAME_NOREV.${_spkg_}:=	${PKGNAME.${_spkg_}}
+PKGNAME.${_spkg_}:=		${PKGNAME.${_spkg_}}nb${PKGREVISION.${_spkg_}}
+.  else
+PKGNAME.${_spkg_}?=		${DISTNAME.${_spkg_}}nb${PKGREVISION.${_spkg_}}
+PKGNAME_NOREV.${_spkg_}=	${DISTNAME.${_spkg_}}
+.  endif
+.else
+PKGNAME.${_spkg_}?=		${DISTNAME.${_spkg_}}
+PKGNAME_NOREV.${_spkg_}=	${PKGNAME.${_spkg_}}
+.endif
+PKGVERSION_NOREV.${_spkg_}=	${PKGNAME_NOREV.${_spkg_}:C/^.*-//}
+.  endfor
+.endif	# SUBPACKAGES
+
 PKGBASE?=		${PKGNAME:C/-[^-]*$//}
 PKGVERSION?=		${PKGNAME:C/^.*-//}
 .if defined(PKGREVISION) && !empty(PKGREVISION) && (${PKGREVISION} != "0")
