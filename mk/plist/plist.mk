@@ -63,25 +63,25 @@ PLIST_TYPE?=	static
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 .    if exists(${PKGDIR}/PLIST.${_spkg_}.common)
-PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.common
+PLIST_SRC_DFLT.${_spkg_}+=	${PKGDIR}/PLIST.${_spkg_}.common
 .    endif
 .    if exists(${PKGDIR}/PLIST.${_spkg_}.${OPSYS})
-PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.${OPSYS}
+PLIST_SRC_DFLT.${_spkg_}+=	${PKGDIR}/PLIST.${_spkg_}.${OPSYS}
 .    endif
 .    if exists(${PKGDIR}/PLIST.${_spkg_}.${MACHINE_ARCH:C/i[3-6]86/i386/g})
-PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.${MACHINE_ARCH:C/i[3-6]86/i386/g}
+PLIST_SRC_DFLT.${_spkg_}+=	${PKGDIR}/PLIST.${_spkg_}.${MACHINE_ARCH:C/i[3-6]86/i386/g}
 .    endif
 .    if exists(${PKGDIR}/PLIST.${_spkg_}.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g})
-PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g}
+PLIST_SRC_DFLT.${_spkg_}+=	${PKGDIR}/PLIST.${_spkg_}.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g}
 .    endif
 .    if defined(EMUL_PLATFORM) && exists(${PKGDIR}/PLIST.${_spkg_}.${EMUL_PLATFORM})
-PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.${EMUL_PLATFORM}
+PLIST_SRC_DFLT.${_spkg_}+=	${PKGDIR}/PLIST.${_spkg_}.${EMUL_PLATFORM}
 .    endif
 .    if exists(${PKGDIR}/PLIST.${_spkg_})
-PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}
+PLIST_SRC_DFLT.${_spkg_}+=	${PKGDIR}/PLIST.${_spkg_}
 .    endif
 .    if exists(${PKGDIR}/PLIST.${_spkg_}.common_end)
-PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.common_end
+PLIST_SRC_DFLT.${_spkg_}+=	${PKGDIR}/PLIST.${_spkg_}.common_end
 .    endif
 .  endfor
 .else	# !SUBPACKAGES
