@@ -148,7 +148,7 @@ PLIST_SRC?=		${PLIST_SRC_DFLT}
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 PLIST.${_spkg_}=		${WRKDIR}/.PLIST.${_spkg_}
-_PLIST_NOKEYWORDS.${_spkg_}=${PLIST}.${_spkg_}_nokeywords
+_PLIST_NOKEYWORDS.${_spkg_}=${PLIST.${_spkg_}}_nokeywords
 .  endfor
 .else	# !SUBPACKAGES
 PLIST=		${WRKDIR}/.PLIST
