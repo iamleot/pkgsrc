@@ -272,6 +272,10 @@ ${_CHECK_FILES_EXPECTED}: plist
 	${GREP} '^[^@]' ${PLIST.${_spkg_}} | ${SED} "s|^|${DESTDIR}${PREFIX}/|" | ${SORT}	\
 		>> ${.TARGET}
 .  endfor
+	${RUN}					\
+	${CP} ${.TARGET} ${.TARGET}.tmp;	\
+	${SORT} ${.TARGET}.tmp > ${.TARGET};	\
+	${RM} -f ${.TARGET}.tmp;	
 .else	# !SUBPACKAGES
 	${RUN}					\
 	${GREP} '^[^@]' ${PLIST} | ${SED} "s|^|${DESTDIR}${PREFIX}/|" | ${SORT}	\
