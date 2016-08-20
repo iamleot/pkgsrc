@@ -508,7 +508,7 @@ _DEPENDS_PLIST.${_spkg_}=		${WRKDIR}/.PLIST_deps.${_spkg_}
 
 ${_DEPENDS_PLIST.${_spkg_}}: ${PLIST.${_spkg_}}
 	${RUN} { \
-	${ECHO} "@name ${PKGNAME}"; \
+	${ECHO} "@name ${PKGNAME.${_spkg_}}"; \
 	${AWK} '$$1 == "full" { printf "@blddep %s\n@pkgdep %s\n", $$3, $$2; }' < ${_RDEPENDS_FILE}; \
 	${AWK} '$$1 == "bootstrap" || $$1 == "build" { printf "@blddep %s\n", $$3; }' < ${_RDEPENDS_FILE}; \
 	${CAT} ${PLIST.${_spkg_}}; } > ${.TARGET}
@@ -533,7 +533,7 @@ _PKG_CREATE_ARGS.${_spkg_}+=				-b ${_BUILD_VERSION_FILE}
 _PKG_CREATE_ARGS.${_spkg_}+=				-c ${_COMMENT_FILE}
 _PKG_CREATE_ARGS.${_spkg_}+=	${_MESSAGE_FILE:D	-D ${_MESSAGE_FILE}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-d ${_DESCR_FILE}
-_PKG_CREATE_ARGS.${_spkg_}+=				-f ${_DEPENDS_PLIST}
+_PKG_CREATE_ARGS.${_spkg_}+=				-f ${_DEPENDS_PLIST.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=	${PKG_PRESERVE:D	-n ${_PRESERVE_FILE}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-S ${_SIZE_ALL_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-s ${_SIZE_PKG_FILE.${_spkg_}}
@@ -561,7 +561,7 @@ _CONTENTS_TARGETS.${_spkg_}+=	${_COMMENT_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DESCR_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_MESSAGE_FILE}
-_CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_PLIST}
+_CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_PLIST.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_PRESERVE_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_SIZE_ALL_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_SIZE_PKG_FILE.${_spkg_}}
