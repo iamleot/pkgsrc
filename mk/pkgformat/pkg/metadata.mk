@@ -19,11 +19,118 @@ ${PKG_DB_TMPDIR}:
 ###
 ### +BUILD_INFO - Package build environment and settings information
 ###
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_BUILD_INFO_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/+BUILD_INFO
+_METADATA_TARGETS+=		${_BUILD_INFO_FILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 _BUILD_INFO_FILE=	${PKG_DB_TMPDIR}/+BUILD_INFO
+_METADATA_TARGETS+=	${_BUILD_INFO_FILE}
+.endif	# SUBPACKAGES
 _BUILD_DATE_cmd=	${DATE} "+%Y-%m-%d %H:%M:%S %z"
 _BUILD_HOST_cmd=	${UNAME} -a
-_METADATA_TARGETS+=	${_BUILD_INFO_FILE}
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_BUILD_INFO_FILE.${_spkg_}}: ${_PLIST_NOKEYWORDS.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${RM} -f ${.TARGET}.tmp
+	${RUN} (${_BUILD_DEFS:NPATH:@v@${ECHO} ${v}=${${v}:Q} ;@})	\
+		> ${.TARGET}.tmp
+.if !empty(USE_LANGUAGES)
+	${RUN}${ECHO} "CC_VERSION=${CC_VERSION}" >> ${.TARGET}.tmp
+.endif
+.if !empty(USE_TOOLS:Mperl\:run)
+	${RUN}${ECHO} "PERL=`${PERL5} --version 2>/dev/null | ${GREP} 'This is perl'`" >> ${.TARGET}.tmp
+.endif
+.if !empty(USE_TOOLS:Mgmake)
+	${RUN}${ECHO} "GMAKE=`${GMAKE} --version | ${GREP} Make`" >> ${.TARGET}.tmp
+.endif
+	${RUN}${ECHO} "PKGTOOLS_VERSION=${PKGTOOLS_VERSION_REQD}" >> ${.TARGET}.tmp
+.if defined(HOMEPAGE)
+	${RUN}${ECHO} "HOMEPAGE=${HOMEPAGE}" >> ${.TARGET}.tmp
+.endif
+	${RUN}${ECHO} "CATEGORIES=${CATEGORIES}" >> ${.TARGET}.tmp
+	${RUN}${ECHO} "MAINTAINER=${MAINTAINER}" >> ${.TARGET}.tmp
+.if defined(OWNER)
+	${RUN}${ECHO} "OWNER=${OWNER}" >> ${.TARGET}.tmp
+.endif	
+.if defined(PREV_PKGPATH)
+	${RUN}${ECHO} "PREV_PKGPATH=${PREV_PKGPATH}" >> ${.TARGET}.tmp
+.endif
+.if defined(SUPERSEDES)
+	${RUN}${ECHO} "SUPERSEDES=${SUPERSEDES}" >> ${.TARGET}.tmp
+.endif
+	${RUN}${ECHO} "BUILD_DATE=${_BUILD_DATE_cmd:sh}" >> ${.TARGET}.tmp
+	${RUN}${ECHO} "BUILD_HOST=${_BUILD_HOST_cmd:sh}" >> ${.TARGET}.tmp
+.if !empty(CHECK_SHLIBS_SUPPORTED:M[yY][eE][sS])
+	${RUN}								\
+	case ${LDD:Q}"" in						\
+	"")	ldd=`${TYPE} ldd 2>/dev/null | ${AWK} '{ print $$NF }'` ;; \
+	*)	ldd=${LDD:Q} ;;						\
+	esac;								\
+	bins=`${AWK} '/(^|\/)(bin|sbin|libexec)\// && !/.debug$$/ { print "${DESTDIR}${PREFIX}/" $$0 } END { exit 0 }' ${_PLIST_NOKEYWORDS.${_spkg_}}`; \
+	case ${OBJECT_FMT:Q}"" in					\
+	ELF)								\
+		libs=`${AWK} '/\/lib.*\.so(\.[0-9]+)*$$/ { print "${DESTDIR}${PREFIX}/" $$0 } END { exit 0 }' ${_PLIST_NOKEYWORDS.${_spkg_}}`; \
+		if ${TEST} -n "$$bins" -o -n "$$libs"; then		\
+			requires=`(${PKGSRC_SETENV} ${LDD_ENV:U} $$ldd $$bins $$libs 2>/dev/null || ${TRUE}) | ${AWK} '$$2 == "=>" && $$3 ~ "/" { print $$3 }' | ${SORT} -u`; \
+		fi;							\
+		linklibs=`${AWK} '/.*\.so(\.[0-9]+)*$$/ { print "${DESTDIR}${PREFIX}/" $$0 }' ${_PLIST_NOKEYWORDS.${_spkg_}}`; \
+		for i in $$linklibs; do					\
+			case "$$i" in					\
+			${CHECK_SHLIBS_SKIP:U:@p@${DESTDIR}${PREFIX}/${p}) continue ;;@}	\
+			*);;						\
+			esac;						\
+			if ${TEST} -r $$i -a ! -x $$i -a ! -h $$i; then	\
+				${TEST} ${PKG_DEVELOPER:Uno:Q}"" = "no" || \
+					${ECHO} "$$i: installed without execute permission; fixing (should use [BSD_]INSTALL_LIB)"; \
+				${CHMOD} +x $$i;			\
+			fi;						\
+		done;							\
+		;;							\
+	Mach-O)								\
+		libs=`${AWK} '/\/lib.*\.dylib/ { print "${DESTDIR}${PREFIX}/" $$0 } END { exit 0 }' ${_PLIST_NOKEYWORDS.${_spkg_}}`; \
+		if ${TEST} "$$bins" != "" -o "$$libs" != ""; then	\
+			requires=`($$ldd $$bins $$libs 2>/dev/null || ${TRUE}) | ${AWK} '/compatibility version/ { print $$1 }' | ${SORT} -u`; \
+		fi;							\
+		;;							\
+	PE)								\
+		libs=`${AWK} '/\/.+\.dll$$/ { print "${DESTDIR}${PREFIX}/" $$0 } END { exit 0 }' ${_PLIST_NOKEYWORDS.${_spkg_}}`; \
+		if ${TEST} -n "$$bins" -o -n "$$libs"; then		\
+			requires=`(${TRUE} || ${PKGSRC_SETENV} ${LDD_ENV:U} $$ldd $$bins $$libs 2>/dev/null || ${TRUE}) | ${AWK} '$$2 == "=>" && $$3 ~ "/" { print $$3 }' | ${SED} -e 's,^${DESTDIR},,' | ${SORT} -u`; \
+		fi;							\
+		linklibs=`${AWK} '/.+\.dll$$/ { print "${DESTDIR}${PREFIX}/" $$0 }' ${_PLIST_NOKEYWORDS.${_spkg_}}`; \
+		for i in $$linklibs; do					\
+			if ${TEST} -r $$i -a ! -x $$i -a ! -h $$i; then	\
+				${TEST} ${PKG_DEVELOPER:Uno:Q}"" = "no" || \
+					${ECHO} "$$i: installed without execute permission; fixing (should use [BSD_]INSTALL_LIB)"; \
+				${CHMOD} +x $$i;			\
+			fi;						\
+		done;							\
+		;;							\
+	esac;								\
+	requires=`{ for i in $$requires $$requires; do echo $$i; done; \
+		${AWK} '{ print "${PREFIX}/" $$0 }' ${_PLIST_NOKEYWORDS.${_spkg_}}; } | \
+		${SORT} | uniq -c | awk '$$1 == 2 {print $$2}'`; \
+	for i in "" $$libs; do						\
+		${TEST} "$$i" != "" || continue;			\
+		${ECHO} "PROVIDES=$${i}";				\
+	done | ${SED} -e 's,^PROVIDES=${DESTDIR},PROVIDES=,'		\
+		>> ${.TARGET}.tmp;					\
+	for req in "" $$requires; do					\
+		${TEST} "$$req" != "" || continue;			\
+		${ECHO} "REQUIRES=$$req" >> ${.TARGET}.tmp;		\
+	done
+.endif
+	${RUN}								\
+	rm -f ${.TARGET};						\
+	sort ${.TARGET}.tmp > ${.TARGET};				\
+	rm -f ${.TARGET}.tmp
+
+.  endfor
+.else	# !SUBPACKAGES
 ${_BUILD_INFO_FILE}: ${_PLIST_NOKEYWORDS}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${RM} -f ${.TARGET}.tmp
@@ -119,6 +226,7 @@ ${_BUILD_INFO_FILE}: ${_PLIST_NOKEYWORDS}
 	rm -f ${.TARGET};						\
 	sort ${.TARGET}.tmp > ${.TARGET};				\
 	rm -f ${.TARGET}.tmp
+.endif	# SUBPACKAGES
 
 ######################################################################
 ###
@@ -420,7 +528,7 @@ ${_DEPENDS_PLIST}: ${PLIST}
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _PKG_CREATE_ARGS.${_spkg_}+=				-l -U
-_PKG_CREATE_ARGS.${_spkg_}+=				-B ${_BUILD_INFO_FILE}
+_PKG_CREATE_ARGS.${_spkg_}+=				-B ${_BUILD_INFO_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-b ${_BUILD_VERSION_FILE}
 _PKG_CREATE_ARGS.${_spkg_}+=				-c ${_COMMENT_FILE}
 _PKG_CREATE_ARGS.${_spkg_}+=	${_MESSAGE_FILE:D	-D ${_MESSAGE_FILE}}
@@ -447,7 +555,7 @@ _INSTALL_ARG_cmd=	if ${TEST} -f ${INSTALL_FILE}; then		\
 				${ECHO};				\
 			fi
 
-_CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_INFO_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_INFO_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_VERSION_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_COMMENT_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_FILE}
