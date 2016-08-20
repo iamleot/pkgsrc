@@ -263,10 +263,20 @@ ${_CHECK_FILES_DELETED}: ${_CHECK_FILES_DIFF}
 	${GREP} '^-/' ${_CHECK_FILES_DIFF} | ${SED} "s|^-||" | ${SORT}	\
 		> ${.TARGET}
 
+# TODOleot: this is probably just a temporary kludge! All the checks should be
+# TODOleot: adapted per-subpackages if possible.
 ${_CHECK_FILES_EXPECTED}: plist
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN}					\
+	${GREP} '^[^@]' ${PLIST.${_spkg_}} | ${SED} "s|^|${DESTDIR}${PREFIX}/|" | ${SORT}	\
+		> ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN}					\
 	${GREP} '^[^@]' ${PLIST} | ${SED} "s|^|${DESTDIR}${PREFIX}/|" | ${SORT}	\
 		> ${.TARGET}
+.endif	# SUBPACKAGES
 
 ${_CHECK_FILES_MISSING}: ${_CHECK_FILES_EXPECTED} ${_CHECK_FILES_ADDED}
 	${RUN}					\
