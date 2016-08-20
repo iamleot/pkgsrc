@@ -284,6 +284,7 @@ GENERATE_PLIST.${_spkg_}?=	${ECHO} "@comment "${PKGNAME:Q}" has no files.";
 .    else
 GENERATE_PLIST.${_spkg_}?=	${TRUE};
 .    endif
+.  endfor
 .else	# !SUBPACKAGES
 .  if empty(PLIST_SRC)
 GENERATE_PLIST?=	${ECHO} "@comment "${PKGNAME:Q}" has no files.";
