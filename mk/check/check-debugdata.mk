@@ -40,10 +40,20 @@ CHECK_DEBUGDATA_SKIP?=		# none
 # All binaries and shared libraries.
 _CHECK_DEBUGDATA_ERE=	(bin/|sbin/|libexec/|\.(dylib|sl|so)$$|lib/lib.*\.(dylib|sl|so))
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PLISTS+=	${PLIST.${_spkg_}}
+.  endfor
+_CHECK_DEBUGDATA_FILELIST_CMD?=	${SED} -e '/^@/d' -e '/\.debug$$/d' ${PLISTS} |	\
+	(while read file; do							\
+		${TEST} -h "$$file" || ${ECHO} "$$file";			\
+	done)
+.else	# !SUBPACKAGES
 _CHECK_DEBUGDATA_FILELIST_CMD?=	${SED} -e '/^@/d' -e '/\.debug$$/d' ${PLIST} |	\
 	(while read file; do							\
 		${TEST} -h "$$file" || ${ECHO} "$$file";			\
 	done)
+.endif	# SUBPACKAGES
 
 .if !empty(CHECK_DEBUGDATA:M[Yy][Ee][Ss]) && \
     !empty(CHECK_DEBUGDATA_SUPPORTED:M[Yy][Ee][Ss])

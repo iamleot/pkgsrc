@@ -48,10 +48,20 @@ CHECK_SHLIBS_SKIP?=		# none
 # All binaries and shared libraries.
 _CHECK_SHLIBS_ERE=	(bin/|sbin/|libexec/|\.(dylib|sl|so)$$|lib/lib.*\.(dylib|sl|so))
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PLISTS+=	${PLIST.${_spkg_}}
+.  endfor
+_CHECK_SHLIBS_FILELIST_CMD?=	${SED} -e '/^@/d' ${PLISTS} |		\
+	(while read file; do						\
+		${TEST} -h "$$file" || ${ECHO} "$$file";		\
+	done)
+.else	# !SUBPACKAGES
 _CHECK_SHLIBS_FILELIST_CMD?=	${SED} -e '/^@/d' ${PLIST} |		\
 	(while read file; do						\
 		${TEST} -h "$$file" || ${ECHO} "$$file";		\
 	done)
+.endif	# SUBPACKAGES
 
 .if !empty(CHECK_SHLIBS:M[Yy][Ee][Ss]) && \
     !empty(CHECK_SHLIBS_SUPPORTED:M[Yy][Ee][Ss])

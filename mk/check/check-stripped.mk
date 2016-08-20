@@ -27,7 +27,14 @@ CHECK_STRIPPED?=		no
 .endif
 CHECK_STRIPPED_SKIP?=		# empty
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PLISTS+=	${PLIST.${_spkg_}}
+.  endfor
+_CHECK_STRIPPED_FILELIST_CMD?=	${SED} -e '/^@/d' ${PLISTS}
+.else	# !SUBPACKAGES
 _CHECK_STRIPPED_FILELIST_CMD?=	${SED} -e '/^@/d' ${PLIST}
+.endif	# SUBPACKAGES
 
 .if !empty(CHECK_STRIPPED:M[Yy][Ee][Ss])
 privileged-install-hook: _check-stripped

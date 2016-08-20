@@ -38,7 +38,14 @@ _CHECK_INTERP_SKIP=		share/doc/*
 _CHECK_INTERP_SKIP+=		share/examples/*
 _CHECK_INTERP_SKIP+=		${CHECK_INTERPRETER_SKIP}
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PLISTS+=	${PLIST.${_spkg_}}
+.  endfor
+_CHECK_INTERP_FILELIST_CMD?=	${SED} -e '/^@/d' ${PLISTS}
+.else	# !SUBPACKAGES
 _CHECK_INTERP_FILELIST_CMD?=	${SED} -e '/^@/d' ${PLIST}
+.endif	# SUBPACKAGES
 
 .if !empty(CHECK_INTERPRETER:M[Yy][Ee][Ss])
 privileged-install-hook: _check-interpreter
