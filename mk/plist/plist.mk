@@ -86,7 +86,7 @@ PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.common_end
 .  endfor
 .else	# !SUBPACKAGES
 .  if exists(${PKGDIR}/PLIST.common)
-PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${_spkg_}.common
+PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.common
 .  endif
 .  if exists(${PKGDIR}/PLIST.${OPSYS})
 PLIST_SRC_DFLT+=	${PKGDIR}/PLIST.${OPSYS}
