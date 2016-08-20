@@ -270,7 +270,7 @@ ${_CHECK_FILES_EXPECTED}: plist
 .  for _spkg_ in ${SUBPACKAGES}
 	${RUN}					\
 	${GREP} '^[^@]' ${PLIST.${_spkg_}} | ${SED} "s|^|${DESTDIR}${PREFIX}/|" | ${SORT}	\
-		> ${.TARGET}
+		>> ${.TARGET}
 .  endfor
 .else	# !SUBPACKAGES
 	${RUN}					\
