@@ -21,7 +21,7 @@ ${PKG_DB_TMPDIR}:
 ###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
-_BUILD_INFO_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/+BUILD_INFO
+_BUILD_INFO_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+BUILD_INFO
 _METADATA_TARGETS+=		${_BUILD_INFO_FILE.${_spkg_}}
 .  endfor
 .else	# !SUBPACKAGES
