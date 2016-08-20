@@ -263,6 +263,23 @@ install-makedirs:
 .PHONY: install-dirs-from-PLIST
 install-dirs-from-PLIST:
 	@${STEP_MSG} "Creating installation directories from PLIST files"
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN}								\
+	${CAT} ${PLIST_SRC.${_spkg_}}					\
+	| sed -n							\
+		-e 's,\\,\\\\,'						\
+		-e 's,^gnu/man/,${PKGGNUDIR}${PKGMANDIR}/,'		\
+		-e 's,^gnu/,${PKGGNUDIR},'				\
+		-e 's,^man/,${PKGMANDIR}/,'				\
+		-e 's,^info/,${PKGINFODIR}/,'				\
+		-e 's,^share/locale/,${PKGLOCALEDIR}/locale/,'		\
+		-e 's,^\([^$$@]*\)/[^/]*$$,\1,p'			\
+	| while read dir; do						\
+		${_INSTALL_ONE_DIR_CMD};				\
+	done
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN}								\
 	${CAT} ${PLIST_SRC}						\
 	| sed -n							\
@@ -276,6 +293,7 @@ install-dirs-from-PLIST:
 	| while read dir; do						\
 		${_INSTALL_ONE_DIR_CMD};				\
 	done
+.endif	# SUBPACKAGES
 
 ######################################################################
 ### pre-install, do-install, post-install (PUBLIC, override)
@@ -323,6 +341,21 @@ post-install:
 .PHONY: install-strip-debug
 install-strip-debug: plist
 	@${STEP_MSG} "Automatic stripping of debug information"
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN}${CAT} ${_PLIST_NOKEYWORDS.${_spkg_}} \
+	| ${SED} -e 's|^|${DESTDIR}${PREFIX}/|' \
+	| while read f; do \
+		tmp_f="$${f}.XXX"; \
+		if ${STRIP} -g -o "$${tmp_f}" "$${f}" 2> /dev/null; then \
+			[ ! -f "$${f}" ] || \
+			    ${MV} "$${tmp_f}" "$${f}"; \
+		else \
+			${RM} -f "$${tmp_f}"; \
+		fi \
+	done
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN}${CAT} ${_PLIST_NOKEYWORDS} \
 	| ${SED} -e 's|^|${DESTDIR}${PREFIX}/|' \
 	| while read f; do \
@@ -334,6 +367,7 @@ install-strip-debug: plist
 			${RM} -f "$${tmp_f}"; \
 		fi \
 	done
+.endif	# SUBPACKAGES
 
 ######################################################################
 ### install-doc-handling (PRIVATE)
@@ -356,10 +390,19 @@ _DOC_COMPRESS=								\
 .PHONY: install-doc-handling
 install-doc-handling: plist
 	@${STEP_MSG} "Automatic manual page handling"
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} \
+	${CAT} ${_PLIST_NOKEYWORDS.${_spkg_}} \
+	| ${EGREP} ${_PLIST_REGEXP.man:Q} \
+	| ${_DOC_COMPRESS}
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN} \
 	${CAT} ${_PLIST_NOKEYWORDS} \
 	| ${EGREP} ${_PLIST_REGEXP.man:Q} \
 	| ${_DOC_COMPRESS}
+.endif	# SUBPACKAGES
 
 privileged-install-hook: .PHONY
 	@${DO_NADA}
@@ -371,4 +414,11 @@ privileged-install-hook: .PHONY
 ### later phases so that the "install" target may be re-invoked.
 ###
 install-clean: .PHONY package-eat-cookie check-clean _pkgformat-install-clean
+.if !empty(SUBPACKAGES)
+	${RUN} ${RM} -f ${_COOKIE.install} ${_DEPENDS_PLIST}
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} ${RM} -f ${PLIST.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN} ${RM} -f ${PLIST} ${_COOKIE.install} ${_DEPENDS_PLIST}
+.endif	# SUBPACKAGES
