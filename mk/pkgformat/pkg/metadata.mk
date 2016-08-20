@@ -568,7 +568,7 @@ _CONTENTS_TARGETS.${_spkg_}+=	${_SIZE_PKG_FILE.${_spkg_}}
 
 ${_CONTENTS_FILE.${_spkg_}}: ${_CONTENTS_TARGETS.${_spkg_}}
 	${RUN}${MKDIR} ${.TARGET:H}
-	${RUN}${PKG_CREATE} ${_PKG_ARGS_INSTALL} -O ${PKGFILE.${_spkg_}:T} > ${.TARGET}
+	${RUN}${PKG_CREATE} ${_PKG_ARGS_INSTALL.${_spkg_}} -O ${PKGFILE.${_spkg_}:T} > ${.TARGET}
 .  endfor
 .else	# !SUBPACKAGES
 _PKG_CREATE_ARGS+=				-l -U
