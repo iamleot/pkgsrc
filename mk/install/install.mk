@@ -415,9 +415,9 @@ privileged-install-hook: .PHONY
 ###
 install-clean: .PHONY package-eat-cookie check-clean _pkgformat-install-clean
 .if !empty(SUBPACKAGES)
-	${RUN} ${RM} -f ${_COOKIE.install} ${_DEPENDS_PLIST}
+	${RUN} ${RM} -f ${_COOKIE.install}
 .  for _spkg_ in ${SUBPACKAGES}
-	${RUN} ${RM} -f ${PLIST.${_spkg_}}
+	${RUN} ${RM} -f ${PLIST.${_spkg_}} ${_DEPENDS_PLIST.${_spkg_}}
 .  endfor
 .else	# !SUBPACKAGES
 	${RUN} ${RM} -f ${PLIST} ${_COOKIE.install} ${_DEPENDS_PLIST}
