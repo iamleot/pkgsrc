@@ -31,7 +31,7 @@ BSD_DEBUGDATA_MK=	# defined
 .if !empty(PKG_DEBUGDATA:M[yY][eE][sS])
 
 # Avoid to pass options to strip to cc(1) and install(1) as we need to handle
-# theme here differently.
+# them here differently.
 _INSTALL_UNSTRIPPED=	# defined
 
 # PLIST containing all stripped debugging symbols
