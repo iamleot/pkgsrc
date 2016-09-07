@@ -22,6 +22,9 @@
 # Keywords: debug
 #
 
+_VARGROUPS+=		debugdata
+_USER_VARS.debugdata=	PKG_DEBUGDATA PKG_DEBUGLEVEL
+
 .if !defined(BSD_DEBUGDATA_MK)
 BSD_DEBUGDATA_MK=	# defined
 
