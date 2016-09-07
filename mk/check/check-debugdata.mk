@@ -27,7 +27,7 @@
 
 _VARGROUPS+=			check-debugdata
 _USER_VARS.check-debugdata=	CHECK_DEBUGDATA
-_PKG_VARS.check-debugdata=	CHECK_DEBUGDATA_SUPPORTED
+_PKG_VARS.check-debugdata=	CHECK_DEBUGDATA_SKIP CHECK_DEBUGDATA_SUPPORTED
 
 .if !empty(PKG_DEBUGDATA:M[yY][eE][sS]) && ${PKG_DEVELOPER:Uno} != "no"
 CHECK_DEBUGDATA?=	yes
