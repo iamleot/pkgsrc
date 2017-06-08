@@ -110,6 +110,7 @@ DEPENDS?=		# empty
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 DESCR_SRC.${_spkg_}?=	${PKGDIR}/DESCR.${_spkg_}
+.  endfor
 .else # !SUBPACKAGES
 DESCR_SRC?=		${PKGDIR}/DESCR
 .endif	# SUBPACKAGES
