@@ -296,7 +296,7 @@ ${_COMMENT_FILE}:
 ### This file contains the paragraph description of the package.
 ###
 .if !empty(SUBPACKAGES)
-  .for _spkg_ in ${SUBPACKAGES}
+.  for _spkg_ in ${SUBPACKAGES}
 _DESCR_FILE.${_spkg_}=		${PKG_DB_TMPDIR}/+DESC.${_spkg_}
 _METADATA_TARGETS+=	${_DESCR_FILE.${_spkg_}}
 
@@ -309,7 +309,7 @@ ${_DESCR_FILE.${_spkg_}}: ${DESCR_SRC.${_spkg_}}
 	${RUN}${ECHO} "Homepage:" >> ${.TARGET}
 	${RUN}${ECHO} ""${HOMEPAGE:Q} >> ${.TARGET}
 .endif
-  .endfor
+.  endfor
 .else # !SUBPACKAGES
 _DESCR_FILE=		${PKG_DB_TMPDIR}/+DESC
 _METADATA_TARGETS+=	${_DESCR_FILE}
