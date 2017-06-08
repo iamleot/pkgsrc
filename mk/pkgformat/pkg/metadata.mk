@@ -295,6 +295,22 @@ ${_COMMENT_FILE}:
 ###
 ### This file contains the paragraph description of the package.
 ###
+.if !empty(SUBPACKAGES)
+  .for _spkg_ in ${SUBPACKAGES}
+_DESCR_FILE.${_spkg_}=		${PKG_DB_TMPDIR}/+DESC.${_spkg_}
+_METADATA_TARGETS+=	${_DESCR_FILE.${_spkg_}}
+
+${_DESCR_FILE.${_spkg_}}: ${DESCR_SRC.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${RM} -f ${.TARGET}
+	${RUN}${CAT} ${.ALLSRC} > ${.TARGET}
+.if defined(HOMEPAGE)
+	${RUN}${ECHO} >> ${.TARGET}
+	${RUN}${ECHO} "Homepage:" >> ${.TARGET}
+	${RUN}${ECHO} ""${HOMEPAGE:Q} >> ${.TARGET}
+.endif
+  .endfor
+.else # !SUBPACKAGES
 _DESCR_FILE=		${PKG_DB_TMPDIR}/+DESC
 _METADATA_TARGETS+=	${_DESCR_FILE}
 
@@ -307,6 +323,7 @@ ${_DESCR_FILE}: ${DESCR_SRC}
 	${RUN}${ECHO} "Homepage:" >> ${.TARGET}
 	${RUN}${ECHO} ""${HOMEPAGE:Q} >> ${.TARGET}
 .endif
+.endif # SUBPACKAGES
 
 ######################################################################
 ###
@@ -532,7 +549,7 @@ _PKG_CREATE_ARGS.${_spkg_}+=				-B ${_BUILD_INFO_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-b ${_BUILD_VERSION_FILE}
 _PKG_CREATE_ARGS.${_spkg_}+=				-c ${_COMMENT_FILE}
 _PKG_CREATE_ARGS.${_spkg_}+=	${_MESSAGE_FILE:D	-D ${_MESSAGE_FILE}}
-_PKG_CREATE_ARGS.${_spkg_}+=				-d ${_DESCR_FILE}
+_PKG_CREATE_ARGS.${_spkg_}+=				-d ${_DESCR_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-f ${_DEPENDS_PLIST.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=	${PKG_PRESERVE:D	-n ${_PRESERVE_FILE}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-S ${_SIZE_ALL_FILE.${_spkg_}}

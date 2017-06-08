@@ -107,7 +107,12 @@ MKCRYPTO?=		YES	# build crypto packages by default
 BUILD_DEPENDS?=		# empty
 COMMENT?=		(no description)
 DEPENDS?=		# empty
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+DESCR_SRC.${_spkg_}?=	${PKGDIR}/DESCR.${_spkg_}
+.else # !SUBPACKAGES
 DESCR_SRC?=		${PKGDIR}/DESCR
+.endif	# SUBPACKAGES
 INTERACTIVE_STAGE?=	none
 .if defined(OWNER)
 MAINTAINER=${OWNER}
