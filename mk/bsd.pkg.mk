@@ -105,7 +105,13 @@ MKCRYPTO?=		YES	# build crypto packages by default
 ##### Others
 
 BUILD_DEPENDS?=		# empty
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+COMMENT.${_spkg_}?=	(no description)
+.  endfor
+.else # !SUBPACKAGES
 COMMENT?=		(no description)
+.endif	# SUBPACKAGES
 DEPENDS?=		# empty
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}

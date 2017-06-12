@@ -13,7 +13,9 @@ PKGNAME.baz=	frobnitzem-baz-0
 
 MAINTAINER=	leot@NetBSD.org
 HOMEPAGE=	http://netbsd.org/~leot/gsoc2016-diary/
-COMMENT=	Simple subpackages example
+COMMENT.foo=	Simple subpackages example (foo)
+COMMENT.bar=	Simple subpackages example (bar)
+COMMENT.baz=	Simple subpackages example (baz)
 LICENSE=	public-domain
 
 COMMENT.foo=	Simple subpackages example (foo)

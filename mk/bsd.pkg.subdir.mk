@@ -113,6 +113,7 @@ README=	../templates/README.category
 
 HTMLIFY=	${SED} -e 's/&/\&amp;/g' -e 's/>/\&gt;/g' -e 's/</\&lt;/g'
 
+# TODOleot: Add SUBPACKAGES support for `show-comment'
 show-comment:
 	@if [ ${COMMENT:Q}"" ]; then					\
 		${ECHO} ${COMMENT:Q};					\

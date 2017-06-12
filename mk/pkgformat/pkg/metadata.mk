@@ -282,12 +282,23 @@ ${_BUILD_VERSION_FILE}:
 ###
 ### This file contains the one-line description of the package.
 ###
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_COMMENT_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+COMMENT.${_spkg_}
+_METADATA_TARGETS+=		${_COMMENT_FILE.${_spkg_}}
+
+${_COMMENT_FILE.${_spkg_}}:
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${ECHO} ${COMMENT.${_spkg_}:Q} > ${.TARGET}
+.  endfor
+.else # !SUBPACKAGES
 _COMMENT_FILE=		${PKG_DB_TMPDIR}/+COMMENT
 _METADATA_TARGETS+=	${_COMMENT_FILE}
 
 ${_COMMENT_FILE}:
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${ECHO} ${COMMENT:Q} > ${.TARGET}
+.endif # SUBPACKAGES
 
 ######################################################################
 ###
@@ -547,7 +558,7 @@ ${_DEPENDS_PLIST}: ${PLIST}
 _PKG_CREATE_ARGS.${_spkg_}+=				-l -U
 _PKG_CREATE_ARGS.${_spkg_}+=				-B ${_BUILD_INFO_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-b ${_BUILD_VERSION_FILE}
-_PKG_CREATE_ARGS.${_spkg_}+=				-c ${_COMMENT_FILE}
+_PKG_CREATE_ARGS.${_spkg_}+=				-c ${_COMMENT_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=	${_MESSAGE_FILE:D	-D ${_MESSAGE_FILE}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-d ${_DESCR_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-f ${_DEPENDS_PLIST.${_spkg_}}
