@@ -32,6 +32,23 @@ MAKEFLAGS.su-deinstall+=	_UPDATE_RUNNING=YES
 #	deinstall
 #
 _pkgformat-deinstall: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN}								\
+	if [ x"${OLDNAME.${_spkg_}}" = x ]; then					\
+		found=`${PKG_INFO} -e "${PKGNAME.${_spkg_}}" || ${TRUE}`;		\
+	else								\
+		found=${OLDNAME.${_spkg_}};					\
+	fi;								\
+	case "$$found" in						\
+	"") found=`${_PKG_BEST_EXISTS} ${PKGWILDCARD:Q} || ${TRUE}`;;	\
+	esac;								\
+	if ${TEST} -n "$$found"; then					\
+		${ECHO} "Running ${PKG_DELETE} ${_PKG_ARGS_DEINSTALL} $$found"; \
+		${PKG_DELETE} ${_PKG_ARGS_DEINSTALL} "$$found" || ${TRUE} ; \
+	fi
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN}								\
 	if [ x"${OLDNAME}" = x ]; then					\
 		found=`${PKG_INFO} -e "${PKGNAME}" || ${TRUE}`;		\
@@ -45,6 +62,7 @@ _pkgformat-deinstall: .PHONY
 		${ECHO} "Running ${PKG_DELETE} ${_PKG_ARGS_DEINSTALL} $$found"; \
 		${PKG_DELETE} ${_PKG_ARGS_DEINSTALL} "$$found" || ${TRUE} ; \
 	fi
+.endif	# SUBPACKAGES
 .if defined(DEINSTALLDEPENDS) && !empty(DEINSTALLDEPENDS:M[yY][eE][sS])
 # XXX Need to handle BUILD_DEPENDS/TOOL_DEPENDS split.
 .  for _pkg_ in ${BUILD_DEPENDS:C/:.*$//}
