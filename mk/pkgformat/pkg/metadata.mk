@@ -585,9 +585,9 @@ _INSTALL_ARG_cmd=	if ${TEST} -f ${INSTALL_FILE}; then		\
 
 _CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_INFO_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_VERSION_FILE}
-_CONTENTS_TARGETS.${_spkg_}+=	${_COMMENT_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_COMMENT_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_FILE}
-_CONTENTS_TARGETS.${_spkg_}+=	${_DESCR_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_DESCR_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_MESSAGE_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_PLIST.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_PRESERVE_FILE}
