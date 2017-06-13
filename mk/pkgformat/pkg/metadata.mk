@@ -532,7 +532,7 @@ _METADATA_TARGETS+=	${_CONTENTS_FILE}
 # TODOleot: SUBPACKAGES-ify _RDEPENDS_FILE!
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
-_DEPENDS_PLIST.${_spkg_}=		${WRKDIR}/${_spkg_}/.PLIST_deps
+_DEPENDS_PLIST.${_spkg_}=		${WRKDIR}/.PLIST_deps.${_spkg_}
 
 ${_DEPENDS_PLIST.${_spkg_}}: ${PLIST.${_spkg_}}
 	${RUN} { \
