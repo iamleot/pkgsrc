@@ -24,6 +24,18 @@
 # ${_RRDEPENDS_FILE} is like ${_RDEPENDS_FILE}, but all build dependencies
 # are dropped, if they are dependencies of one of the full dependencies.
 #
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_DEPENDS_FILE.${_spkg_}=	${WRKDIR}/.depends.${_spkg_}
+_RDEPENDS_FILE.${_spkg_}=	${WRKDIR}/.rdepends.${_spkg_}
+
+_RRDEPENDS_FILE.${_spkg_}=	${WRKDIR}/.rrdepends.${_spkg_}
+
+_FULL_DEPENDS_CMD.${_spkg_}=	\
+	${AWK} '$$1 == "full" { print $$3; }' < ${_RDEPENDS_FILE.${_spkg_}}
+.  endfor
+.endif	# SUBPACKAGES
+.else	# !SUBPACKAGES
 _DEPENDS_FILE=	${WRKDIR}/.depends
 _RDEPENDS_FILE=	${WRKDIR}/.rdepends
 
@@ -31,6 +43,7 @@ _RRDEPENDS_FILE=${WRKDIR}/.rrdepends
 
 _FULL_DEPENDS_CMD=	\
 	${AWK} '$$1 == "full" { print $$3; }' < ${_RDEPENDS_FILE}
+.endif	# SUBPACKAGES
 
 _REDUCE_DEPENDS_CMD=	${PKGSRC_SETENV} CAT=${CAT:Q}				\
 				PKG_ADMIN=${PKG_ADMIN:Q}		\
@@ -43,11 +56,22 @@ _HOST_REDUCE_DEPENDS_CMD=						\
 				PWD_CMD=${PWD_CMD:Q} TEST=${TEST:Q}	\
 			${AWK} -f ${PKGSRCDIR}/mk/pkgformat/pkg/reduce-depends.awk
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_REDUCE_RESOLVED_DEPENDS_CMD.${_spkg_}=${PKGSRC_SETENV} CAT=${CAT:Q}		\
+				PKG_INFO=${PKG_INFO:Q}			\
+				HOST_PKG_INFO=${HOST_PKG_INFO:Q}	\
+			${AWK} -f ${PKGSRCDIR}/mk/pkgformat/pkg/reduce-resolved-depends.awk \
+				< ${_RDEPENDS_FILE.${_spkg_}}
+.  endfor
+.endif	# SUBPACKAGES
+.else	# !SUBPACKAGES
 _REDUCE_RESOLVED_DEPENDS_CMD=${PKGSRC_SETENV} CAT=${CAT:Q}		\
 				PKG_INFO=${PKG_INFO:Q}			\
 				HOST_PKG_INFO=${HOST_PKG_INFO:Q}	\
 			${AWK} -f ${PKGSRCDIR}/mk/pkgformat/pkg/reduce-resolved-depends.awk \
 				< ${_RDEPENDS_FILE}
+.endif	# SUBPACKAGES
 
 _pkgformat-show-depends: .PHONY
 	@case ${VARNAME:Q}"" in						\
@@ -71,6 +95,19 @@ _LIST_DEPENDS_CMD.bootstrap=	\
 		${SH} ${PKGSRCDIR}/mk/pkgformat/pkg/list-dependencies \
 			" "${BOOTSTRAP_DEPENDS:Q} " " " " " "
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_RESOLVE_DEPENDS_CMD.${_spkg_}=	\
+	${PKGSRC_SETENV} _PKG_DBDIR=${_PKG_DBDIR:Q} PKG_INFO=${PKG_INFO:Q} \
+		HOST_PKG_INFO=${HOST_PKG_INFO:Q} \
+		_DEPENDS_FILE=${_DEPENDS_FILE.${_spkg_}:Q} \
+		${SH} ${PKGSRCDIR}/mk/pkgformat/pkg/resolve-dependencies \
+			" "${BOOTSTRAP_DEPENDS:Q} \
+			" "${TOOL_DEPENDS:Q} \
+			" "${BUILD_DEPENDS:Q} \
+			" "${DEPENDS:Q}
+.  endfor
+.else	# !SUBPACKAGES
 _RESOLVE_DEPENDS_CMD=	\
 	${PKGSRC_SETENV} _PKG_DBDIR=${_PKG_DBDIR:Q} PKG_INFO=${PKG_INFO:Q} \
 		HOST_PKG_INFO=${HOST_PKG_INFO:Q} \
@@ -80,6 +117,7 @@ _RESOLVE_DEPENDS_CMD=	\
 			" "${TOOL_DEPENDS:Q} \
 			" "${BUILD_DEPENDS:Q} \
 			" "${DEPENDS:Q}
+.endif	# SUBPACKAGES
 
 # _DEPENDS_INSTALL_CMD checks whether the package $pattern is installed,
 #	and installs it if necessary.
@@ -160,6 +198,19 @@ _DEPENDS_INSTALL_CMD=							\
 		;;							\
 	esac
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_DEPENDS_FILE.${_spkg_}}:
+	${RUN} ${MKDIR} ${.TARGET:H}
+	${RUN} ${_LIST_DEPENDS_CMD} > ${.TARGET} || (${RM} -f ${.TARGET} && ${FALSE})
+
+${_RDEPENDS_FILE.${_spkg_}}: ${_DEPENDS_FILE.${_spkg_}}
+	${RUN} ${_RESOLVE_DEPENDS_CMD.${_spkg_}} > ${.TARGET} || (${RM} -f ${.TARGET} && ${FALSE})
+
+${_RRDEPENDS_FILE.${_spkg_}}: ${_RDEPENDS_FILE.${_spkg_}}
+	${RUN} ${_REDUCE_RESOLVED_DEPENDS_CMD.${_spkg_}} > ${.TARGET} || (${RM} -f ${.TARGET} && ${FALSE})
+.  endfor
+.else	# !SUBPACKAGES
 ${_DEPENDS_FILE}:
 	${RUN} ${MKDIR} ${.TARGET:H}
 	${RUN} ${_LIST_DEPENDS_CMD} > ${.TARGET} || (${RM} -f ${.TARGET} && ${FALSE})
@@ -169,6 +220,13 @@ ${_RDEPENDS_FILE}: ${_DEPENDS_FILE}
 
 ${_RRDEPENDS_FILE}: ${_RDEPENDS_FILE}
 	${RUN} ${_REDUCE_RESOLVED_DEPENDS_CMD} > ${.TARGET} || (${RM} -f ${.TARGET} && ${FALSE})
+.endif	# SUBPACKAGES
+
+#
+# TODOleot: continue here:
+# TODOleot:  - introduce _DEPENDS_FILES for spkgs
+# TODOleot:  - probably more stuffs to investigate
+#
 
 # _pkgformat-install-dependencies:
 #	Installs any missing dependencies.
