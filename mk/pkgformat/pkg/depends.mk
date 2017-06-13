@@ -224,7 +224,9 @@ ${_RRDEPENDS_FILE}: ${_RDEPENDS_FILE}
 
 #
 # TODOleot: continue here:
-# TODOleot:  - introduce _DEPENDS_FILES for spkgs
+# TODOleot:  - introduce _DEPENDS_FILES for spkgs (that is a list of all
+# TODOleot:    _DEPENDS_FILE.<spkg>s in order to be used by
+# TODOleot:    _pkgformat-install-dependencies target)
 # TODOleot:  - probably more stuffs to investigate
 #
 
