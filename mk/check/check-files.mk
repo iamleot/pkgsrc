@@ -275,7 +275,7 @@ ${_CHECK_FILES_EXPECTED}: plist
 	${RUN}					\
 	${CP} ${.TARGET} ${.TARGET}.tmp;	\
 	${SORT} ${.TARGET}.tmp > ${.TARGET};	\
-	${RM} -f ${.TARGET}.tmp;	
+	${RM} -f ${.TARGET}.tmp
 .else	# !SUBPACKAGES
 	${RUN}					\
 	${GREP} '^[^@]' ${PLIST} | ${SED} "s|^|${DESTDIR}${PREFIX}/|" | ${SORT}	\
