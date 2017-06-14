@@ -255,7 +255,7 @@ _pkgformat-install-dependencies: .PHONY ${_DEPENDS_FILES}
 # _pkgformat-post-install-dependencies:
 #	Targets after installing all dependencies.
 #
-_pkgformat-post-install-dependencies: .PHONY ${_RDEPENDS_FILE} ${_RRDEPENDS_FILE}
+_pkgformat-post-install-dependencies: .PHONY ${_RDEPENDS_FILES} ${_RRDEPENDS_FILES}
 
 ######################################################################
 ### pkg_install-depends (PUBLIC, pkgsrc/mk/depends/depends.mk)
