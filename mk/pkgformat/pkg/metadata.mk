@@ -473,7 +473,7 @@ ${_SIZE_ALL_FILE.${_spkg_}}: ${_RDEPENDS_FILE.${_spkg_}} ${_SIZE_PKG_FILE.${_spk
 	${RUN}								\
 	{								\
 		${CAT} ${_SIZE_PKG_FILE.${_spkg_}} &&			\
-		${_FULL_DEPENDS_CMD} | ${SORT} -u |			\
+		${_FULL_DEPENDS_CMD.${_spkg_}} | ${SORT} -u |			\
 		${XARGS} -n 256 ${PKG_INFO} -qs;			\
 	} |								\
 	${AWK} 'BEGIN { s = 0 } /^[0-9]+$$/ { s += $$1 } END { print s }' \
