@@ -27,6 +27,7 @@
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _DEPENDS_FILE.${_spkg_}=	${WRKDIR}/.depends.${_spkg_}
+_DEPENDS_FILES+=		${_DEPENDS_FILE.${_spkg_}}
 _RDEPENDS_FILE.${_spkg_}=	${WRKDIR}/.rdepends.${_spkg_}
 
 _RRDEPENDS_FILE.${_spkg_}=	${WRKDIR}/.rrdepends.${_spkg_}
@@ -36,8 +37,9 @@ _FULL_DEPENDS_CMD.${_spkg_}=	\
 .  endfor
 .endif	# SUBPACKAGES
 .else	# !SUBPACKAGES
-_DEPENDS_FILE=	${WRKDIR}/.depends
-_RDEPENDS_FILE=	${WRKDIR}/.rdepends
+_DEPENDS_FILE=		${WRKDIR}/.depends
+_DEPENDS_FILES+=	${_DEPENDS_FILE}
+_RDEPENDS_FILE=		${WRKDIR}/.rdepends
 
 _RRDEPENDS_FILE=${WRKDIR}/.rrdepends
 
@@ -224,9 +226,6 @@ ${_RRDEPENDS_FILE}: ${_RDEPENDS_FILE}
 
 #
 # TODOleot: continue here:
-# TODOleot:  - introduce _DEPENDS_FILES for spkgs (that is a list of all
-# TODOleot:    _DEPENDS_FILE.<spkg>s in order to be used by
-# TODOleot:    _pkgformat-install-dependencies target)
 # TODOleot:  - probably more stuffs to investigate
 #
 
