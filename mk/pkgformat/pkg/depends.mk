@@ -224,15 +224,21 @@ ${_RRDEPENDS_FILE}: ${_RDEPENDS_FILE}
 	${RUN} ${_REDUCE_RESOLVED_DEPENDS_CMD} > ${.TARGET} || (${RM} -f ${.TARGET} && ${FALSE})
 .endif	# SUBPACKAGES
 
-#
-# TODOleot: continue here:
-# TODOleot:  - probably more stuffs to investigate
-#
-
 # _pkgformat-install-dependencies:
 #	Installs any missing dependencies.
 #
-_pkgformat-install-dependencies: .PHONY ${_DEPENDS_FILE}
+_pkgformat-install-dependencies: .PHONY ${_DEPENDS_FILES}
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN}								\
+	exec 3<&0;							\
+	${CAT} ${_DEPENDS_FILE.${_spkg_}} | 				\
+	while read type pattern dir; do					\
+		${TEST} "$$type" != "bootstrap" || continue;		\
+		${_DEPENDS_INSTALL_CMD} 0<&3;				\
+	done
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN}								\
 	exec 3<&0;							\
 	${CAT} ${_DEPENDS_FILE} | 					\
@@ -240,6 +246,7 @@ _pkgformat-install-dependencies: .PHONY ${_DEPENDS_FILE}
 		${TEST} "$$type" != "bootstrap" || continue;		\
 		${_DEPENDS_INSTALL_CMD} 0<&3;				\
 	done
+.endif	# SUBPACKAGES
 
 # _pkgformat-post-install-dependencies:
 #	Targets after installing all dependencies.
