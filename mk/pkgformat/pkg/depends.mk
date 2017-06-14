@@ -29,8 +29,10 @@
 _DEPENDS_FILE.${_spkg_}=	${WRKDIR}/.depends.${_spkg_}
 _DEPENDS_FILES+=		${_DEPENDS_FILE.${_spkg_}}
 _RDEPENDS_FILE.${_spkg_}=	${WRKDIR}/.rdepends.${_spkg_}
+_RDEPENDS_FILES+=		${_RDEPENDS_FILE.${_spkg_}}
 
 _RRDEPENDS_FILE.${_spkg_}=	${WRKDIR}/.rrdepends.${_spkg_}
+_RRDEPENDS_FILES+=		${_RRDEPENDS_FILE.${_spkg_}}
 
 _FULL_DEPENDS_CMD.${_spkg_}=	\
 	${AWK} '$$1 == "full" { print $$3; }' < ${_RDEPENDS_FILE.${_spkg_}}
@@ -40,8 +42,10 @@ _FULL_DEPENDS_CMD.${_spkg_}=	\
 _DEPENDS_FILE=		${WRKDIR}/.depends
 _DEPENDS_FILES+=	${_DEPENDS_FILE}
 _RDEPENDS_FILE=		${WRKDIR}/.rdepends
+_RDEPENDS_FILES+=	${_RDEPENDS_FILE}
 
 _RRDEPENDS_FILE=${WRKDIR}/.rrdepends
+_RRDEPENDS_FILES+=	${_RRDEPENDS_FILE}
 
 _FULL_DEPENDS_CMD=	\
 	${AWK} '$$1 == "full" { print $$3; }' < ${_RDEPENDS_FILE}
