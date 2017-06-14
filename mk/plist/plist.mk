@@ -366,7 +366,7 @@ ${PLIST}:
 # for list of keywords see pkg_create(1)
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
-${_PLIST_NOKEYWORDS.${_spkg_}}: ${PLIST.${_spkg_}
+${_PLIST_NOKEYWORDS.${_spkg_}}: ${PLIST.${_spkg_}}
 	${RUN} ${AWK} < ${PLIST.${_spkg_}} > ${.TARGET} '	\
 		BEGIN {							\
 			FILTER="@(";					\
