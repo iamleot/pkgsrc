@@ -37,7 +37,6 @@ _RRDEPENDS_FILES+=		${_RRDEPENDS_FILE.${_spkg_}}
 _FULL_DEPENDS_CMD.${_spkg_}=	\
 	${AWK} '$$1 == "full" { print $$3; }' < ${_RDEPENDS_FILE.${_spkg_}}
 .  endfor
-.endif	# SUBPACKAGES
 .else	# !SUBPACKAGES
 _DEPENDS_FILE=		${WRKDIR}/.depends
 _DEPENDS_FILES+=	${_DEPENDS_FILE}
@@ -70,7 +69,6 @@ _REDUCE_RESOLVED_DEPENDS_CMD.${_spkg_}=${PKGSRC_SETENV} CAT=${CAT:Q}		\
 			${AWK} -f ${PKGSRCDIR}/mk/pkgformat/pkg/reduce-resolved-depends.awk \
 				< ${_RDEPENDS_FILE.${_spkg_}}
 .  endfor
-.endif	# SUBPACKAGES
 .else	# !SUBPACKAGES
 _REDUCE_RESOLVED_DEPENDS_CMD=${PKGSRC_SETENV} CAT=${CAT:Q}		\
 				PKG_INFO=${PKG_INFO:Q}			\
