@@ -466,10 +466,9 @@ _SIZE_ALL_FILE=		${PKG_DB_TMPDIR}/+SIZE_ALL
 _METADATA_TARGETS+=	${_SIZE_ALL_FILE}
 .endif	# SUBPACKAGES
 
-# TODOleot: SUBPACKAGES-ify _RDEPENDS_FILE!
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
-${_SIZE_ALL_FILE.${_spkg_}}: ${_RDEPENDS_FILE} ${_SIZE_PKG_FILE.${_spkg_}}
+${_SIZE_ALL_FILE.${_spkg_}}: ${_RDEPENDS_FILE.${_spkg_}} ${_SIZE_PKG_FILE.${_spkg_}}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}								\
 	{								\
@@ -529,7 +528,6 @@ _CONTENTS_FILE=		${PKG_DB_TMPDIR}/+CONTENTS
 _METADATA_TARGETS+=	${_CONTENTS_FILE}
 .endif	# SUBPACKAGES
 
-# TODOleot: SUBPACKAGES-ify _RDEPENDS_FILE!
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _DEPENDS_PLIST.${_spkg_}=		${WRKDIR}/.PLIST_deps.${_spkg_}
@@ -537,8 +535,8 @@ _DEPENDS_PLIST.${_spkg_}=		${WRKDIR}/.PLIST_deps.${_spkg_}
 ${_DEPENDS_PLIST.${_spkg_}}: ${PLIST.${_spkg_}}
 	${RUN} { \
 	${ECHO} "@name ${PKGNAME.${_spkg_}}"; \
-	${AWK} '$$1 == "full" { printf "@blddep %s\n@pkgdep %s\n", $$3, $$2; }' < ${_RDEPENDS_FILE}; \
-	${AWK} '$$1 == "bootstrap" || $$1 == "build" { printf "@blddep %s\n", $$3; }' < ${_RDEPENDS_FILE}; \
+	${AWK} '$$1 == "full" { printf "@blddep %s\n@pkgdep %s\n", $$3, $$2; }' < ${_RDEPENDS_FILE.${_spkg_}}; \
+	${AWK} '$$1 == "bootstrap" || $$1 == "build" { printf "@blddep %s\n", $$3; }' < ${_RDEPENDS_FILE.${_spkg_}}; \
 	${CAT} ${PLIST.${_spkg_}}; } > ${.TARGET}
 .  endfor
 .else	# !SUBPACKAGES
@@ -586,7 +584,7 @@ _INSTALL_ARG_cmd=	if ${TEST} -f ${INSTALL_FILE}; then		\
 _CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_INFO_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_VERSION_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_COMMENT_FILE.${_spkg_}}
-_CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DESCR_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_MESSAGE_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_PLIST.${_spkg_}}
