@@ -521,7 +521,7 @@ ${_SIZE_ALL_FILE}: ${_RDEPENDS_FILE} ${_SIZE_PKG_FILE}
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _CONTENTS_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+CONTENTS
-_METADATA_TARGETS.${_spkg_}+=	${_CONTENTS_FILE.${_spkg_}}
+_METADATA_TARGETS+=		${_CONTENTS_FILE.${_spkg_}}
 .  endfor
 .else	# !SUBPACKAGES
 _CONTENTS_FILE=		${PKG_DB_TMPDIR}/+CONTENTS
