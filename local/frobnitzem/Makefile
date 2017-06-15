@@ -18,10 +18,6 @@ COMMENT.bar=	Simple subpackages example (bar)
 COMMENT.baz=	Simple subpackages example (baz)
 LICENSE=	public-domain
 
-COMMENT.foo=	Simple subpackages example (foo)
-COMMENT.bar=	Simple subpackages example (bar)
-COMMENT.baz=	Simple subpackages example (baz)
-
 FILESDIR=	${.CURDIR}/../../local/frobnitzem/files
 
 WRKSRC=		${WRKDIR}/frobnitzem
