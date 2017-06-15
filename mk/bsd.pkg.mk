@@ -125,8 +125,14 @@ INTERACTIVE_STAGE?=	none
 MAINTAINER=${OWNER}
 .else
 MAINTAINER?=		pkgsrc-users@NetBSD.org
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PKGWILDCARD.${_spkg_}?=	${PKGBASE.${_spkg_}}-[0-9]*
+.  endfor
+.else # !SUBPACKAGES
 .endif
 PKGWILDCARD?=		${PKGBASE}-[0-9]*
+.endif	# SUBPACKAGES
 TOOL_DEPENDS?=		# empty
 .if defined(GITHUB_TAG)
 WRKSRC?=		${WRKDIR}/${GITHUB_PROJECT}-${GITHUB_TAG:C/^v//}
