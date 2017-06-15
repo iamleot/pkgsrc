@@ -308,7 +308,7 @@ ${_COMMENT_FILE}:
 ###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
-_DESCR_FILE.${_spkg_}=		${PKG_DB_TMPDIR}/+DESC.${_spkg_}
+_DESCR_FILE.${_spkg_}=		${PKG_DB_TMPDIR}/${_spkg_}/+DESC
 _METADATA_TARGETS+=	${_DESCR_FILE.${_spkg_}}
 
 ${_DESCR_FILE.${_spkg_}}: ${DESCR_SRC.${_spkg_}}
