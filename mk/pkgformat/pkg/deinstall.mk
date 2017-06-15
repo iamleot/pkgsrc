@@ -31,6 +31,10 @@ MAKEFLAGS.su-deinstall+=	_UPDATE_RUNNING=YES
 # See also:
 #	deinstall
 #
+#
+# TODOleot: PKGWILDCARD probably need to be converted per-subpackages.
+# TODOleot: Please give a look to mk/bsd.pkg.mk and other PKGWILDCARD users.
+#
 _pkgformat-deinstall: .PHONY
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
