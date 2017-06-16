@@ -31,9 +31,6 @@ MAKEFLAGS.su-deinstall+=	_UPDATE_RUNNING=YES
 # See also:
 #	deinstall
 #
-#
-# TODOleot: PKGWILDCARD need to be adjusted per-subpackages.
-#
 _pkgformat-deinstall: .PHONY
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
@@ -44,7 +41,7 @@ _pkgformat-deinstall: .PHONY
 		found=${OLDNAME.${_spkg_}};					\
 	fi;								\
 	case "$$found" in						\
-	"") found=`${_PKG_BEST_EXISTS} ${PKGWILDCARD:Q} || ${TRUE}`;;	\
+	"") found=`${_PKG_BEST_EXISTS} ${PKGWILDCARD.${_spkg_}:Q} || ${TRUE}`;;	\
 	esac;								\
 	if ${TEST} -n "$$found"; then					\
 		${ECHO} "Running ${PKG_DELETE} ${_PKG_ARGS_DEINSTALL} $$found"; \
