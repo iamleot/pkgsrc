@@ -62,12 +62,12 @@ _REPLACE_NEWNAME_FILE.${_spkg_}=	${WRKDIR}/.replace_newname.${_spkg_}
 _REPLACE_OLDNAME_CMD.${_spkg_}=	\
 	[ -f ${_REPLACE_OLDNAME_FILE.${_spkg_}} ] \
 	|| ${FAIL_MSG} "[${.TARGET}] ${_REPLACE_OLDNAME_FILE.${_spkg_}}: File not found"; \
-	oldname=`${CAT} ${_REPLACE_OLDNAME_FILE.${_spkg_}}`
+	oldname_${_spkg_}=`${CAT} ${_REPLACE_OLDNAME_FILE.${_spkg_}}`
 
 _REPLACE_NEWNAME_CMD.${_spkg_}=	\
 	[ -f ${_REPLACE_NEWNAME_FILE.${_spkg_}} ] \
 	|| ${FAIL_MSG} "[${.TARGET}] ${_REPLACE_NEWNAME_FILE.${_spkg_}}: File not found"; \
-	newname=`${CAT} ${_REPLACE_NEWNAME_FILE.${_spkg_}}`
+	newname_${_spkg_}=`${CAT} ${_REPLACE_NEWNAME_FILE.${_spkg_}}`
 .  endfor
 .else	# !SUBPACKAGES
 _INSTALLED_INFO_FILE=	${WRKDIR}/.replace-+INSTALLED_INFO
