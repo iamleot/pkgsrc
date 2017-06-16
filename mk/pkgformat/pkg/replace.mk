@@ -104,6 +104,17 @@ undo-replace-check: .PHONY
 # Generates a binary package for the (older) installed package using pkg_tarup.
 #
 replace-tarup: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} [ -x ${_PKG_TARUP_CMD:Q} ] \
+	|| ${FAIL_MSG} ${_PKG_TARUP_CMD:Q}" was not found.";		\
+	${_REPLACE_OLDNAME_CMD.${_spkg_}};				\
+	${PKGSRC_SETENV} PKG_DBDIR=${_PKG_DBDIR} PKG_SUFX=${PKG_SUFX}	\
+		PKGREPOSITORY=${WRKDIR}					\
+		${_PKG_TARUP_CMD} $${oldname_${_spkg_}} ||		\
+	${FAIL_MSG} "Could not pkg_tarup $${oldname_${_spkg_}}".
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN} [ -x ${_PKG_TARUP_CMD:Q} ] \
 	|| ${FAIL_MSG} ${_PKG_TARUP_CMD:Q}" was not found.";		\
 	${_REPLACE_OLDNAME_CMD};					\
@@ -111,20 +122,39 @@ replace-tarup: .PHONY
 		PKGREPOSITORY=${WRKDIR}					\
 		${_PKG_TARUP_CMD} $${oldname} ||			\
 	${FAIL_MSG} "Could not pkg_tarup $${oldname}".
+.endif	# SUBPACKAGES
 
 # Re-installs the old package that has been saved by replace-tarup.
 #
 undo-replace-install: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	@${PHASE_MSG} "Re-adding ${PKGNAME.${_spkg_}} from saved tar-up package."
+	${RUN} ${_REPLACE_OLDNAME_CMD.${_spkg_}};					\
+	${ECHO} "Installing saved package ${WRKDIR}/$${oldname_${_spkg_}}${PKG_SUFX}";	\
+	${PKG_ADD} ${WRKDIR}/$${oldname_${_spkg_}}${PKG_SUFX}
+.  endfor
+.else	# !SUBPACKAGES
 	@${PHASE_MSG} "Re-adding ${PKGNAME} from saved tar-up package."
 	${RUN} ${_REPLACE_OLDNAME_CMD};					\
 	${ECHO} "Installing saved package ${WRKDIR}/$${oldname}${PKG_SUFX}"; \
 	${PKG_ADD} ${WRKDIR}/$${oldname}${PKG_SUFX}
+.endif	# SUBPACKAGES
 
 undo-destdir-replace-install: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	@${PHASE_MSG} "Re-adding ${PKGNAME.${_spkg_}} from saved tar-up package."
+	${RUN} ${_REPLACE_OLDNAME_CMD.${_spkg_}};					\
+	${ECHO} "Installing saved package ${WRKDIR}/$${oldname_${_spkg_}}${PKG_SUFX}";	\
+	${PKG_ADD} -U -D ${WRKDIR}/$${oldname_${_spkg_}}${PKG_SUFX}
+.  endfor
+.else	# !SUBPACKAGES
 	@${PHASE_MSG} "Re-adding ${PKGNAME} from saved tar-up package."
 	${RUN} ${_REPLACE_OLDNAME_CMD};					\
 	${ECHO} "Installing saved package ${WRKDIR}/$${oldname}${PKG_SUFX}"; \
 	${PKG_ADD} -U -D ${WRKDIR}/$${oldname}${PKG_SUFX}
+.endif	# SUBPACKAGES
 
 # Computes and saves the full names of the installed package to be replaced
 # (oldname) and the package that will be installed (newname), so that these
