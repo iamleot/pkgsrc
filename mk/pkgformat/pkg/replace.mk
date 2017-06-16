@@ -51,7 +51,7 @@ _pkgformat-destdir-undo-replace: \
 	.PHONY
 
 .if !empty(SUBPACKAGES)
-.for _spkg_ in ${SUBPACKAGES}
+.  for _spkg_ in ${SUBPACKAGES}
 _INSTALLED_INFO_FILE.${_spkg_}=		${WRKDIR}/.replace-+INSTALLED_INFO.${_spkg_}
 _REQUIRED_BY_FILE.${_spkg_}=		${WRKDIR}/.replace-+REQUIRED_BY.${_spkg_}
 
@@ -68,6 +68,7 @@ _REPLACE_NEWNAME_CMD.${_spkg_}=	\
 	[ -f ${_REPLACE_NEWNAME_FILE.${_spkg_}} ] \
 	|| ${FAIL_MSG} "[${.TARGET}] ${_REPLACE_NEWNAME_FILE.${_spkg_}}: File not found"; \
 	newname=`${CAT} ${_REPLACE_NEWNAME_FILE.${_spkg_}}`
+.  endfor
 .else	# !SUBPACKAGES
 _INSTALLED_INFO_FILE=	${WRKDIR}/.replace-+INSTALLED_INFO
 _REQUIRED_BY_FILE=	${WRKDIR}/.replace-+REQUIRED_BY
