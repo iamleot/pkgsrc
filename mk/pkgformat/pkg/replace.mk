@@ -291,6 +291,18 @@ replace-fixup-required-by: .PHONY
 # XXX: pkg_admin should not complain on unset with no +INSTALLED_INFO.
 #
 replace-fixup-installed-info: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	@${STEP_MSG} "Removing unsafe_depends and rebuild tags."
+	${RUN} ${_REPLACE_NEWNAME_CMD.${_spkg_}};			\
+	[ ! -f ${_INSTALLED_INFO_FILE.${_spkg_}} ] ||			\
+	${MV} ${_INSTALLED_INFO_FILE.${_spkg_}} ${_PKG_DBDIR}/$${newname_${_spkg_}}/+INSTALLED_INFO; \
+	for var in unsafe_depends unsafe_depends_strict rebuild; do	\
+		${TEST} ! -f ${_PKG_DBDIR}/$${newname_${_spkg_}}/+INSTALLED_INFO || \
+		${PKG_ADMIN} unset $$var $${newname_${_spkg_}};			\
+	done
+.  endfor
+.else	# !SUBPACKAGES
 	@${STEP_MSG} "Removing unsafe_depends and rebuild tags."
 	${RUN} ${_REPLACE_NEWNAME_CMD};					\
 	[ ! -f ${_INSTALLED_INFO_FILE} ] ||			\
@@ -299,16 +311,28 @@ replace-fixup-installed-info: .PHONY
 		${TEST} ! -f ${_PKG_DBDIR}/$$newname/+INSTALLED_INFO || \
 		${PKG_ADMIN} unset $$var $$newname;			\
 	done
+.endif	# SUBPACKAGES
 
 # Removes the state files for the "replace" target, so that it may be re-invoked.
 #
 replace-clean: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} ${_REPLACE_OLDNAME_CMD.${_spkg_}};			\
+	${_REPLACE_NEWNAME_CMD.${_spkg_}};				\
+	${RM} -f ${WRKDIR}/$${oldname_${_spkg_}}${PKG_SUFX};		\
+	${RM} -f ${WRKDIR}/$${newname_${_spkg_}}${PKG_SUFX};		\
+	${RM} -f ${_REPLACE_OLDNAME_FILE.${_spkg_}} ${_REPLACE_NEWNAME_FILE.${_spkg_}}	\
+		${_COOKIE.replace.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN} ${_REPLACE_OLDNAME_CMD};					\
 	${_REPLACE_NEWNAME_CMD};					\
 	${RM} -f ${WRKDIR}/$$oldname${PKG_SUFX};			\
 	${RM} -f ${WRKDIR}/$$newname${PKG_SUFX};			\
 	${RM} -f ${_REPLACE_OLDNAME_FILE} ${_REPLACE_NEWNAME_FILE}	\
 		${_COOKIE.replace}
+.endif	# SUBPACKAGES
 
 # Logically we would like to do a "pkg_add -U".  However, that fails
 # if there is a depending package that exactly depends on the package
