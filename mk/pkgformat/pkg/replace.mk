@@ -161,6 +161,18 @@ undo-destdir-replace-install: .PHONY
 # names are available later.
 #
 replace-names: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} if [ x"${OLDNAME.${_spkg_}}" = x ]; then			\
+		wildcard=${PKGWILDCARD.${_spkg_}:Q};			\
+	else								\
+		wildcard="${OLDNAME.${_spkg_}}-[0-9]*";			\
+	fi;								\
+	${_PKG_BEST_EXISTS} "$${wildcard}" > ${_REPLACE_OLDNAME_FILE.${_spkg_}}
+	${RUN} ${ECHO} ${PKGNAME.${_spkg_}} > ${_REPLACE_NEWNAME_FILE.${_spkg_}}
+	${RUN} ${CP} -f ${_REPLACE_NEWNAME_FILE.${_spkg_}} ${_COOKIE.replace.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN} if [ x"${OLDNAME}" = x ]; then				\
 		wildcard=${PKGWILDCARD:Q};				\
 	else								\
@@ -169,24 +181,45 @@ replace-names: .PHONY
 	${_PKG_BEST_EXISTS} "$${wildcard}" > ${_REPLACE_OLDNAME_FILE}
 	${RUN} ${ECHO} ${PKGNAME} > ${_REPLACE_NEWNAME_FILE}
 	${RUN} ${CP} -f ${_REPLACE_NEWNAME_FILE} ${_COOKIE.replace}
+.endif	# SUBPACKAGES
 
 # Saves and removes the +INSTALLED_INFO file from the installed package.
 #
 replace-preserve-installed-info: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	@${STEP_MSG} "Preserving existing +INSTALLED_INFO file."
+	${RUN} ${_REPLACE_OLDNAME_CMD.${_spkg_}};				\
+	installed_info="${_PKG_DBDIR}/$${oldname_${_spkg_}}/+INSTALLED_INFO";	\
+	${TEST} ! -f "$$installed_info" ||					\
+	${MV} $$installed_info ${_INSTALLED_INFO_FILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 	@${STEP_MSG} "Preserving existing +INSTALLED_INFO file."
 	${RUN} ${_REPLACE_OLDNAME_CMD};					\
 	installed_info="${_PKG_DBDIR}/$$oldname/+INSTALLED_INFO";	\
 	${TEST} ! -f "$$installed_info" ||				\
 	${MV} $$installed_info ${_INSTALLED_INFO_FILE}
+.endif	# SUBPACKAGES
 
 # Saves and removes the +REQUIRED_BY file from the installed package.
 #
 replace-preserve-required-by: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	@${STEP_MSG} "Preserving existing +REQUIRED_BY file."
+	${RUN} ${_REPLACE_OLDNAME_CMD.${_spkg_}};			\
+	required_by="${_PKG_DBDIR}/$${oldname_${_spkg_}}/+REQUIRED_BY";	\
+	${TEST} ! -f "$$required_by" ||					\
+	${MV} $$required_by ${_REQUIRED_BY_FILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 	@${STEP_MSG} "Preserving existing +REQUIRED_BY file."
 	${RUN} ${_REPLACE_OLDNAME_CMD};					\
 	required_by="${_PKG_DBDIR}/$$oldname/+REQUIRED_BY";		\
 	${TEST} ! -f "$$required_by" ||					\
 	${MV} $$required_by ${_REQUIRED_BY_FILE}
+.endif	# SUBPACKAGES
 
 # Fixes the +CONTENTS files of dependent packages to refer to the
 # replacement package, and puts the +REQUIRED_BY file back into place.
