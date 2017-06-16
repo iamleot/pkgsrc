@@ -50,6 +50,25 @@ _pkgformat-destdir-undo-replace: \
 	replace-clean \
 	.PHONY
 
+.if !empty(SUBPACKAGES)
+.for _spkg_ in ${SUBPACKAGES}
+_INSTALLED_INFO_FILE.${_spkg_}=		${WRKDIR}/.replace-+INSTALLED_INFO.${_spkg_}
+_REQUIRED_BY_FILE.${_spkg_}=		${WRKDIR}/.replace-+REQUIRED_BY.${_spkg_}
+
+_COOKIE.replace.${_spkg_}=		${WRKDIR}/.replace_done.${_spkg_}
+_REPLACE_OLDNAME_FILE.${_spkg_}=	${WRKDIR}/.replace_oldname.${_spkg_}
+_REPLACE_NEWNAME_FILE.${_spkg_}=	${WRKDIR}/.replace_newname.${_spkg_}
+
+_REPLACE_OLDNAME_CMD.${_spkg_}=	\
+	[ -f ${_REPLACE_OLDNAME_FILE.${_spkg_}} ] \
+	|| ${FAIL_MSG} "[${.TARGET}] ${_REPLACE_OLDNAME_FILE.${_spkg_}}: File not found"; \
+	oldname=`${CAT} ${_REPLACE_OLDNAME_FILE.${_spkg_}}`
+
+_REPLACE_NEWNAME_CMD.${_spkg_}=	\
+	[ -f ${_REPLACE_NEWNAME_FILE.${_spkg_}} ] \
+	|| ${FAIL_MSG} "[${.TARGET}] ${_REPLACE_NEWNAME_FILE.${_spkg_}}: File not found"; \
+	newname=`${CAT} ${_REPLACE_NEWNAME_FILE.${_spkg_}}`
+.else	# !SUBPACKAGES
 _INSTALLED_INFO_FILE=	${WRKDIR}/.replace-+INSTALLED_INFO
 _REQUIRED_BY_FILE=	${WRKDIR}/.replace-+REQUIRED_BY
 
@@ -66,6 +85,7 @@ _REPLACE_NEWNAME_CMD=	\
 	[ -f ${_REPLACE_NEWNAME_FILE} ] \
 	|| ${FAIL_MSG} "[${.TARGET}] ${_REPLACE_NEWNAME_FILE}: File not found"; \
 	newname=`${CAT} ${_REPLACE_NEWNAME_FILE}`
+.endif	# SUBPACKAGES
 
 # Verifies that there was a previous "replace" action performed that can be undone.
 #
