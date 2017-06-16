@@ -29,13 +29,14 @@
 
 ##### PKGBASE, PKGNAME[_NOREV], PKGVERSION
 
-#
-# TODOleot: Add a check about valid identifier for SUBPACKAGES. Possible
-# TODOleot: SUBPACKAGES values should be also valid make variable identifier AND
-# TODOleot: shell variable identifier.
-# TODOleot: Probably something like that:
-# TODOleot:  [A-Za-z][A-Za-z0-9_]*
-#
+# Only C-like subpackage identifiers are supported
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.    if ${_spkg_:N[A-Za-z][A-Za-z0-9]*}
+PKG_FAIL_REASON+=	"Invalid subpackage identifier ${_spkg_}"
+.    endif
+.  endfor
+.endif
 
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
