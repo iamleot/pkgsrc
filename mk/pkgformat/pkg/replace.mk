@@ -230,6 +230,35 @@ replace-preserve-required-by: .PHONY
 # XXX Only set unsafe_depends if there is an ABI change.
 #
 replace-fixup-required-by: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	@${STEP_MSG} "Fixing @pkgdep entries in dependent packages."
+	${RUN} ${_REPLACE_OLDNAME_CMD.${_spkg_}};			\
+	${_REPLACE_NEWNAME_CMD.${_spkg_}};				\
+	${TEST} -f ${_REQUIRED_BY_FILE.${_spkg_}} || exit 0;		\
+	${CAT} ${_REQUIRED_BY_FILE.${_spkg_}} |				\
+	while read pkg; do						\
+		case $$pkg in						\
+		"")	continue ;;					\
+		/*)	pkgdir="$$pkg" ;;				\
+		*)	pkgdir="${_PKG_DBDIR}/$$pkg" ;;			\
+		esac;							\
+		contents="$$pkgdir/+CONTENTS";				\
+		newcontents="$$contents.$$$$";				\
+		${PKGSRC_SETENV} OLDNAME="$${oldname_${_spkg_}}" NEWNAME="$${newname_${_spkg_}}"	\
+		${AWK} '($$0 ~ "^@pkgdep " ENVIRON["OLDNAME"])		\
+			{ print "@pkgdep " ENVIRON["NEWNAME"]; next }	\
+			{ print }'					\
+			$$contents > $$newcontents;			\
+		${MV} -f $$newcontents $$contents;			\
+		${PKG_ADMIN} set unsafe_depends_strict=YES $$pkg;	\
+		if ${TEST} "$${oldname_${_spkg_}}" != "$${newname_${_spkg_}}"; then	\
+			${PKG_ADMIN} set unsafe_depends=YES $$pkg;	\
+		fi;							\
+	done;								\
+	${MV} ${_REQUIRED_BY_FILE} ${_PKG_DBDIR}/$${newname_${_spkg_}}/+REQUIRED_BY
+.  endfor
+.else	# !SUBPACKAGES
 	@${STEP_MSG} "Fixing @pkgdep entries in dependent packages."
 	${RUN} ${_REPLACE_OLDNAME_CMD};					\
 	${_REPLACE_NEWNAME_CMD};					\
@@ -255,6 +284,7 @@ replace-fixup-required-by: .PHONY
 		fi;							\
 	done;								\
 	${MV} ${_REQUIRED_BY_FILE} ${_PKG_DBDIR}/$$newname/+REQUIRED_BY
+.endif	# SUBPACKAGES
 
 # Removes unsafe_depends* and rebuild tags from this package.
 #
