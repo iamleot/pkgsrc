@@ -344,6 +344,31 @@ replace-clean: .PHONY
 # depending packages, and then those may be rebuilt via a manual
 # process or by pkg_rolling-replace.
 replace-destdir: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	@${PHASE_MSG} "Updating using binary package of "${PKGNAME.${_spkg_}:Q}
+.if !empty(USE_CROSS_COMPILE:M[yY][eE][sS])
+	@${MKDIR} ${_CROSS_DESTDIR}${PREFIX}
+	${PKG_ADD} -U -D -m ${MACHINE_ARCH} -I -p ${_CROSS_DESTDIR}${PREFIX} ${STAGE_PKGFILE.${_spkg_}}
+	@${ECHO} "Fixing recorded cwd..."
+	@${SED} -e 's|@cwd ${_CROSS_DESTDIR}|@cwd |' ${_PKG_DBDIR}/${PKGNAME.${_spkg_}:Q}/+CONTENTS > ${_PKG_DBDIR}/${PKGNAME.${_spkg_}:Q}/+CONTENTS.tmp
+	@${MV} ${_PKG_DBDIR}/${PKGNAME.${_spkg_}:Q}/+CONTENTS.tmp ${_PKG_DBDIR}/${PKGNAME.${_spkg_}:Q}/+CONTENTS
+.else
+	${PKG_ADD} -U -D ${STAGE_PKGFILE.${_spkg_}}
+.endif
+	${RUN}${_REPLACE_OLDNAME_CMD.${_spkg_}}; \
+	${PKG_INFO} -qR ${PKGNAME.${_spkg_}:Q} | while read pkg; do \
+		[ -n "$$pkg" ] || continue; \
+		${PKG_ADMIN} set unsafe_depends_strict=YES "$$pkg"; \
+		if [ "$${oldname_${_spkg_}}" != ${PKGNAME.${_spkg_}:Q} ]; then \
+			${PKG_ADMIN} set unsafe_depends=YES "$$pkg"; \
+		fi; \
+	done
+	${RUN}${PKG_ADMIN} unset unsafe_depends ${PKGNAME.${_spkg_}:Q}
+	${RUN}${PKG_ADMIN} unset unsafe_depends_strict ${PKGNAME.${_spkg_}:Q}
+	${RUN}${PKG_ADMIN} unset rebuild ${PKGNAME.${_spkg_}:Q}
+.  endfor
+.else	# !SUBPACKAGES
 	@${PHASE_MSG} "Updating using binary package of "${PKGNAME:Q}
 .if !empty(USE_CROSS_COMPILE:M[yY][eE][sS])
 	@${MKDIR} ${_CROSS_DESTDIR}${PREFIX}
@@ -365,3 +390,4 @@ replace-destdir: .PHONY
 	${RUN}${PKG_ADMIN} unset unsafe_depends ${PKGNAME:Q}
 	${RUN}${PKG_ADMIN} unset unsafe_depends_strict ${PKGNAME:Q}
 	${RUN}${PKG_ADMIN} unset rebuild ${PKGNAME:Q}
+.endif	# SUBPACKAGES
