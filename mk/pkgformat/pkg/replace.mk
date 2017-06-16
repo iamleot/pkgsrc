@@ -91,8 +91,15 @@ _REPLACE_NEWNAME_CMD=	\
 # Verifies that there was a previous "replace" action performed that can be undone.
 #
 undo-replace-check: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+	${RUN} [ -f ${_COOKIE.replace.${_spkg_}} ] \
+	|| ${FAIL_MSG} "No replacement to undo!"
+.  endfor
+.else	# !SUBPACKAGES
 	${RUN} [ -f ${_COOKIE.replace} ] \
 	|| ${FAIL_MSG} "No replacement to undo!"
+.endif	# SUBPACKAGES
 
 # Generates a binary package for the (older) installed package using pkg_tarup.
 #
