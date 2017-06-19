@@ -384,6 +384,7 @@ MESSAGE_SRC?=	${MESSAGE_SRC_DFLT}
 .endif # SUBPACKAGES
 
 .if !empty(SUBPACKAGES)
+# FIXMEleot: MESSAGE_SUBST should be per-spkg!
 # Set MESSAGE_SUBST to substitute "${variable}" to "value" in MESSAGE
 MESSAGE_SUBST+=	PKGNAME=${PKGNAME}					\
 		PKGBASE=${PKGBASE}					\
