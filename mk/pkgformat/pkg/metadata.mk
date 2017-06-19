@@ -343,6 +343,27 @@ ${_DESCR_FILE}: ${DESCR_SRC}
 ### This file contains important messages which apply to this package,
 ### and are shown during installation.
 ###
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.if exists(${PKGDIR}/MESSAGE)
+MESSAGE_SRC_DFLT.${_spkg_}=	${PKGDIR}/MESSAGE.${_spkg_}
+.else
+.  if exists(${PKGDIR}/MESSAGE.common)
+MESSAGE_SRC_DFLT.${_spkg_}=	${PKGDIR}/MESSAGE.common
+.  endif
+.  if exists(${PKGDIR}/MESSAGE.${OPSYS}.${_spkg_})
+MESSAGE_SRC_DFLT.${_spkg_}+=	${PKGDIR}/MESSAGE.${OPSYS}.${_spkg_}
+.  endif
+.  if exists(${PKGDIR}/MESSAGE.${MACHINE_ARCH:C/i[3-6]86/i386/g}.${_spkg_})
+MESSAGE_SRC_DFLT.${_spkg_}+=	${PKGDIR}/MESSAGE.${MACHINE_ARCH:C/i[3-6]86/i386/g}
+.  endif
+.  if exists(${PKGDIR}/MESSAGE.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g}.${_spkg_})
+MESSAGE_SRC_DFLT.${_spkg_}+=	${PKGDIR}/MESSAGE.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g}.${_spkg_}
+.  endif
+.endif
+MESSAGE_SRC.${_spkg_}?=	${MESSAGE_SRC_DFLT.${_spkg_}}
+.  endfor
+.else	# !SUBPCKAGES
 .if exists(${PKGDIR}/MESSAGE)
 MESSAGE_SRC_DFLT=	${PKGDIR}/MESSAGE
 .else
@@ -360,6 +381,7 @@ MESSAGE_SRC_DFLT+=	${PKGDIR}/MESSAGE.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g}
 .  endif
 .endif
 MESSAGE_SRC?=	${MESSAGE_SRC_DFLT}
+.endif # SUBPACKAGES
 
 .if !empty(MESSAGE_SRC)
 _MESSAGE_FILE=		${PKG_DB_TMPDIR}/+DISPLAY
