@@ -11,6 +11,7 @@ PKGSRC_MESSAGE_RECIPIENTS?=	# empty
 USE_TOOLS+=	mail
 .endif
 
+# TODOleot: spkg-ify PKG_PRESERVE!
 .if defined(PKG_PRESERVE)
 USE_TOOLS+=	date
 .endif

@@ -17,6 +17,7 @@ _PKG_ARGS_DEINSTALL+=	-r -R	# for removing stuff in bulk builds
 _PKG_ARGS_DEINSTALL+=	-v
 .endif
 
+# TODOleot: spkg-ify PKG_PRESERVE!
 .if defined(PKG_PRESERVE)
 .  if defined(_UPDATE_RUNNING) && !empty(_UPDATE_RUNNING:M[yY][eE][sS])
 _PKG_ARGS_DEINSTALL+=	-N -f -f	# update w/o removing any files
