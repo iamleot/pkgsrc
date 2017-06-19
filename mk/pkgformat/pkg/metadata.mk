@@ -384,10 +384,14 @@ MESSAGE_SRC?=	${MESSAGE_SRC_DFLT}
 .endif # SUBPACKAGES
 
 .if !empty(SUBPACKAGES)
-# FIXMEleot: MESSAGE_SUBST should be per-spkg!
+.  for _spkg_ in ${SUBPACKAGES}
+.if !empty(MESSAGE_SRC.${_spkg_})
+_MESSAGE_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+DISPLAY
+_METADATA_TARGETS+=		${_MESSAGE_FILE.${_spkg_}}
+
 # Set MESSAGE_SUBST to substitute "${variable}" to "value" in MESSAGE
-MESSAGE_SUBST+=	PKGNAME=${PKGNAME}					\
-		PKGBASE=${PKGBASE}					\
+MESSAGE_SUBST.${_spkg_}+=	PKGNAME=${PKGNAME.${_spkg_}}		\
+		PKGBASE=${PKGBASE.${_spkg_}}				\
 		PREFIX=${PREFIX}					\
 		EMULDIR=${EMULDIR}					\
 		EMULSUBDIR=${EMULSUBDIR}				\
@@ -397,16 +401,12 @@ MESSAGE_SUBST+=	PKGNAME=${PKGNAME}					\
 		ROOT_GROUP=${REAL_ROOT_GROUP}				\
 		ROOT_USER=${REAL_ROOT_USER}
 
-_MESSAGE_SUBST_SED=	${MESSAGE_SUBST:S/=/}!/:S/$/!g/:S/^/ -e s!\\\${/}
-.  for _spkg_ in ${SUBPACKAGES}
-.if !empty(MESSAGE_SRC.${_spkg_})
-_MESSAGE_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+DISPLAY
-_METADATA_TARGETS+=		${_MESSAGE_FILE.${_spkg_}}
+_MESSAGE_SUBST_SED.${_spkg_}=	${MESSAGE_SUBST.${_spkg_}:S/=/}!/:S/$/!g/:S/^/ -e s!\\\${/}
 
 ${_MESSAGE_FILE.${_spkg_}}: ${MESSAGE_SRC.${_spkg_}}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${CAT} ${.ALLSRC} |			\
-		${SED} ${_MESSAGE_SUBST_SED} > ${.TARGET}
+		${SED} ${_MESSAGE_SUBST_SED.${_spkg_}} > ${.TARGET}
 .endif	# MESSAGE_SRC
 .  endfor
 .else	# !SUBPCKAGES
