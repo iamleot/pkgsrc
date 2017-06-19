@@ -383,6 +383,32 @@ MESSAGE_SRC_DFLT+=	${PKGDIR}/MESSAGE.${OPSYS}-${MACHINE_ARCH:C/i[3-6]86/i386/g}
 MESSAGE_SRC?=	${MESSAGE_SRC_DFLT}
 .endif # SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+# Set MESSAGE_SUBST to substitute "${variable}" to "value" in MESSAGE
+MESSAGE_SUBST+=	PKGNAME=${PKGNAME}					\
+		PKGBASE=${PKGBASE}					\
+		PREFIX=${PREFIX}					\
+		EMULDIR=${EMULDIR}					\
+		EMULSUBDIR=${EMULSUBDIR}				\
+		LOCALBASE=${LOCALBASE}					\
+		X11BASE=${X11BASE}					\
+		PKG_SYSCONFDIR=${PKG_SYSCONFDIR}			\
+		ROOT_GROUP=${REAL_ROOT_GROUP}				\
+		ROOT_USER=${REAL_ROOT_USER}
+
+_MESSAGE_SUBST_SED=	${MESSAGE_SUBST:S/=/}!/:S/$/!g/:S/^/ -e s!\\\${/}
+.  for _spkg_ in ${SUBPACKAGES}
+.if !empty(MESSAGE_SRC.${_spkg_})
+_MESSAGE_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+DISPLAY
+_METADATA_TARGETS+=		${_MESSAGE_FILE.${_spkg_}}
+
+${_MESSAGE_FILE.${_spkg_}}: ${MESSAGE_SRC.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${CAT} ${.ALLSRC} |			\
+		${SED} ${_MESSAGE_SUBST_SED} > ${.TARGET}
+.endif	# MESSAGE_SRC
+.  endfor
+.else	# !SUBPCKAGES
 .if !empty(MESSAGE_SRC)
 _MESSAGE_FILE=		${PKG_DB_TMPDIR}/+DISPLAY
 _METADATA_TARGETS+=	${_MESSAGE_FILE}
@@ -406,6 +432,7 @@ ${_MESSAGE_FILE}: ${MESSAGE_SRC}
 	${RUN}${CAT} ${.ALLSRC} |			\
 		${SED} ${_MESSAGE_SUBST_SED} > ${.TARGET}
 .endif	# MESSAGE_SRC
+.endif	# SUBPACKAGES
 
 ######################################################################
 ###
