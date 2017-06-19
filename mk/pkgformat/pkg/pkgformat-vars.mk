@@ -11,10 +11,17 @@ PKGSRC_MESSAGE_RECIPIENTS?=	# empty
 USE_TOOLS+=	mail
 .endif
 
-# TODOleot: spkg-ify PKG_PRESERVE!
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.if defined(PKG_PRESERVE.${_spkg_})
+USE_TOOLS+=	date
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 .if defined(PKG_PRESERVE)
 USE_TOOLS+=	date
 .endif
+.endif	# SUBPACKAGES
 
 # This is the package database directory for the default view.
 PKG_DBDIR?=		/var/db/pkg
