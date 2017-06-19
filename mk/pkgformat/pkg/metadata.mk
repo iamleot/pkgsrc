@@ -442,6 +442,18 @@ ${_MESSAGE_FILE}: ${MESSAGE_SRC}
 ### The existence of this file prevents pkg_delete from removing this
 ### package unless one "force-deletes" the package.
 ###
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.if defined(PKG_PRESERVE.${_spkg_})
+_PRESERVE_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+PRESERVE
+_METADATA_TARGETS+=		${_PRESERVE_FILE.${_spkg_}}
+
+${_PRESERVE_FILE.${_spkg_}}:
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${DATE} > ${.TARGET}
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 .if defined(PKG_PRESERVE)
 _PRESERVE_FILE=		${PKG_DB_TMPDIR}/+PRESERVE
 _METADATA_TARGETS+=	${_PRESERVE_FILE}
@@ -450,6 +462,7 @@ ${_PRESERVE_FILE}:
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${DATE} > ${.TARGET}
 .endif
+.endif	# SUBPACKAGES
 
 ######################################################################
 ###
@@ -610,7 +623,7 @@ _PKG_CREATE_ARGS.${_spkg_}+=				-c ${_COMMENT_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=	${_MESSAGE_FILE.${_spkg_}:D	-D ${_MESSAGE_FILE.${_spkg_}}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-d ${_DESCR_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-f ${_DEPENDS_PLIST.${_spkg_}}
-_PKG_CREATE_ARGS.${_spkg_}+=	${PKG_PRESERVE:D	-n ${_PRESERVE_FILE}}
+_PKG_CREATE_ARGS.${_spkg_}+=	${PKG_PRESERVE.${_spkg_}:D	-n ${_PRESERVE_FILE.${_spkg_}}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-S ${_SIZE_ALL_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-s ${_SIZE_PKG_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=	${CONFLICTS:D		-C ${CONFLICTS:Q}}
