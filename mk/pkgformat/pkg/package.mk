@@ -234,8 +234,8 @@ su-real-package-install:
 	@${MKDIR} ${_CROSS_DESTDIR}${PREFIX}
 	${PKG_ADD} -m ${MACHINE_ARCH} -I -p ${_CROSS_DESTDIR}${PREFIX} ${STAGE_PKGFILE.${_spkg_}}
 	@${ECHO} "Fixing recorded cwd..."
-	@${SED} -e 's|@cwd ${_CROSS_DESTDIR}|@cwd |' ${_CONTENTS_FILE.${_spkg_}} > ${_CONTENTS_FILE.${_spkg_}}.tmp 
-	@${MV} ${_CONTENTS_FILE.${_spkg_}}.tmp ${_CONTENTS_FILE.${_spkg_}}
+	@${SED} -e 's|@cwd ${_CROSS_DESTDIR}|@cwd |' ${_PKG_DBDIR}/${PKGNAME.${_spkg_}:Q}/+CONTENTS > ${_PKG_DBDIR}/${PKGNAME.${_spkg_}:Q}/+CONTENTS.tmp
+	@${MV} ${_PKG_DBDIR}/${PKGNAME.${_spkg_}:Q}/+CONTENTS.tmp ${_PKG_DBDIR}/${PKGNAME.${_spkg_}:Q}/+CONTENTS
 .else
 	${RUN} case ${_AUTOMATIC:Q}"" in					\
 	[yY][eE][sS])	${PKG_ADD} -A ${STAGE_PKGFILE.${_spkg_}} ;;		\
@@ -251,8 +251,6 @@ su-real-package-install:
 	@${MKDIR} ${_CROSS_DESTDIR}${PREFIX}
 	${PKG_ADD} -m ${MACHINE_ARCH} -I -p ${_CROSS_DESTDIR}${PREFIX} ${STAGE_PKGFILE}
 	@${ECHO} "Fixing recorded cwd..."
-# TODOleot: Probably reference to +CONTENTS file can be substituted with just
-# TODOleot: ${_CONTENTS_FILE} like in the SUBPACKAGES case.
 	@${SED} -e 's|@cwd ${_CROSS_DESTDIR}|@cwd |' ${_PKG_DBDIR}/${PKGNAME:Q}/+CONTENTS > ${_PKG_DBDIR}/${PKGNAME:Q}/+CONTENTS.tmp
 	@${MV} ${_PKG_DBDIR}/${PKGNAME:Q}/+CONTENTS.tmp ${_PKG_DBDIR}/${PKGNAME:Q}/+CONTENTS
 .else
