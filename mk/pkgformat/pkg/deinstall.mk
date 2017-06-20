@@ -19,7 +19,7 @@ _PKG_ARGS_DEINSTALL.${_spkg_}+=	-r -R	# for removing stuff in bulk builds
 _PKG_ARGS_DEINSTALL.${_spkg_}+=	-v
 .endif
 
-.if defined(PKG_PRESERVE)
+.if defined(PKG_PRESERVE.${_spkg_})
 .  if defined(_UPDATE_RUNNING) && !empty(_UPDATE_RUNNING:M[yY][eE][sS])
 _PKG_ARGS_DEINSTALL.${_spkg_}+=	-N -f -f	# update w/o removing any files
 
