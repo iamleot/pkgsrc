@@ -649,9 +649,9 @@ _CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_VERSION_FILE}
 _CONTENTS_TARGETS.${_spkg_}+=	${_COMMENT_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DESCR_FILE.${_spkg_}}
-_CONTENTS_TARGETS.${_spkg_}+=	${_MESSAGE_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_MESSAGE_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_DEPENDS_PLIST.${_spkg_}}
-_CONTENTS_TARGETS.${_spkg_}+=	${_PRESERVE_FILE}
+_CONTENTS_TARGETS.${_spkg_}+=	${_PRESERVE_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_SIZE_ALL_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_SIZE_PKG_FILE.${_spkg_}}
 
