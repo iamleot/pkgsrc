@@ -116,12 +116,22 @@ MKCRYPTO?=		YES	# build crypto packages by default
 BUILD_DEPENDS?=		# empty
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
+BUILD_DEPENDS.${_spkg_}?=	# empty
+.  endfor
+.endif	# SUBPACKAGES
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
 COMMENT.${_spkg_}?=	(no description)
 .  endfor
 .else # !SUBPACKAGES
 COMMENT?=		(no description)
 .endif	# SUBPACKAGES
 DEPENDS?=		# empty
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+DEPENDS.${_spkg_}?=	# empty
+.  endfor
+.endif	# SUBPACKAGES
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 DESCR_SRC.${_spkg_}?=	${PKGDIR}/DESCR.${_spkg_}
@@ -143,6 +153,11 @@ PKGWILDCARD.${_spkg_}?=	${PKGBASE.${_spkg_}}-[0-9]*
 PKGWILDCARD?=		${PKGBASE}-[0-9]*
 .endif	# SUBPACKAGES
 TOOL_DEPENDS?=		# empty
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+TOOL_DEPENDS.${_spkg_}?=	# empty
+.  endfor
+.endif	# SUBPACKAGES
 .if defined(GITHUB_TAG)
 WRKSRC?=		${WRKDIR}/${GITHUB_PROJECT}-${GITHUB_TAG:C/^v//}
 .else
