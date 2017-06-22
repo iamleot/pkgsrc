@@ -8,6 +8,10 @@
 # which class of dependencies to output.  The special value "all" means
 # to output every dependency.
 #
+# TODOleot: Adjust _ALL_DEPENDS and _ALL_DEPENDS users to be per-spkg.
+# TODOleot: Please note that show-depends-pkgpaths is used by _DEPENDS_WALK_CMD
+# TODOleot: so it may be needed to adjust it as well.
+#
 DEPENDS_TYPE?=  all
 .if !empty(DEPENDS_TYPE:Mbuild) || !empty(DEPENDS_TYPE:Mall)
 _ALL_DEPENDS+=	${BOOTSTRAP_DEPENDS} ${BUILD_DEPENDS} ${TOOL_DEPENDS}
