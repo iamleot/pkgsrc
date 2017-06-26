@@ -8,17 +8,23 @@
 # which class of dependencies to output.  The special value "all" means
 # to output every dependency.
 #
-# TODOleot: Adjust _ALL_DEPENDS and _ALL_DEPENDS users to be per-spkg.
-# TODOleot: Please note that show-depends-pkgpaths is used by _DEPENDS_WALK_CMD
-# TODOleot: so it may be needed to adjust it as well.
-#
 DEPENDS_TYPE?=  all
 .if !empty(DEPENDS_TYPE:Mbuild) || !empty(DEPENDS_TYPE:Mall)
 _ALL_DEPENDS+=	${BOOTSTRAP_DEPENDS} ${BUILD_DEPENDS} ${TOOL_DEPENDS}
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_ALL_DEPENDS+=	${BOOTSTRAP_DEPENDS.${_spkg_}} ${BUILD_DEPENDS.${_spkg_}} ${TOOL_DEPENDS.${_spkg_}}
+.  endfor
+.endif	# SUBPACKAGES
 .endif
 .if !empty(DEPENDS_TYPE:Minstall) || !empty(DEPENDS_TYPE:Mpackage) || \
     !empty(DEPENDS_TYPE:Mall)
 _ALL_DEPENDS+=	${DEPENDS}
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_ALL_DEPENDS+=	${DEPENDS.${_spkg_}}
+.  endfor
+.endif	# SUBPACKAGES
 .endif
 
 # _PKG_PATHS_CMD canonicalizes package paths so that they're relative to
