@@ -24,6 +24,8 @@ WRKSRC=		${WRKDIR}/frobnitzem
 
 NO_BUILD=	yes
 
+DEPENDS.foo+=	green-bottles-[0-9]*:../../local/green-bottles
+
 do-extract:
 	${CP} -r ${FILESDIR}/frobnitzem ${WRKDIR}
 
