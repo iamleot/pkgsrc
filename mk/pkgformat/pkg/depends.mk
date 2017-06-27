@@ -77,6 +77,7 @@ _REDUCE_RESOLVED_DEPENDS_CMD=${PKGSRC_SETENV} CAT=${CAT:Q}		\
 				< ${_RDEPENDS_FILE}
 .endif	# SUBPACKAGES
 
+# TODOleot: spkg-ify _pkgformat-show-depends target!
 _pkgformat-show-depends: .PHONY
 	@case ${VARNAME:Q}"" in						\
 	BUILD_DEPENDS)	${_REDUCE_DEPENDS_CMD} ${BUILD_DEPENDS:Q} ;;	\
