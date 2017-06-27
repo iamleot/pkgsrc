@@ -220,7 +220,7 @@ _DEPENDS_INSTALL_CMD=							\
 .  for _spkg_ in ${SUBPACKAGES}
 ${_DEPENDS_FILE.${_spkg_}}:
 	${RUN} ${MKDIR} ${.TARGET:H}
-	${RUN} ${_LIST_DEPENDS_CMD} > ${.TARGET} || (${RM} -f ${.TARGET} && ${FALSE})
+	${RUN} ${_LIST_DEPENDS_CMD.${_spkg_}} > ${.TARGET} || (${RM} -f ${.TARGET} && ${FALSE})
 
 ${_RDEPENDS_FILE.${_spkg_}}: ${_DEPENDS_FILE.${_spkg_}}
 	${RUN} ${_RESOLVE_DEPENDS_CMD.${_spkg_}} > ${.TARGET} || (${RM} -f ${.TARGET} && ${FALSE})
