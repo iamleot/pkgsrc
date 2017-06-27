@@ -121,9 +121,9 @@ _RESOLVE_DEPENDS_CMD.${_spkg_}=	\
 		_DEPENDS_FILE=${_DEPENDS_FILE.${_spkg_}:Q} \
 		${SH} ${PKGSRCDIR}/mk/pkgformat/pkg/resolve-dependencies \
 			" "${BOOTSTRAP_DEPENDS:Q} \
-			" "${TOOL_DEPENDS:Q} \
-			" "${BUILD_DEPENDS:Q} \
-			" "${DEPENDS:Q}
+			" "${TOOL_DEPENDS:Q}\ ${TOOL_DEPENDS.${_spkg_}:Q} \
+			" "${BUILD_DEPENDS:Q}\ ${BUILD_DEPENDS.${_spkg_}:Q} \
+			" "${DEPENDS:Q}\ ${DEPENDS.${_spkg_}:Q}
 .  endfor
 .else	# !SUBPACKAGES
 _RESOLVE_DEPENDS_CMD=	\
