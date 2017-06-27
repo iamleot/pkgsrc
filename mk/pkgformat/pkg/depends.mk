@@ -84,6 +84,18 @@ _pkgformat-show-depends: .PHONY
 	DEPENDS|*)	${_REDUCE_DEPENDS_CMD} ${DEPENDS:Q} ;;		\
 	esac
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_LIST_DEPENDS_CMD.${_spkg_}=	\
+	${PKGSRC_SETENV} AWK=${AWK:Q} PKG_ADMIN=${PKG_ADMIN:Q} \
+		PKGSRCDIR=${PKGSRCDIR:Q} PWD_CMD=${PWD_CMD:Q} SED=${SED:Q} \
+		${SH} ${PKGSRCDIR}/mk/pkgformat/pkg/list-dependencies \
+			" "${BOOTSTRAP_DEPENDS:Q} \
+			" "${TOOL_DEPENDS:Q}\ ${TOOL_DEPENDS.${_spkg_}:Q} \
+			" "${BUILD_DEPENDS:Q}\ ${BUILD_DEPENDS.${_spkg_}:Q} \
+			" "${DEPENDS:Q}\ ${DEPENDS.${_spkg_}:Q}
+.  endfor
+.else	# !SUBPACKAGES
 _LIST_DEPENDS_CMD=	\
 	${PKGSRC_SETENV} AWK=${AWK:Q} PKG_ADMIN=${PKG_ADMIN:Q} \
 		PKGSRCDIR=${PKGSRCDIR:Q} PWD_CMD=${PWD_CMD:Q} SED=${SED:Q} \
@@ -92,6 +104,7 @@ _LIST_DEPENDS_CMD=	\
 			" "${TOOL_DEPENDS:Q} \
 			" "${BUILD_DEPENDS:Q} \
 			" "${DEPENDS:Q}
+.endif	# SUBPACKAGES
 
 _LIST_DEPENDS_CMD.bootstrap=	\
 	${PKGSRC_SETENV} AWK=${AWK:Q} PKG_ADMIN=${PKG_ADMIN:Q} \
