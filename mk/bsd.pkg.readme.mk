@@ -151,7 +151,8 @@ binpkg-list:
 #
 # XXX Need to handle BUILD_DEPENDS/TOOL_DEPENDS split.
 #
-# TODOleot Add SUBPACKAGES support (at least for COMMENT, DESCR_SRC, *DEPENDS)
+# TODOleot Add SUBPACKAGES support (at least for COMMENT, DESCR_SRC,
+# CONFLICTS, *DEPENDS)
 #
 .PHONY: describe
 .if !target(describe)
