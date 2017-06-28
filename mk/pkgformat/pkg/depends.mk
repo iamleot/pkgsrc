@@ -77,13 +77,23 @@ _REDUCE_RESOLVED_DEPENDS_CMD=${PKGSRC_SETENV} CAT=${CAT:Q}		\
 				< ${_RDEPENDS_FILE}
 .endif	# SUBPACKAGES
 
-# TODOleot: spkg-ify _pkgformat-show-depends target!
 _pkgformat-show-depends: .PHONY
+.if !empty(SUBPACKAGES)
+	@case ${VARNAME:Q}"" in								\
+	BUILD_DEPENDS)	${_REDUCE_DEPENDS_CMD}						\
+	    ${BUILD_DEPENDS:Q}\ ${SUBPACKAGES:@_spkg_@${BUILD_DEPENDS.${_spkg_}}@:Q} ;;	\
+	TOOL_DEPENDS)	${_HOST_REDUCE_DEPENDS_CMD}					\
+	    ${TOOL_DEPENDS:Q}\ ${SUBPACKAGES:@_spkg_@${TOOL_DEPENDS.${_spkg_}}@:Q} ;;	\
+	DEPENDS|*)	${_REDUCE_DEPENDS_CMD}						\
+	    ${DEPENDS:Q}\ ${SUBPACKAGES:@_spkg_@${DEPENDS.${_spkg_}}@:Q} ;;		\
+	esac
+.else	# !SUBPACKAGES
 	@case ${VARNAME:Q}"" in						\
 	BUILD_DEPENDS)	${_REDUCE_DEPENDS_CMD} ${BUILD_DEPENDS:Q} ;;	\
 	TOOL_DEPENDS)	${_HOST_REDUCE_DEPENDS_CMD} ${TOOL_DEPENDS:Q} ;;\
 	DEPENDS|*)	${_REDUCE_DEPENDS_CMD} ${DEPENDS:Q} ;;		\
 	esac
+.endif	# SUBPACKAGES
 
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
