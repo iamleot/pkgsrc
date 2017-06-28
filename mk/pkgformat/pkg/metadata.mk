@@ -591,6 +591,17 @@ _CONTENTS_FILE=		${PKG_DB_TMPDIR}/+CONTENTS
 _METADATA_TARGETS+=	${_CONTENTS_FILE}
 .endif	# SUBPACKAGES
 
+######################################################################
+###
+### ALL_CONFLICTS.<spkg> contains both CONFLICTS and CONFLICTS.<spkg>.
+###
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+ALL_CONFLICTS.${_spkg_}+=	${CONFLICTS}
+ALL_CONFLICTS.${_spkg_}+=	${CONFLICTS.${_spkg_}}
+.  endfor
+.endif	# SUBPACKAGES
+
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _DEPENDS_PLIST.${_spkg_}=		${WRKDIR}/.PLIST_deps.${_spkg_}
@@ -626,7 +637,7 @@ _PKG_CREATE_ARGS.${_spkg_}+=				-f ${_DEPENDS_PLIST.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=	${PKG_PRESERVE.${_spkg_}:D	-n ${_PRESERVE_FILE.${_spkg_}}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-S ${_SIZE_ALL_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-s ${_SIZE_PKG_FILE.${_spkg_}}
-_PKG_CREATE_ARGS.${_spkg_}+=	${CONFLICTS:D		-C ${CONFLICTS:Q}}
+_PKG_CREATE_ARGS.${_spkg_}+=	${ALL_CONFLICTS.${_spkg_}:D		-C ${ALL_CONFLICTS.${_spkg_}:Q}}
 _PKG_CREATE_ARGS.${_spkg_}+=	${INSTALL_FILE:D	${_INSTALL_ARG_cmd:sh}}
 _PKG_CREATE_ARGS.${_spkg_}+=	${DEINSTALL_FILE:D	${_DEINSTALL_ARG_cmd:sh}}
 
