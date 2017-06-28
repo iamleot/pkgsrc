@@ -13,7 +13,7 @@ DEPENDS_TYPE?=  all
 _ALL_DEPENDS+=	${BOOTSTRAP_DEPENDS} ${BUILD_DEPENDS} ${TOOL_DEPENDS}
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
-_ALL_DEPENDS+=	${BOOTSTRAP_DEPENDS.${_spkg_}} ${BUILD_DEPENDS.${_spkg_}} ${TOOL_DEPENDS.${_spkg_}}
+_ALL_DEPENDS+=	${BUILD_DEPENDS.${_spkg_}} ${TOOL_DEPENDS.${_spkg_}}
 .  endfor
 .endif	# SUBPACKAGES
 .endif
