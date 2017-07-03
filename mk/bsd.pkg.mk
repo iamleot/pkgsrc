@@ -493,6 +493,19 @@ _BUILD_DEFS+=		USE_ABI_DEPENDS
 .  endif
 .endif
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.if defined(ABI_DEPENDS.${_spkg_}) || defined(BUILD_ABI_DEPENDS.${_spkg_})
+.  if !empty(USE_ABI_DEPENDS:M[yY][eE][sS])
+DEPENDS.${_spkg_}+=		${ABI_DEPENDS.${_spkg_}}
+BUILD_DEPENDS.${_spkg_}+=	${BUILD_ABI_DEPENDS.${_spkg_}}
+.  else
+_BUILD_DEFS+=		USE_ABI_DEPENDS
+.  endif
+.endif
+.  endfor
+.endif	# SUBPACKAGES
+
 .if !defined(_PATH_ORIG)
 _PATH_ORIG:=		${PATH}
 MAKEFLAGS+=		_PATH_ORIG=${_PATH_ORIG:Q}
