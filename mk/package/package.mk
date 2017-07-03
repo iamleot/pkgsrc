@@ -103,6 +103,8 @@ package-create:
 
 # Displays warnings about the binary package.
 #
+# TODOleot: add a check for per-spkg ABI_DEPENDS too!
+#
 _package-warnings: .PHONY
 .if defined(NO_BIN_ON_CDROM)
 	@${WARNING_MSG} "${PKGNAME} may not be put on a CD-ROM:"
