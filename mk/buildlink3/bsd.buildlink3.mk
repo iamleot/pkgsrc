@@ -1189,4 +1189,8 @@ do-buildlink:
 
 .PHONY: show-buildlink3
 show-buildlink3:
+.if !empty(SUBPACKAGES)
+	@${SH} ${PKGSRCDIR}/mk/buildlink3/show-buildlink3.sh ${BUILDLINK_TREE_SUBPACKAGES}
+.else	# !SUBPACKAGES
 	@${SH} ${PKGSRCDIR}/mk/buildlink3/show-buildlink3.sh ${BUILDLINK_TREE}
+.endif	# SUBPACKAGES
