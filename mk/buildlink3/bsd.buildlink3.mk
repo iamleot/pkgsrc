@@ -172,10 +172,10 @@ _ignore_:=${IGNORE_PKG.${_pkg_:S/^-//}:M[Yy][Ee][Ss]}
 
 # BUILDLINK_TREE with colon `:' and comma `,' separated SUBPACKAGES information
 .if !empty(SUBPACKAGES)
-.for _pkg_ in ${BUILDLINK_TREE}
+.  for _pkg_ in ${BUILDLINK_TREE}
 BUILDLINK_TREE_SUBPACKAGES+=	${_pkg_:C/^(-?)(.*)/\1${SUBPACKAGES:Q:S/\ /,/g}:\2/}
-.endfor
-.endif
+.  endfor
+.endif	# SUBPACKAGES
 
 # Sorted and unified version of BUILDLINK_TREE without recursion
 # data.
