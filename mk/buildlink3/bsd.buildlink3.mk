@@ -170,6 +170,13 @@ _ignore_:=${IGNORE_PKG.${_pkg_:S/^-//}:M[Yy][Ee][Ss]}
 .error "The above loop through BUILDLINK_TREE failed to balance"
 .endif
 
+# BUILDLINK_TREE with colon `:' and comma `,' separated SUBPACKAGES information
+.if !empty(SUBPACKAGES)
+.for _pkg_ in ${BUILDLINK_TREE}
+BUILDLINK_TREE_SUBPACKAGES+=	${_pkg_}
+.endfor
+.endif
+
 # Sorted and unified version of BUILDLINK_TREE without recursion
 # data.
 _BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u}
