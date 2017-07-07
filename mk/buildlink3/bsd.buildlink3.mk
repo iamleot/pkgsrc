@@ -170,10 +170,6 @@ _ignore_:=${IGNORE_PKG.${_pkg_:S/^-//}:M[Yy][Ee][Ss]}
 .error "The above loop through BUILDLINK_TREE failed to balance"
 .endif
 
-# Sorted and unified version of BUILDLINK_TREE without recursion
-# data.
-_BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u}
-
 # _BLNK_BRANCHES.<spkg> contains BUILDLINK_TREE that need to be honored for
 # each <spkg>. If BUILDLINK_BRANCHES.<spkg> is defined all the relevant
 # BUILDLINK_TREE branches are expanded.
@@ -207,6 +203,10 @@ _expanding_:=	# none
 BUILDLINK_TREE_SUBPACKAGES+=	${_pkg_:C/^(-?)(.*)/\1${SUBPACKAGES:Q:S/\ /,/g}:\2/}
 .  endfor
 .endif	# SUBPACKAGES
+
+# Sorted and unified version of BUILDLINK_TREE without recursion
+# data.
+_BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u}
 
 # Set IGNORE_PKG.<pkg> if <pkg> is the current package we're building.
 # We can then check for this value to avoid build loops.
