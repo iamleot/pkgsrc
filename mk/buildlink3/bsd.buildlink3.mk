@@ -244,6 +244,18 @@ _BLNK_PACKAGES+=	${_pkg_}
 .  endif
 .endfor
 
+# _BLNK_PACKAGES_SUBPACKAGES is similar to _BLNK_PACKAGES but also contains
+# subpackages information derived from BUILDLINK_TREE_SUBPACKAGES
+#
+.if !empty(SUBPACKAGES)
+_BLNK_PACKAGES_SUBPACKAGES=	# empty
+.for _pkg_ in ${BUILDLINK_TREE_SUBPACKAGES:N-*:M*\:x11-links} ${BUILDLINK_TREE_SUBPACKAGES:N-*:N*\:x11-links}
+.  if empty(_BLNK_PACKAGES_SUBPACKAGES:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_:C/^.*://})
+_BLNK_PACKAGES_SUBPACKAGES+=	${_pkg_}
+.  endif
+.endfor
+.endif	# SUBPACKAGES
+
 _VARGROUPS+=		bl3
 .for v in BINDIR CFLAGS CPPFLAGS DEPENDS LDFLAGS LIBS
 _SYS_VARS.bl3+=		BUILDLINK_${v}
@@ -278,6 +290,22 @@ USE_BUILTIN.${_pkg_}?=	no
 _BLNK_DEPENDS+=	${_pkg_}
 .  endif
 .endfor
+
+# _BLNK_DEPENDS_SUBPACKAGES is similar to _BLNK_DEPENDS but also contains
+# subpackages information derived from BUILDLINK_TREE_SUBPACKAGES
+#
+.if !empty(SUBPACKAGES)
+_BLNK_DEPENDS_SUBPACKAGES=	# empty
+.for _pkg_ in ${_BLNK_PACKAGES_SUBPACKAGES}
+USE_BUILTIN.${_pkg_:C/^.*://}?=	no
+.  if empty(_BLNK_DEPENDS_SUBPACKAGES:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_:C/^.*://}) && \
+      !empty(USE_BUILTIN.${_pkg_:C/^.*://}:M[nN][oO]) && \
+      (!empty(_BUILDLINK_DEPENDS:M${_pkg_:C/^.*://}) || \
+       !empty(BUILDLINK_DEPMETHOD.${_pkg_:C/^.*://}:Mbuild))
+_BLNK_DEPENDS_SUBPACKAGES+=	${_pkg_}
+.  endif
+.endfor
+.endif	# SUBPACKAGES
 
 # Add the proper dependency on each package pulled in by buildlink3.mk
 # files.  BUILDLINK_DEPMETHOD.<pkg> contains a list of either "full" or
