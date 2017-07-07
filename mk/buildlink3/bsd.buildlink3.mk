@@ -198,9 +198,20 @@ _expanding_:=	# none
 .endif	# SUBPACKAGES
 
 # BUILDLINK_TREE with colon `:' and comma `,' separated SUBPACKAGES information
+#
+# XXX: Are there any better way to do that? Both _spkgs_node_ trailing blank
+# XXX: removal and BUILDLINK_TREE_SUBPACKAGES definition are very hackish.
+#
 .if !empty(SUBPACKAGES)
 .  for _pkg_ in ${BUILDLINK_TREE}
-BUILDLINK_TREE_SUBPACKAGES+=	${_pkg_:C/^(-?)(.*)/\1${SUBPACKAGES:Q:S/\ /,/g}:\2/}
+_spkgs_node_:=	# none
+.    for _spkg_ in ${SUBPACKAGES}
+.      if !empty(_BLNK_BRANCHES.${_spkg_}:M${_pkg_})
+_spkgs_node_+=	${_spkg_}
+.      endif
+.    endfor
+_spkgs_node_:=	${_spkgs_node_:C/^ //}	# XXX: remove trailing blank
+BUILDLINK_TREE_SUBPACKAGES:=	${BUILDLINK_TREE_SUBPACKAGES} ${_pkg_:C/^(-?)(.*)/\1${_spkgs_node_:Q:S/\ /,/g}:\2/}
 .  endfor
 .endif	# SUBPACKAGES
 
