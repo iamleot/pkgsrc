@@ -170,16 +170,43 @@ _ignore_:=${IGNORE_PKG.${_pkg_:S/^-//}:M[Yy][Ee][Ss]}
 .error "The above loop through BUILDLINK_TREE failed to balance"
 .endif
 
+# Sorted and unified version of BUILDLINK_TREE without recursion
+# data.
+_BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u}
+
+# _BLNK_BRANCHES.<spkg> contains BUILDLINK_TREE that need to be honored for
+# each <spkg>. If BUILDLINK_BRANCHES.<spkg> is defined all the relevant
+# BUILDLINK_TREE branches are expanded.
+# If BUILDLINK_BRANCHES.<spkg> is not defined it will be initialized just
+# to BUILDLINK_TREE.
+#
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.    if !defined(BUILDLINK_BRANCHES.${_spkg_})
+_BLNK_BRANCHES.${_spkg_}:=	${BUILDLINK_TREE}
+.    else
+_expanding_:=	# none
+.       for _pkg_ in ${BUILDLINK_TREE}
+.         if empty(_expanding_) && !empty(BUILDLINK_BRANCHES.${_spkg_}:M${_pkg_})
+_expanding_:=	${_pkg_}
+.         endif
+.         if !empty(_expanding_)
+_BLNK_BRANCHES.${_spkg_}+=	${_pkg_}
+.         endif
+.         if ${_pkg_} == -${_expanding_}
+_expanding_:=	# none
+.         endif
+.       endfor
+.    endif
+.  endfor
+.endif	# SUBPACKAGES
+
 # BUILDLINK_TREE with colon `:' and comma `,' separated SUBPACKAGES information
 .if !empty(SUBPACKAGES)
 .  for _pkg_ in ${BUILDLINK_TREE}
 BUILDLINK_TREE_SUBPACKAGES+=	${_pkg_:C/^(-?)(.*)/\1${SUBPACKAGES:Q:S/\ /,/g}:\2/}
 .  endfor
 .endif	# SUBPACKAGES
-
-# Sorted and unified version of BUILDLINK_TREE without recursion
-# data.
-_BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u}
 
 # Set IGNORE_PKG.<pkg> if <pkg> is the current package we're building.
 # We can then check for this value to avoid build loops.
