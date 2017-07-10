@@ -312,6 +312,53 @@ _BLNK_DEPENDS_SUBPACKAGES+=	${_pkg_}
 # "build", and if any of that list is "full" then we use a full dependency
 # on <pkg>, otherwise we use a build dependency on <pkg>.
 #
+.if !empty(SUBPACKAGES)
+.for _spkg_ in ${SUBPACKAGES}
+_BLNK_ADD_TO.DEPENDS.${_spkg_}=			# empty
+_BLNK_ADD_TO.BUILD_DEPENDS.${_spkg_}=		# empty
+_BLNK_ADD_TO.ABI_DEPENDS.${_spkg_}=		# empty
+_BLNK_ADD_TO.BUILD_ABI_DEPENDS.${_spkg_}=	# empty
+.endfor
+.for _pkg_ in ${_BLNK_DEPENDS_SUBPACKAGES}
+_spkgs_:=	${_pkg_:C/:.*$//:S/,/ /}
+.  for _spkg_ in ${_spkgs_}
+.    if !empty(BUILDLINK_DEPMETHOD.${_pkg_:C/^.*://}:Mfull)
+_BLNK_DEPMETHOD.${_pkg_:C/^.*://}+=	_BLNK_ADD_TO.DEPENDS.${_spkg_}
+_BLNK_ABIMETHOD.${_pkg_:C/^.*://}+=	_BLNK_ADD_TO.ABI_DEPENDS.${_spkg_}
+.    elif !empty(BUILDLINK_DEPMETHOD.${_pkg_:C/^.*://}:Mbuild)
+_BLNK_DEPMETHOD.${_pkg_:C/^.*://}+=	_BLNK_ADD_TO.BUILD_DEPENDS.${_spkg_}
+_BLNK_ABIMETHOD.${_pkg_:C/^.*://}+=	_BLNK_ADD_TO.BUILD_ABI_DEPENDS.${_spkg_}
+.    endif
+.  if defined(BUILDLINK_API_DEPENDS.${_pkg_:C/^.*://}) && \
+      defined(BUILDLINK_PKGSRCDIR.${_pkg_:C/^.*://})
+.    for _depend_ in ${BUILDLINK_API_DEPENDS.${_pkg_:C/^.*://}}
+.      for _blnk_depmethod_ in ${_BLNK_DEPMETHOD.${_pkg_:C/^.*://}}
+.        if empty(${_blnk_depmethod_}:M${_depend_}\:*)
+${_blnk_depmethod_}+=	${_depend_}:${BUILDLINK_PKGSRCDIR.${_pkg_:C/^.*://}}
+.        endif
+.      endfor
+.    endfor
+.  endif
+.  if defined(BUILDLINK_ABI_DEPENDS.${_pkg_:C/^.*://}) && \
+      defined(BUILDLINK_PKGSRCDIR.${_pkg_:C/^.*://})
+.    for _abi_ in ${BUILDLINK_ABI_DEPENDS.${_pkg_:C/^.*://}}
+.      for _blnk_abimethod_ in ${_BLNK_ABIMETHOD.${_pkg_:C/^.*://}}
+.        if empty(${_blnk_abimethod_}:M${_abi_}\:*)
+${_blnk_abimethod_}+=	${_abi_}:${BUILDLINK_PKGSRCDIR.${_pkg_:C/^.*://}}
+.        endif
+.      endfor
+.    endfor
+.  endif
+.  endfor
+.endfor
+.for _spkg_ in ${SUBPACKAGES}
+.  for _depmethod_ in DEPENDS BUILD_DEPENDS ABI_DEPENDS BUILD_ABI_DEPENDS
+.    if !empty(_BLNK_ADD_TO.${_depmethod_}.${_spkg_})
+${_depmethod_}.${_spkg_}+=	${_BLNK_ADD_TO.${_depmethod_}.${_spkg_}}
+.    endif
+.  endfor	# _BLNK_DEPENDS_SUBPACKAGES
+.endfor
+.else	# !SUBPACKAGES
 _BLNK_ADD_TO.DEPENDS=		# empty
 _BLNK_ADD_TO.BUILD_DEPENDS=	# empty
 _BLNK_ADD_TO.ABI_DEPENDS=	# empty
@@ -346,6 +393,7 @@ ${_BLNK_ABIMETHOD.${_pkg_}}+=	${_abi_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
 ${_depmethod_}+=	${_BLNK_ADD_TO.${_depmethod_}}
 .  endif
 .endfor	# _BLNK_DEPENDS
+.endif	# SUBPACKAGES
 
 ###
 ### BEGIN: after the barrier
