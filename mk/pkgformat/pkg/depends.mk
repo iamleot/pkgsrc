@@ -24,6 +24,9 @@
 # ${_RRDEPENDS_FILE} is like ${_RDEPENDS_FILE}, but all build dependencies
 # are dropped, if they are dependencies of one of the full dependencies.
 #
+# For SUBPACKAGES these are per-subpackage and respectively:
+# ${_DEPENDS_FILE.<spkg>}, ${_RDEPENDS_FILE.<spkg>}, ${_RRDEPENDS_FILE.<spkg>}
+#
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _DEPENDS_FILE.${_spkg_}=	${WRKDIR}/.depends.${_spkg_}

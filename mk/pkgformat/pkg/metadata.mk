@@ -19,6 +19,8 @@ ${PKG_DB_TMPDIR}:
 ###
 ### +BUILD_INFO - Package build environment and settings information
 ###
+### For SUBPACKAGES every subpackage has its own +BUILD_INFO.
+###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _BUILD_INFO_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+BUILD_INFO
@@ -282,6 +284,8 @@ ${_BUILD_VERSION_FILE}:
 ###
 ### This file contains the one-line description of the package.
 ###
+### For SUBPACKAGES every subpackage has its own +COMMENT.
+###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _COMMENT_FILE.${_spkg_}=	${PKG_DB_TMPDIR}/${_spkg_}/+COMMENT.${_spkg_}
@@ -305,6 +309,8 @@ ${_COMMENT_FILE}:
 ### +DESC - Package description file
 ###
 ### This file contains the paragraph description of the package.
+###
+### For SUBPACKAGES every subpackage has its own +DESC.
 ###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
@@ -342,6 +348,8 @@ ${_DESCR_FILE}: ${DESCR_SRC}
 ###
 ### This file contains important messages which apply to this package,
 ### and are shown during installation.
+###
+### For SUBPACKAGES every subpackage has its own +DISPLAY.
 ###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
@@ -442,6 +450,8 @@ ${_MESSAGE_FILE}: ${MESSAGE_SRC}
 ### The existence of this file prevents pkg_delete from removing this
 ### package unless one "force-deletes" the package.
 ###
+### For SUBPACKAGES every subpackage has its own +PRESERVE.
+###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 .if defined(PKG_PRESERVE.${_spkg_})
@@ -469,6 +479,8 @@ ${_PRESERVE_FILE}:
 ### +SIZE_PKG - Package size file
 ###
 ### This is the total size of the files contained in the package.
+###
+### For SUBPACKAGES every subpackage has its own +SIZE_PKG.
 ###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
@@ -518,6 +530,8 @@ ${_SIZE_PKG_FILE}: ${PLIST}
 ###
 ### This is the total size of the dependencies that this package was
 ### built against and the package itself.
+###
+### For SUBPACKAGES every subpackage has its own +SIZE_ALL.
 ###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
@@ -580,6 +594,8 @@ ${_SIZE_ALL_FILE}: ${_RDEPENDS_FILE} ${_SIZE_PKG_FILE}
 ###
 ### This file contains the list of files and checksums, along with
 ### any special "@" commands, e.g. @dirrm.
+###
+### For SUBPACKAGES every subpackage has its own +CONTENTS.
 ###
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
