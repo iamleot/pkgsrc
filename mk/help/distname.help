@@ -32,7 +32,9 @@
 #	name without the "nb" suffix is provided in the PKGNAME_NOREV
 #	variable.
 #
-#	For SUBPACKAGES these are per-subpackage, PKGNAME.<spkg>.
+#	For SUBPACKAGES the following variables are per-subpackage:
+#	PKGNAME.<spkg>, PKGBASE.<spkg>, PKGREVISION.<spkg>,
+#	PKGNAME_NOREV.<spkg>.
 #
 #	See also: DISTNAME, PKGREVISION, PKGNAME_NOREV.
 #
