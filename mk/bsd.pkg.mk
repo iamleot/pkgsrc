@@ -47,11 +47,11 @@ PKGVERSION.${_spkg_}?=		${PKGNAME.${_spkg_}:C/^.*-//}
 PKGNAME_NOREV.${_spkg_}:=	${PKGNAME.${_spkg_}}
 PKGNAME.${_spkg_}:=		${PKGNAME.${_spkg_}}nb${PKGREVISION.${_spkg_}}
 .  else
-PKGNAME.${_spkg_}?=		${DISTNAME.${_spkg_}}nb${PKGREVISION.${_spkg_}}
-PKGNAME_NOREV.${_spkg_}=	${DISTNAME.${_spkg_}}
+PKGNAME.${_spkg_}?=		${DISTNAME}nb${PKGREVISION.${_spkg_}}
+PKGNAME_NOREV.${_spkg_}=	${DISTNAME}
 .  endif
 .else
-PKGNAME.${_spkg_}?=		${DISTNAME.${_spkg_}}
+PKGNAME.${_spkg_}?=		${DISTNAME}
 PKGNAME_NOREV.${_spkg_}=	${PKGNAME.${_spkg_}}
 .endif
 PKGVERSION_NOREV.${_spkg_}=	${PKGNAME_NOREV.${_spkg_}:C/^.*-//}
