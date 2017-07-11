@@ -47,11 +47,11 @@
 #	The directory where the various files that define a package are
 #	read from. These are:
 #
-#	* DESCR
+#	* DESCR (for SUBPACKAGES DESCR.<spkg>)
 #	* HEADER, HEADER_TEMPLATES
 #	* INSTALL, DEINSTALL
 #	* MESSAGE, MESSAGE.*
-#	* PLIST, PLIST.*
+#	* PLIST, PLIST.* (for SUBPACKAGES PLIST.<spkg>, PLIST.<spkg>.*)
 #	* distinfo
 #	* hacks.mk
 #
