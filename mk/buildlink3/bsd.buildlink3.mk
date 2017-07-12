@@ -98,7 +98,7 @@ PREPEND_PATH+=	${BUILDLINK_BINDIR}
 #
 _BUILDLINK_DEPENDS:=
 _BUILDLINK_DEPTH:=
-.for _pkg_ in ${BUILDLINK_TREE}
+.for _pkg_ in ${BUILDLINK_TREE:N*spkg\:*}
 _BUILDLINK_pkg:=	${_pkg_:N-*}
 .  if empty(_BUILDLINK_pkg)
 _BUILDLINK_DEPTH:=	${_BUILDLINK_DEPTH:S/+$//}
@@ -113,7 +113,7 @@ _BUILDLINK_DEPTH:=	${_BUILDLINK_DEPTH}+
 # For each package we use, check whether we are using the built-in
 # version of the package or if we are using the pkgsrc version.
 #
-.for _pkg_ in ${BUILDLINK_TREE:N-*}
+.for _pkg_ in ${BUILDLINK_TREE:N-*:N*spkg\:*}
 .if !defined(_BUILDLINK_BUILTIN_MK_INCLUDED.${_pkg_})
 _BUILDLINK_BUILTIN_MK_INCLUDED.${_pkg_}=
 BUILDLINK_BUILTIN_MK.${_pkg_}?=	${BUILDLINK_PKGSRCDIR.${_pkg_}}/builtin.mk
@@ -125,10 +125,12 @@ BUILDLINK_BUILTIN_MK.${_pkg_}?=	${BUILDLINK_PKGSRCDIR.${_pkg_}}/builtin.mk
 # is set to "no" if that package depends on any other packages where
 # USE_BUILTIN.pkg is set to "no".
 #
+# TODOleot: Also check `[-]?spkg:' subpackages meta-information node balance!
+#
 
 _stack_:=bot
 _ok_:=yes
-.for _pkg_ in ${BUILDLINK_TREE}
+.for _pkg_ in ${BUILDLINK_TREE:N*spkg\:*}
 # work around PR 47888
 _enter_:=${_pkg_:M-*}
 # work around another bug in netbsd-5's make (fixed in HEAD)
@@ -179,10 +181,10 @@ _ignore_:=${IGNORE_PKG.${_pkg_:S/^-//}:M[Yy][Ee][Ss]}
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 .    if !defined(BUILDLINK_BRANCHES.${_spkg_})
-_BLNK_BRANCHES.${_spkg_}:=	${BUILDLINK_TREE}
+_BLNK_BRANCHES.${_spkg_}:=	${BUILDLINK_TREE:N*spkg\:*}
 .    else
 _expanding_:=	# none
-.       for _pkg_ in ${BUILDLINK_TREE}
+.       for _pkg_ in ${BUILDLINK_TREE:N*spkg\:*}
 .         if empty(_expanding_) && !empty(BUILDLINK_BRANCHES.${_spkg_}:M${_pkg_})
 _expanding_:=	${_pkg_}
 .         endif
@@ -203,7 +205,7 @@ _expanding_:=	# none
 # XXX: definition is hackish)
 #
 .if !empty(SUBPACKAGES)
-.  for _pkg_ in ${BUILDLINK_TREE}
+.  for _pkg_ in ${BUILDLINK_TREE:N*spkg\:*}
 _spkgs_node_:=	# none
 .    for _spkg_ in ${SUBPACKAGES}
 .      if !empty(_BLNK_BRANCHES.${_spkg_}:M${_pkg_})
@@ -216,7 +218,7 @@ BUILDLINK_TREE_SUBPACKAGES:=	${BUILDLINK_TREE_SUBPACKAGES} ${_pkg_:C/^(-?)(.*)/\
 
 # Sorted and unified version of BUILDLINK_TREE without recursion
 # data.
-_BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u}
+_BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u:N*spkg\:*}
 
 # Set IGNORE_PKG.<pkg> if <pkg> is the current package we're building.
 # We can then check for this value to avoid build loops.
@@ -238,7 +240,7 @@ MAKEFLAGS+=		IGNORE_PKG.${_pkg_}=${IGNORE_PKG.${_pkg_}}
 # sorted first to allow other packages to override the content.
 #
 _BLNK_PACKAGES=		# empty
-.for _pkg_ in ${BUILDLINK_TREE:N-*:Mx11-links} ${BUILDLINK_TREE:N-*:Nx11-links}
+.for _pkg_ in ${BUILDLINK_TREE:N-*:Mx11-links} ${BUILDLINK_TREE:N-*:Nx11-links:N*spkg\:*}
 .  if empty(_BLNK_PACKAGES:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_})
 _BLNK_PACKAGES+=	${_pkg_}
 .  endif
