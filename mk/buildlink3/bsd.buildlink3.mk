@@ -289,13 +289,14 @@ BUILDLINK_DEPMETHOD.${_pkg_}?=	full
 #
 _BLNK_DEPENDS=	# empty
 .for _node_ in ${_BLNK_PACKAGES}
-_pkg_:=	${_node_:C/^.*://}
+_spkgs_:=	${_node_:C/:.*$//}
+_pkg_:=		${_node_:C/^.*://}
 USE_BUILTIN.${_pkg_}?=	no
-.  if empty(_BLNK_DEPENDS:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_}) && \
+.  if empty(_BLNK_DEPENDS:M${_node_}) && !defined(IGNORE_PKG.${_pkg_}) && \
       !empty(USE_BUILTIN.${_pkg_}:M[nN][oO]) && \
       (!empty(_BUILDLINK_DEPENDS:M${_pkg_}) || \
        !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mbuild))
-_BLNK_DEPENDS:=	${_BLNK_DEPENDS} ${_pkg_}
+_BLNK_DEPENDS:=	${_BLNK_DEPENDS} ${_spkgs_}:${_pkg_}
 .  endif
 .endfor
 
