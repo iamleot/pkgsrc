@@ -217,8 +217,8 @@ BUILDLINK_TREE_SUBPACKAGES:=	${BUILDLINK_TREE_SUBPACKAGES} ${_pkg_:C/^(-?)(.*)/\
 .endif	# SUBPACKAGES
 
 # Sorted and unified version of BUILDLINK_TREE without recursion
-# data.
-_BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u:N*spkg\:*}
+# data and without spkg: nodes.
+_BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u:Nspkg\:*}
 
 # Set IGNORE_PKG.<pkg> if <pkg> is the current package we're building.
 # We can then check for this value to avoid build loops.
