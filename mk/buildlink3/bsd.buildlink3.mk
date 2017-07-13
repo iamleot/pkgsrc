@@ -239,6 +239,8 @@ MAKEFLAGS+=		IGNORE_PKG.${_pkg_}=${IGNORE_PKG.${_pkg_}}
 # This does not use _BUILDLINK_TREE as the order matters.  x11-links is
 # sorted first to allow other packages to override the content.
 #
+# TODOleot: document spkgs change!
+#
 _BLNK_PACKAGES=		# empty
 _spkgs_:=		# empty
 .for _pkg_ in ${BUILDLINK_TREE:N-*:Mx11-links} ${BUILDLINK_TREE:N-*:Nx11-links}
