@@ -277,7 +277,7 @@ _SYS_VARS.bl3+=		${v}.${p}
 .endfor
 
 # By default, every package receives a full dependency.
-.for _pkg_ in ${_BLNK_PACKAGES}
+.for _pkg_ in ${_BLNK_PACKAGES:C/^.*://}
 BUILDLINK_DEPMETHOD.${_pkg_}?=	full
 .endfor
 
@@ -288,13 +288,14 @@ BUILDLINK_DEPMETHOD.${_pkg_}?=	full
 # somewhere in the chain.
 #
 _BLNK_DEPENDS=	# empty
-.for _pkg_ in ${_BLNK_PACKAGES}
+.for _node_ in ${_BLNK_PACKAGES}
+_pkg_:=	${_node_:C/^.*://}
 USE_BUILTIN.${_pkg_}?=	no
 .  if empty(_BLNK_DEPENDS:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_}) && \
       !empty(USE_BUILTIN.${_pkg_}:M[nN][oO]) && \
       (!empty(_BUILDLINK_DEPENDS:M${_pkg_}) || \
        !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mbuild))
-_BLNK_DEPENDS+=	${_pkg_}
+_BLNK_DEPENDS:=	${_BLNK_DEPENDS} ${_pkg_}
 .  endif
 .endfor
 
