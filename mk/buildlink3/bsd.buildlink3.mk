@@ -240,9 +240,12 @@ MAKEFLAGS+=		IGNORE_PKG.${_pkg_}=${IGNORE_PKG.${_pkg_}}
 # sorted first to allow other packages to override the content.
 #
 _BLNK_PACKAGES=		# empty
-.for _pkg_ in ${BUILDLINK_TREE:N-*:Mx11-links} ${BUILDLINK_TREE:N-*:Nx11-links:N*spkg\:*}
-.  if empty(_BLNK_PACKAGES:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_})
-_BLNK_PACKAGES+=	${_pkg_}
+_spkgs_:=		# empty
+.for _pkg_ in ${BUILDLINK_TREE:N-*:Mx11-links} ${BUILDLINK_TREE:N-*:Nx11-links}
+.  if ${_pkg_:Mspkg\:*}
+_spkgs_:=	${_pkg_:S/spkg://}
+.  elif empty(_BLNK_PACKAGES:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_})
+_BLNK_PACKAGES:=	${_BLNK_PACKAGES} ${_spkgs_}:${_pkg_}
 .  endif
 .endfor
 
