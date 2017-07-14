@@ -265,11 +265,13 @@ _BLNK_ADD_TO.BUILD_ABI_DEPENDS.${_spkg_}=	# empty
 .endif
 .for _node_ in ${_BLNK_DEPENDS}
 _pkg_:=		${_node_:C/^.*://}
-_spkgs_:=	${_node_:C/:.*$//:S/,/ /:U_all}
+_spkgs_:=	${_node_:C/:.*$//:S/,/ /}
+.if empty(_spkgs_)
+_spkgs_:=	_all
+.endif
 .  for _spkg_ in ${_spkgs_}
-.    if ${_spkg_} == "_all"
-_dot_spkg_:=	# empty (all subpackages)
-.    else
+_dot_spkg_:=	# empty
+.    if ${_spkg_} != "_all"
 _dot_spkg_:=	${_spkg_:S/^/./}
 .    endif
 .    if !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mfull)
@@ -310,7 +312,6 @@ _dot_spkg_:=	${_spkg_:S/^/./}
 .  for _depmethod_ in DEPENDS BUILD_DEPENDS ABI_DEPENDS BUILD_ABI_DEPENDS
 .    if !empty(_BLNK_ADD_TO.${_depmethod_}${_dot_spkg_})
 ${_depmethod_}${_dot_spkg_}+=	${_BLNK_ADD_TO.${_depmethod_}${_dot_spkg_}}
-.info ${_depmethod_}${_dot_spkg_}+=	${_BLNK_ADD_TO.${_depmethod_}${_dot_spkg_}}
 .    endif
 .  endfor	
 .endfor	# _BLNK_DEPENDS
