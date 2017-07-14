@@ -172,50 +172,6 @@ _ignore_:=${IGNORE_PKG.${_pkg_:S/^-//}:M[Yy][Ee][Ss]}
 .error "The above loop through BUILDLINK_TREE failed to balance"
 .endif
 
-# _BLNK_BRANCHES.<spkg> contains BUILDLINK_TREE that need to be honored for
-# each <spkg>. If BUILDLINK_BRANCHES.<spkg> is defined all the relevant
-# BUILDLINK_TREE branches are expanded.
-# If BUILDLINK_BRANCHES.<spkg> is not defined it will be initialized just
-# to BUILDLINK_TREE.
-#
-.if !empty(SUBPACKAGES)
-.  for _spkg_ in ${SUBPACKAGES}
-.    if !defined(BUILDLINK_BRANCHES.${_spkg_})
-_BLNK_BRANCHES.${_spkg_}:=	${BUILDLINK_TREE:N*spkg\:*}
-.    else
-_expanding_:=	# none
-.       for _pkg_ in ${BUILDLINK_TREE:N*spkg\:*}
-.         if empty(_expanding_) && !empty(BUILDLINK_BRANCHES.${_spkg_}:M${_pkg_})
-_expanding_:=	${_pkg_}
-.         endif
-.         if !empty(_expanding_)
-_BLNK_BRANCHES.${_spkg_}+=	${_pkg_}
-.         endif
-.         if ${_pkg_} == -${_expanding_}
-_expanding_:=	# none
-.         endif
-.       endfor
-.    endif
-.  endfor
-.endif	# SUBPACKAGES
-
-# BUILDLINK_TREE with colon `:' and comma `,' separated SUBPACKAGES information
-#
-# XXX: Is there any better way to do that? (BUILDLINK_TREE_SUBPACKAGES
-# XXX: definition is hackish)
-#
-.if !empty(SUBPACKAGES)
-.  for _pkg_ in ${BUILDLINK_TREE:N*spkg\:*}
-_spkgs_node_:=	# none
-.    for _spkg_ in ${SUBPACKAGES}
-.      if !empty(_BLNK_BRANCHES.${_spkg_}:M${_pkg_})
-_spkgs_node_+=	${_spkg_}
-.      endif
-.    endfor
-BUILDLINK_TREE_SUBPACKAGES:=	${BUILDLINK_TREE_SUBPACKAGES} ${_pkg_:C/^(-?)(.*)/\1${_spkgs_node_:ts,}:\2/}
-.  endfor
-.endif	# SUBPACKAGES
-
 # Sorted and unified version of BUILDLINK_TREE without recursion
 # data and without spkg: nodes.
 _BUILDLINK_TREE:=	${BUILDLINK_TREE:N-*:O:u:Nspkg\:*}
@@ -250,18 +206,6 @@ _spkgs_:=	${_pkg_:S/spkg://}
 _BLNK_PACKAGES:=	${_BLNK_PACKAGES} ${_spkgs_}:${_pkg_}
 .  endif
 .endfor
-
-# _BLNK_PACKAGES_SUBPACKAGES is similar to _BLNK_PACKAGES but also contains
-# subpackages information derived from BUILDLINK_TREE_SUBPACKAGES
-#
-.if !empty(SUBPACKAGES)
-_BLNK_PACKAGES_SUBPACKAGES=	# empty
-.for _pkg_ in ${BUILDLINK_TREE_SUBPACKAGES:N-*:M*\:x11-links} ${BUILDLINK_TREE_SUBPACKAGES:N-*:N*\:x11-links}
-.  if empty(_BLNK_PACKAGES_SUBPACKAGES:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_:C/^.*://})
-_BLNK_PACKAGES_SUBPACKAGES+=	${_pkg_}
-.  endif
-.endfor
-.endif	# SUBPACKAGES
 
 _VARGROUPS+=		bl3
 .for v in BINDIR CFLAGS CPPFLAGS DEPENDS LDFLAGS LIBS
@@ -302,109 +246,74 @@ _BLNK_DEPENDS:=	${_BLNK_DEPENDS} ${_spkgs_}:${_pkg_}
 .  endif
 .endfor
 
-# _BLNK_DEPENDS_SUBPACKAGES is similar to _BLNK_DEPENDS but also contains
-# subpackages information derived from BUILDLINK_TREE_SUBPACKAGES
-#
-.if !empty(SUBPACKAGES)
-_BLNK_DEPENDS_SUBPACKAGES=	# empty
-.for _pkg_ in ${_BLNK_PACKAGES_SUBPACKAGES}
-USE_BUILTIN.${_pkg_:C/^.*://}?=	no
-.  if empty(_BLNK_DEPENDS_SUBPACKAGES:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_:C/^.*://}) && \
-      !empty(USE_BUILTIN.${_pkg_:C/^.*://}:M[nN][oO]) && \
-      (!empty(_BUILDLINK_DEPENDS:M${_pkg_:C/^.*://}) || \
-       !empty(BUILDLINK_DEPMETHOD.${_pkg_:C/^.*://}:Mbuild))
-_BLNK_DEPENDS_SUBPACKAGES+=	${_pkg_}
-.  endif
-.endfor
-.endif	# SUBPACKAGES
-
 # Add the proper dependency on each package pulled in by buildlink3.mk
 # files.  BUILDLINK_DEPMETHOD.<pkg> contains a list of either "full" or
 # "build", and if any of that list is "full" then we use a full dependency
 # on <pkg>, otherwise we use a build dependency on <pkg>.
 #
+_BLNK_ADD_TO.DEPENDS=			# empty
+_BLNK_ADD_TO.BUILD_DEPENDS=		# empty
+_BLNK_ADD_TO.ABI_DEPENDS=		# empty
+_BLNK_ADD_TO.BUILD_ABI_DEPENDS=		# empty
 .if !empty(SUBPACKAGES)
-.for _spkg_ in ${SUBPACKAGES}
+.  for _spkg_ in ${SUBPACKAGES}
 _BLNK_ADD_TO.DEPENDS.${_spkg_}=			# empty
 _BLNK_ADD_TO.BUILD_DEPENDS.${_spkg_}=		# empty
 _BLNK_ADD_TO.ABI_DEPENDS.${_spkg_}=		# empty
 _BLNK_ADD_TO.BUILD_ABI_DEPENDS.${_spkg_}=	# empty
-.endfor
-.for _pkg_ in ${_BLNK_DEPENDS_SUBPACKAGES}
-_spkgs_:=	${_pkg_:C/:.*$//:S/,/ /}
+.  endfor
+.endif
+.for _node_ in ${_BLNK_DEPENDS}
+_pkg_:=		${_node_:C/^.*://}
+_spkgs_:=	${_node_:C/:.*$//:S/,/ /:U_all}
 .  for _spkg_ in ${_spkgs_}
-.    if !empty(BUILDLINK_DEPMETHOD.${_pkg_:C/^.*://}:Mfull)
-_BLNK_DEPMETHOD.${_pkg_:C/^.*://}+=	_BLNK_ADD_TO.DEPENDS.${_spkg_}
-_BLNK_ABIMETHOD.${_pkg_:C/^.*://}+=	_BLNK_ADD_TO.ABI_DEPENDS.${_spkg_}
-.    elif !empty(BUILDLINK_DEPMETHOD.${_pkg_:C/^.*://}:Mbuild)
-_BLNK_DEPMETHOD.${_pkg_:C/^.*://}+=	_BLNK_ADD_TO.BUILD_DEPENDS.${_spkg_}
-_BLNK_ABIMETHOD.${_pkg_:C/^.*://}+=	_BLNK_ADD_TO.BUILD_ABI_DEPENDS.${_spkg_}
+.    if ${_spkg_} == "_all"
+_dot_spkg_:=	# empty (all subpackages)
+.    else
+_dot_spkg_:=	${_spkg_:S/^/./}
 .    endif
-.  if defined(BUILDLINK_API_DEPENDS.${_pkg_:C/^.*://}) && \
-      defined(BUILDLINK_PKGSRCDIR.${_pkg_:C/^.*://})
-.    for _depend_ in ${BUILDLINK_API_DEPENDS.${_pkg_:C/^.*://}}
-.      for _blnk_depmethod_ in ${_BLNK_DEPMETHOD.${_pkg_:C/^.*://}}
-.        if empty(${_blnk_depmethod_}:M${_depend_}\:*)
-${_blnk_depmethod_}+=	${_depend_}:${BUILDLINK_PKGSRCDIR.${_pkg_:C/^.*://}}
-.        endif
+.    if !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mfull)
+_BLNK_DEPMETHOD.${_pkg_}+=	_BLNK_ADD_TO.DEPENDS${_dot_spkg_}
+_BLNK_ABIMETHOD.${_pkg_}+=	_BLNK_ADD_TO.ABI_DEPENDS${_dot_spkg_}
+.    elif !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mbuild)
+_BLNK_DEPMETHOD.${_pkg_}+=	_BLNK_ADD_TO.BUILD_DEPENDS${_dot_spkg_}
+_BLNK_ABIMETHOD.${_pkg_}+=	_BLNK_ADD_TO.BUILD_ABI_DEPENDS${_dot_spkg_}
+.    endif
+.    if defined(BUILDLINK_API_DEPENDS.${_pkg_}) && \
+        defined(BUILDLINK_PKGSRCDIR.${_pkg_})
+.      for _depend_ in ${BUILDLINK_API_DEPENDS.${_pkg_}}
+.        for _blnk_depmethod_ in ${_BLNK_DEPMETHOD.${_pkg_}}
+.          if empty(${_blnk_depmethod_}:M${_depend_}\:*)
+${_blnk_depmethod_}+=	${_depend_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
+.          endif
+.        endfor
 .      endfor
-.    endfor
-.  endif
-.  if defined(BUILDLINK_ABI_DEPENDS.${_pkg_:C/^.*://}) && \
-      defined(BUILDLINK_PKGSRCDIR.${_pkg_:C/^.*://})
-.    for _abi_ in ${BUILDLINK_ABI_DEPENDS.${_pkg_:C/^.*://}}
-.      for _blnk_abimethod_ in ${_BLNK_ABIMETHOD.${_pkg_:C/^.*://}}
-.        if empty(${_blnk_abimethod_}:M${_abi_}\:*)
-${_blnk_abimethod_}+=	${_abi_}:${BUILDLINK_PKGSRCDIR.${_pkg_:C/^.*://}}
-.        endif
+.    endif
+.    if defined(BUILDLINK_ABI_DEPENDS.${_pkg_}) && \
+        defined(BUILDLINK_PKGSRCDIR.${_pkg_})
+.      for _abi_ in ${BUILDLINK_ABI_DEPENDS.${_pkg_}}
+.        for _blnk_abimethod_ in ${_BLNK_ABIMETHOD.${_pkg_}}
+.          if empty(${_blnk_abimethod_}:M${_abi_}\:*)
+${_blnk_abimethod_}+=	${_abi_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
+.          endif
+.        endfor
 .      endfor
-.    endfor
-.  endif
+.    endif
 .  endfor
 .endfor
-.for _spkg_ in ${SUBPACKAGES}
+.for _spkg_ in _all ${SUBPACKAGES}
+.  if ${_spkg_} == "_all"
+_dot_spkg_:=	# empty (all subpackages)
+.  else
+_dot_spkg_:=	${_spkg_:S/^/./}
+.  endif
 .  for _depmethod_ in DEPENDS BUILD_DEPENDS ABI_DEPENDS BUILD_ABI_DEPENDS
-.    if !empty(_BLNK_ADD_TO.${_depmethod_}.${_spkg_})
-${_depmethod_}.${_spkg_}+=	${_BLNK_ADD_TO.${_depmethod_}.${_spkg_}}
+.    if !empty(_BLNK_ADD_TO.${_depmethod_}${_dot_spkg_})
+${_depmethod_}${_dot_spkg_}+=	${_BLNK_ADD_TO.${_depmethod_}${_dot_spkg_}}
+.info ${_depmethod_}${_dot_spkg_}+=	${_BLNK_ADD_TO.${_depmethod_}${_dot_spkg_}}
 .    endif
-.  endfor	# _BLNK_DEPENDS_SUBPACKAGES
-.endfor
-.else	# !SUBPACKAGES
-_BLNK_ADD_TO.DEPENDS=		# empty
-_BLNK_ADD_TO.BUILD_DEPENDS=	# empty
-_BLNK_ADD_TO.ABI_DEPENDS=	# empty
-_BLNK_ADD_TO.BUILD_ABI_DEPENDS=	# empty
-.for _pkg_ in ${_BLNK_DEPENDS}
-.  if !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mfull)
-_BLNK_DEPMETHOD.${_pkg_}=	_BLNK_ADD_TO.DEPENDS
-_BLNK_ABIMETHOD.${_pkg_}=	_BLNK_ADD_TO.ABI_DEPENDS
-.  elif !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mbuild)
-_BLNK_DEPMETHOD.${_pkg_}=	_BLNK_ADD_TO.BUILD_DEPENDS
-_BLNK_ABIMETHOD.${_pkg_}=	_BLNK_ADD_TO.BUILD_ABI_DEPENDS
-.  endif
-.  if defined(BUILDLINK_API_DEPENDS.${_pkg_}) && \
-      defined(BUILDLINK_PKGSRCDIR.${_pkg_})
-.    for _depend_ in ${BUILDLINK_API_DEPENDS.${_pkg_}}
-.      if empty(${_BLNK_DEPMETHOD.${_pkg_}}:M${_depend_}\:*)
-${_BLNK_DEPMETHOD.${_pkg_}}+=	${_depend_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
-.      endif
-.    endfor
-.  endif
-.  if defined(BUILDLINK_ABI_DEPENDS.${_pkg_}) && \
-      defined(BUILDLINK_PKGSRCDIR.${_pkg_})
-.    for _abi_ in ${BUILDLINK_ABI_DEPENDS.${_pkg_}}
-.      if empty(${_BLNK_ABIMETHOD.${_pkg_}}:M${_abi_}\:*)
-${_BLNK_ABIMETHOD.${_pkg_}}+=	${_abi_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
-.      endif
-.    endfor
-.  endif
-.endfor
-.for _depmethod_ in DEPENDS BUILD_DEPENDS ABI_DEPENDS BUILD_ABI_DEPENDS
-.  if !empty(_BLNK_ADD_TO.${_depmethod_})
-${_depmethod_}+=	${_BLNK_ADD_TO.${_depmethod_}}
-.  endif
+.  endfor	
 .endfor	# _BLNK_DEPENDS
-.endif	# SUBPACKAGES
 
 ###
 ### BEGIN: after the barrier
@@ -1313,8 +1222,4 @@ do-buildlink:
 
 .PHONY: show-buildlink3
 show-buildlink3:
-.if !empty(SUBPACKAGES)
-	@${SH} ${PKGSRCDIR}/mk/buildlink3/show-buildlink3.sh ${BUILDLINK_TREE_SUBPACKAGES}
-.else	# !SUBPACKAGES
 	@${SH} ${PKGSRCDIR}/mk/buildlink3/show-buildlink3.sh ${BUILDLINK_TREE}
-.endif	# SUBPACKAGES
