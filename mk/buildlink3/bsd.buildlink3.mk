@@ -287,6 +287,8 @@ BUILDLINK_DEPMETHOD.${_pkg_}?=	full
 # requested as a dependency (_BUILDLINK_DEPENDS) or is a build dependency
 # somewhere in the chain.
 #
+# TODOleot: add notes regarding spkgs meta-information
+#
 _BLNK_DEPENDS=	# empty
 .for _node_ in ${_BLNK_PACKAGES}
 _spkgs_:=	${_node_:C/:.*$//}
