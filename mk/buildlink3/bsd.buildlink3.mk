@@ -198,7 +198,7 @@ MAKEFLAGS+=		IGNORE_PKG.${_pkg_}=${IGNORE_PKG.${_pkg_}}
 # TODOleot: document spkgs change!
 #
 _BLNK_PACKAGES=		# empty
-_spkgs_:=		# empty
+_spkgs_:=	_all	# all subpackages
 .for _pkg_ in ${BUILDLINK_TREE:N-*:Mx11-links} ${BUILDLINK_TREE:N-*:Nx11-links}
 .  if ${_pkg_:Mspkg\:*}
 _spkgs_:=	${_pkg_:S/spkg://}
@@ -251,47 +251,52 @@ _BLNK_DEPENDS:=	${_BLNK_DEPENDS} ${_spkgs_}:${_pkg_}
 # "build", and if any of that list is "full" then we use a full dependency
 # on <pkg>, otherwise we use a build dependency on <pkg>.
 #
-_BLNK_ADD_TO.DEPENDS=			# empty
-_BLNK_ADD_TO.BUILD_DEPENDS=		# empty
-_BLNK_ADD_TO.ABI_DEPENDS=		# empty
-_BLNK_ADD_TO.BUILD_ABI_DEPENDS=		# empty
-.if !empty(SUBPACKAGES)
-.  for _spkg_ in ${SUBPACKAGES}
-_BLNK_ADD_TO.DEPENDS.${_spkg_}=			# empty
-_BLNK_ADD_TO.BUILD_DEPENDS.${_spkg_}=		# empty
-_BLNK_ADD_TO.ABI_DEPENDS.${_spkg_}=		# empty
-_BLNK_ADD_TO.BUILD_ABI_DEPENDS.${_spkg_}=	# empty
-.  endfor
-.endif
-.for _pkg_ in ${_BLNK_DEPENDS}
+_dot_spkg_:=	S/^/./:S/^._all//
+.for _spkg_ in _all ${SUBPACKAGES}
+_BLNK_ADD_TO.DEPENDS${_spkg_:${_dot_spkg_}}=		# empty
+_BLNK_ADD_TO.BUILD_DEPENDS${_spkg_:${_dot_spkg_}}=	# empty
+_BLNK_ADD_TO.ABI_DEPENDS${_spkg_:${_dot_spkg_}}=	# empty
+_BLNK_ADD_TO.BUILD_ABI_DEPENDS${_spkg_:${_dot_spkg_}}=	# empty
+.endfor
+.for _spkg_ in _all ${SUBPACKAGES}
+.for _pkg_ in ${_BLNK_DEPENDS:M*${_spkg_}*\:*:C/^.*://}
 .  if !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mfull)
-_BLNK_DEPMETHOD.${_pkg_}=	_BLNK_ADD_TO.DEPENDS
-_BLNK_ABIMETHOD.${_pkg_}=	_BLNK_ADD_TO.ABI_DEPENDS
+_BLNK_DEPMETHOD.${_pkg_}+=	_BLNK_ADD_TO.DEPENDS${_spkg_:${_dot_spkg_}}
+_BLNK_ABIMETHOD.${_pkg_}+=	_BLNK_ADD_TO.ABI_DEPENDS${_spkg_:${_dot_spkg_}}
 .  elif !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mbuild)
-_BLNK_DEPMETHOD.${_pkg_}=	_BLNK_ADD_TO.BUILD_DEPENDS
-_BLNK_ABIMETHOD.${_pkg_}=	_BLNK_ADD_TO.BUILD_ABI_DEPENDS
+_BLNK_DEPMETHOD.${_pkg_}+=	_BLNK_ADD_TO.BUILD_DEPENDS${_spkg_:${_dot_spkg_}}
+_BLNK_ABIMETHOD.${_pkg_}+=	_BLNK_ADD_TO.BUILD_ABI_DEPENDS${_spkg_:${_dot_spkg_}}
 .  endif
+.endfor	# _pkg_
+.endfor # _spkg_
+.for _pkg_ in ${_BLNK_DEPENDS:C/^.*://}
 .  if defined(BUILDLINK_API_DEPENDS.${_pkg_}) && \
       defined(BUILDLINK_PKGSRCDIR.${_pkg_})
 .    for _depend_ in ${BUILDLINK_API_DEPENDS.${_pkg_}}
-.      if empty(${_BLNK_DEPMETHOD.${_pkg_}}:M${_depend_}\:*)
-${_BLNK_DEPMETHOD.${_pkg_}}+=	${_depend_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
-.      endif
+.      for _blnk_depmethod_ in ${_BLNK_DEPMETHOD.${_pkg_}}
+.        if empty(${_BLNK_DEPMETHOD.${_pkg_}}:M${_depend_}\:*)
+${_blnk_depmethod_}+=	${_depend_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
+.        endif
+.      endfor
 .    endfor
 .  endif
 .  if defined(BUILDLINK_ABI_DEPENDS.${_pkg_}) && \
       defined(BUILDLINK_PKGSRCDIR.${_pkg_})
 .    for _abi_ in ${BUILDLINK_ABI_DEPENDS.${_pkg_}}
-.      if empty(${_BLNK_ABIMETHOD.${_pkg_}}:M${_abi_}\:*)
-${_BLNK_ABIMETHOD.${_pkg_}}+=	${_abi_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
-.      endif
+.      for _blnk_abimethod_ in ${_BLNK_ABIMETHOD.${_pkg_}}
+.        if empty(${_BLNK_ABIMETHOD.${_pkg_}}:M${_abi_}\:*)
+${_blnk_abimethod_}+=	${_abi_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
+.        endif
+.      endfor
 .    endfor
 .  endif
-.endfor
-.for _depmethod_ in DEPENDS BUILD_DEPENDS ABI_DEPENDS BUILD_ABI_DEPENDS
-.  if !empty(_BLNK_ADD_TO.${_depmethod_})
+.endfor	# _pkg_
+.for _spkg_ in _all ${SUBPACKAGES}
+.  for _depmethod_ in DEPENDS${_spkg_:${_dot_spkg_}} BUILD_DEPENDS${_spkg_:${_dot_spkg_}} ABI_DEPENDS${_spkg_:${_dot_spkg_}} BUILD_ABI_DEPENDS${_spkg_:${_dot_spkg_}}
+.    if !empty(_BLNK_ADD_TO.${_depmethod_})
 ${_depmethod_}+=	${_BLNK_ADD_TO.${_depmethod_}}
-.  endif
+.    endif
+.  endfor
 .endfor	# _BLNK_DEPENDS
 
 ###
