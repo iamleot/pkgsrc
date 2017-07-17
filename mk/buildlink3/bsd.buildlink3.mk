@@ -347,7 +347,7 @@ ${_depmethod_}+=	${_BLNK_ADD_TO.${_depmethod_}}
 #				be added to the compiler/linker search paths.
 #				Defaults to "yes".
 #
-.for _pkg_ in ${_BLNK_PACKAGES}
+.for _pkg_ in ${_BLNK_PACKAGES:C/^.*://}
 #
 # If we're using the built-in package, then provide sensible defaults.
 #
@@ -449,7 +449,7 @@ BUILDLINK_LDFLAGS=	# empty
 BUILDLINK_LIBS=		# empty
 BUILDLINK_CFLAGS=	# empty
 
-.for _pkg_ in ${_BLNK_PACKAGES}
+.for _pkg_ in ${_BLNK_PACKAGES:C/^.*://}
 .  if defined(BUILDLINK_AUTO_VARS.${_pkg_}) && \
       !empty(BUILDLINK_AUTO_VARS.${_pkg_}:M[yY][eE][sS])
 .    for _flag_ in ${BUILDLINK_CPPFLAGS.${_pkg_}}
@@ -509,7 +509,7 @@ BUILDLINK_LDFLAGS+=	${COMPILER_RPATH_FLAG}${_dir_}
 # path so that wildcard dependencies on library packages can always be
 # fulfilled through the default view.
 #
-.for _pkg_ in ${_BLNK_PACKAGES}
+.for _pkg_ in ${_BLNK_PACKAGES:C/^.*://}
 .  if !empty(BUILDLINK_RPATHDIRS.${_pkg_})
 .    for _dir_ in ${BUILDLINK_RPATHDIRS.${_pkg_}:S/^/${LOCALBASE}\//}
 .      if exists(${_dir_})
@@ -622,7 +622,7 @@ buildlink-directories:
 #	sed arguments used to transform the name of the source filename
 #	into a destination filename, e.g. -e "s|/curses.h|/ncurses.h|g"
 #
-.for _pkg_ in ${_BLNK_PACKAGES}
+.for _pkg_ in ${_BLNK_PACKAGES:C/^.*://}
 _BLNK_COOKIE.${_pkg_}=		${BUILDLINK_DIR}/.buildlink_${_pkg_}_done
 
 _BLNK_TARGETS+=			buildlink-${_pkg_}
@@ -848,7 +848,7 @@ _CWRAPPERS_TRANSFORM+=	I:${_dir_}/:
 # Allow all directories in the library subdirectories listed for each
 # package to be in the runtime library search path.
 #
-.for _pkg_ in ${_BLNK_PACKAGES}
+.for _pkg_ in ${_BLNK_PACKAGES:C/^.*://}
 .  if !empty(BUILDLINK_LIBDIRS.${_pkg_})
 .    for _dir_ in ${BUILDLINK_LIBDIRS.${_pkg_}}
 .      if exists(${BUILDLINK_PREFIX.${_pkg_}}/${_dir_})
