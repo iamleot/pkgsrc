@@ -264,8 +264,9 @@ _BLNK_ADD_TO.BUILD_ABI_DEPENDS.${_spkg_}=	# empty
 .  endfor
 .endif
 .for _node_ in ${_BLNK_DEPENDS}
-_pkg_:=		${_node_:C/^.*://}
-_spkgs_:=	${_node_:C/:.*$//:S/,/ /}
+_pkg_part_:=	C/^.*://
+_spkgs_part_:=	C/:.*$//:S/,/ /
+_spkgs_:=	${_node_:${_spkgs_part_}}
 .if empty(_spkgs_)
 _spkgs_:=	_all
 .endif
@@ -274,13 +275,16 @@ _dot_spkg_:=	# empty
 .    if ${_spkg_} != "_all"
 _dot_spkg_:=	${_spkg_:S/^/./}
 .    endif
+.    for _pkg_ in ${_node_:${_pkg_part_}}	# XXX: kludge to force _pkg_ expansion
+.    for _ds_ in ${_dot_spkg_}			# XXX: kludge to force _dot_spkg_ expansion
 .    if !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mfull)
-_BLNK_DEPMETHOD.${_pkg_}+=	_BLNK_ADD_TO.DEPENDS${_dot_spkg_}
-_BLNK_ABIMETHOD.${_pkg_}+=	_BLNK_ADD_TO.ABI_DEPENDS${_dot_spkg_}
+_BLNK_DEPMETHOD.${_pkg_}+=	_BLNK_ADD_TO.DEPENDS${_ds_}
+_BLNK_ABIMETHOD.${_pkg_}+=	_BLNK_ADD_TO.ABI_DEPENDS${_ds_}
 .    elif !empty(BUILDLINK_DEPMETHOD.${_pkg_}:Mbuild)
-_BLNK_DEPMETHOD.${_pkg_}+=	_BLNK_ADD_TO.BUILD_DEPENDS${_dot_spkg_}
-_BLNK_ABIMETHOD.${_pkg_}+=	_BLNK_ADD_TO.BUILD_ABI_DEPENDS${_dot_spkg_}
+_BLNK_DEPMETHOD.${_pkg_}+=	_BLNK_ADD_TO.BUILD_DEPENDS${_ds_}
+_BLNK_ABIMETHOD.${_pkg_}+=	_BLNK_ADD_TO.BUILD_ABI_DEPENDS${_ds_}
 .    endif
+.    endfor	# XXX: _dot_spkg_ expansion kludge
 .    if defined(BUILDLINK_API_DEPENDS.${_pkg_}) && \
         defined(BUILDLINK_PKGSRCDIR.${_pkg_})
 .      for _depend_ in ${BUILDLINK_API_DEPENDS.${_pkg_}}
@@ -301,6 +305,7 @@ ${_blnk_abimethod_}+=	${_abi_}:${BUILDLINK_PKGSRCDIR.${_pkg_}}
 .        endfor
 .      endfor
 .    endif
+.    endfor	# XXX: _pkg_ expansion kludge
 .  endfor
 .endfor
 .for _spkg_ in _all ${SUBPACKAGES}
@@ -309,11 +314,13 @@ _dot_spkg_:=	# empty (all subpackages)
 .  else
 _dot_spkg_:=	${_spkg_:S/^/./}
 .  endif
+.  for _ds_ in ${_dot_spkg_}	# XXX: kludge to force value expansion of _dot_spkg_
 .  for _depmethod_ in DEPENDS BUILD_DEPENDS ABI_DEPENDS BUILD_ABI_DEPENDS
-.    if !empty(_BLNK_ADD_TO.${_depmethod_}${_dot_spkg_})
-${_depmethod_}${_dot_spkg_}+=	${_BLNK_ADD_TO.${_depmethod_}${_dot_spkg_}}
+.    if !empty(_BLNK_ADD_TO.${_depmethod_}${_ds_})
+${_depmethod_}${_ds_}+=	${_BLNK_ADD_TO.${_depmethod_}${_ds_}}
 .    endif
-.  endfor	
+.  endfor	# XXX: _dot_spkg_ expansion kludge
+.  endfor
 .endfor	# _BLNK_DEPENDS
 
 ###
