@@ -204,17 +204,20 @@ MAKEFLAGS+=		IGNORE_PKG.${_pkg_}=${IGNORE_PKG.${_pkg_}}
 # This does not use _BUILDLINK_TREE as the order matters.  x11-links is
 # sorted first to allow other packages to override the content.
 #
-# TODOleot: Also honor `-spkg:' markers!
-#
 _BLNK_PACKAGES=		# empty
 _spkgs_:=	_all	# all subpackages
-.for _pkg_ in ${BUILDLINK_TREE:N-*:Mx11-links} ${BUILDLINK_TREE:N-*:Nx11-links}
+.for _pkg_ in ${BUILDLINK_TREE}
 .  if ${_pkg_:Mspkg\:*}
 _spkgs_:=	${_pkg_:S/spkg://}
+.  elif ${_pkg_:M-spkg\:*}
+_spkgs_:=	_all
+.  elif ${_pkg_:M-*}
+	# ignore -<pkg> nodes (no-op)
 .  elif empty(_BLNK_PACKAGES:M*\:${_pkg_}) && !defined(IGNORE_PKG.${_pkg_})
 _BLNK_PACKAGES:=	${_BLNK_PACKAGES} ${_spkgs_}:${_pkg_}
 .  endif
 .endfor
+_BLNK_PACKAGES:=	${_BLNK_PACKAGES:M*\:x11-links} ${_BLNK_PACKAGES:N*\:x11-links}
 
 _VARGROUPS+=		bl3
 .for v in BINDIR CFLAGS CPPFLAGS DEPENDS LDFLAGS LIBS
