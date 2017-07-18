@@ -190,12 +190,20 @@ MAKEFLAGS+=		IGNORE_PKG.${_pkg_}=${IGNORE_PKG.${_pkg_}}
 .endfor
 
 # _BLNK_PACKAGES contains all of the unique elements of BUILDLINK_TREE
-# that shouldn't be skipped.
+# that shouldn't be skipped. Every element also contains optinal `spkg'
+# information in the following form:
+#
+#  <spkg,...>:<pkg>
+#
+# ...or:
+#
+#  _all:<pkg>
+#
+# ...if no subpackages markers are present.
 #
 # This does not use _BUILDLINK_TREE as the order matters.  x11-links is
 # sorted first to allow other packages to override the content.
 #
-# TODOleot: Document spkgs change!
 # TODOleot: Also honor `-spkg:' markers!
 #
 _BLNK_PACKAGES=		# empty
