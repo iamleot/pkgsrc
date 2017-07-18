@@ -202,7 +202,7 @@ _spkgs_:=	_all	# all subpackages
 .for _pkg_ in ${BUILDLINK_TREE:N-*:Mx11-links} ${BUILDLINK_TREE:N-*:Nx11-links}
 .  if ${_pkg_:Mspkg\:*}
 _spkgs_:=	${_pkg_:S/spkg://}
-.  elif empty(_BLNK_PACKAGES:M${_pkg_}) && !defined(IGNORE_PKG.${_pkg_})
+.  elif empty(_BLNK_PACKAGES:M*\:${_pkg_}) && !defined(IGNORE_PKG.${_pkg_})
 _BLNK_PACKAGES:=	${_BLNK_PACKAGES} ${_spkgs_}:${_pkg_}
 .  endif
 .endfor
