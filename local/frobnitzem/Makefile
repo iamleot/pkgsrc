@@ -38,4 +38,5 @@ do-install:
 BUILDLINK_TREE+=	spkg:foo,bar
 .include "../../x11/libX11/buildlink3.mk"
 BUILDLINK_TREE+=	-spkg:foo,bar
+.include "../../graphics/tiff/buildlink3.mk"
 .include "../../mk/bsd.pkg.mk"
