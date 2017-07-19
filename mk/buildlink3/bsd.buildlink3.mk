@@ -212,7 +212,7 @@ _spkgs_:=	${_pkg_:S/spkg://}
 .  elif ${_pkg_:M-spkg\:*}
 _spkgs_:=	_all
 .  elif ${_pkg_:M-*}
-	# ignore -<pkg> nodes (no-op)
+     # (nothing)
 .  elif empty(_BLNK_PACKAGES:M*\:${_pkg_}) && !defined(IGNORE_PKG.${_pkg_})
 _BLNK_PACKAGES:=	${_BLNK_PACKAGES} ${_spkgs_}:${_pkg_}
 .  endif
