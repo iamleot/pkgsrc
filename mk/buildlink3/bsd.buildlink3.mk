@@ -125,8 +125,6 @@ BUILDLINK_BUILTIN_MK.${_pkg_}?=	${BUILDLINK_PKGSRCDIR.${_pkg_}}/builtin.mk
 # is set to "no" if that package depends on any other packages where
 # USE_BUILTIN.pkg is set to "no".
 #
-# TODOleot: Also check `[-]?spkg:' subpackages meta-information node balance!
-#
 
 _stack_:=bot
 _ok_:=yes
@@ -171,6 +169,19 @@ _ignore_:=${IGNORE_PKG.${_pkg_:S/^-//}:M[Yy][Ee][Ss]}
 .if ${_stack_} != "bot"
 .error "The above loop through BUILDLINK_TREE failed to balance"
 .endif
+
+# Go through BUILDLINK_TREE and check that optional `spkg:' nodes are balanced
+#
+_ospkg_:=	# last seen `spkg:' node
+.for _spkg_ in ${BUILDLINK_TREE:M*spkg\:*}
+.  if empty(_ospkg_)
+_ospkg_:=	${_spkg_}
+.  elif ${_spkg_} == -${_ospkg_}
+_ospkg_:=	# empty
+.  else
+.error "The above loop through BUILDLINK_TREE `spkg:' nodes failed to balance"
+.  endif
+.endfor
 
 # Sorted and unified version of BUILDLINK_TREE without recursion
 # data and without spkg: nodes.
