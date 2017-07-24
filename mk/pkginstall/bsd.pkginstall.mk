@@ -137,6 +137,9 @@ INSTALL_SRC?=		${_INSTALL_TEMPLATES}
 # FILES_SUBST lists what to substitute in DEINSTALL/INSTALL scripts and in
 # rc.d scripts.
 #
+# TODOleot: This will probably need to be per-spkg with a FILES_SUBST variable
+# TODOleot: shared by every spkgs and proper FILES_SUBST.<spkg>.
+#
 FILES_SUBST+=		PREFIX=${PREFIX:Q}
 FILES_SUBST+=		LOCALBASE=${LOCALBASE:Q}
 FILES_SUBST+=		X11BASE=${X11BASE:Q}
