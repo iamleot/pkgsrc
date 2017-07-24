@@ -81,6 +81,8 @@ PKG_DB_TMPDIR?=		${WRKDIR}/.pkgdb
 # point to additional script fragments.  These bits are included after
 # the main install/deinstall script fragments.
 #
+# TODOleot: All the ${PKGDIR} files should be per-spkg!
+#
 _HEADER_TMPL?=		${.CURDIR}/../../mk/pkginstall/header
 HEADER_TEMPLATES?=	# empty
 .if exists(${PKGDIR}/HEADER) && \
