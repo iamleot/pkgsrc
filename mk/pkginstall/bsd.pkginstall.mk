@@ -633,6 +633,9 @@ ${_INSTALL_FILES_FILE}: ../../mk/pkginstall/files
 # If any directory pathnames are relative, then they are taken to be
 # relative to ${PREFIX}.
 #
+# TODOleot: These needs to be adjusted to be per-spkg and eventually permit
+# TODOleot: having a shared non-dotted-spkg variables for every spkgs.
+#
 MAKE_DIRS?=		# empty
 MAKE_DIRS_PERMS?=	# empty
 REQD_DIRS?=		# empty
