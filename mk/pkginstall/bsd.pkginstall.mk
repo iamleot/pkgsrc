@@ -744,6 +744,8 @@ ${_INSTALL_DIRS_FILE}: ../../mk/pkginstall/dirs
 #	be needed unless "dir" is not in the same directory as the
 #	installed info files.
 #
+# TODOleot: this probably need to be per-spkg.
+#
 
 _INSTALL_INFO_FILES_FILE=	${_PKGINSTALL_DIR}/info-files
 _INSTALL_INFO_FILES_DATAFILE=	${_PKGINSTALL_DIR}/info-files-data
