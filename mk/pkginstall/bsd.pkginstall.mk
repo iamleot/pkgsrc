@@ -1090,6 +1090,7 @@ INSTALL_SCRIPTS_ENV=	PKG_PREFIX=${PREFIX}
 INSTALL_SCRIPTS_ENV+=	PKG_METADATA_DIR=${_PKG_DBDIR}/${PKGNAME}
 INSTALL_SCRIPTS_ENV+=	PKG_REFCOUNT_DBDIR=${PKG_REFCOUNT_DBDIR}
 
+# TODOleot: these needs to be per-spkg!
 DEINSTALL_FILE=		${PKG_DB_TMPDIR}/+DEINSTALL
 INSTALL_FILE=		${PKG_DB_TMPDIR}/+INSTALL
 _DEINSTALL_FILE=	${_PKGINSTALL_DIR}/DEINSTALL
@@ -1164,6 +1165,8 @@ ${_INSTALL_FILE}: ${INSTALL_SRC}
 #
 # If the source rc.d script is not present, then the automatic handling
 # doesn't occur.
+#
+# TODOleot: RCD_SCRIPTS should be per-spkg.
 
 .PHONY: generate-rcd-scripts
 generate-rcd-scripts:	# do nothing
