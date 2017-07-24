@@ -407,6 +407,8 @@ su-create-usergroup: ${_INSTALL_USERGROUP_UNPACKER}
 #
 # Keywords: setuid setgid st_mode perms
 #
+# TODOleot: These needs to be per-spkg!
+#
 SPECIAL_PERMS?=		# empty
 SETUID_ROOT_PERMS?=	${REAL_ROOT_USER} ${REAL_ROOT_GROUP} 4511
 SETGID_GAMES_PERMS?=	${GAMES_USER} ${GAMES_GROUP} ${GAMEMODE}
