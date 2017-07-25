@@ -172,8 +172,15 @@ _INSTALL_TEMPLATES_DFLT=	${_HEADER_TMPL}				\
 # These are the list of source files that are concatenated to form the
 # INSTALL/DEINSTALL scripts.
 #
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+DEINSTALL_SRC.${_spkg_}?=	${_DEINSTALL_TEMPLATES.${_spkg_}}
+INSTALL_SRC.${_spkg_}?=		${_INSTALL_TEMPLATES.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 DEINSTALL_SRC?=		${_DEINSTALL_TEMPLATES}
 INSTALL_SRC?=		${_INSTALL_TEMPLATES}
+.endif	# SUBPACKAGES
 
 # FILES_SUBST lists what to substitute in DEINSTALL/INSTALL scripts and in
 # rc.d scripts.
