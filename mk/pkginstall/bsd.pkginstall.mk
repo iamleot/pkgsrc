@@ -136,6 +136,20 @@ _FOOTER_TMPL?=		${.CURDIR}/../../mk/pkginstall/footer
 # _DEINSTALL_TEMPLATES_DFLT and _INSTALL_TEMPLATES_DFLT are the list of
 #	template files minus any user-supplied templates.
 #
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_DEINSTALL_TEMPLATES.${_spkg_}=	${_HEADER_TMPL} ${HEADER_TEMPLATES.${_spkg_}}	\
+				${DEINSTALL_TEMPLATES.${_spkg_}}		\
+				${_DEINSTALL_TMPL}				\
+				${_FOOTER_TMPL}
+_INSTALL_TEMPLATES.${_spkg_}=	${_HEADER_TMPL} ${HEADER_TEMPLATES.${_spkg_}}	\
+				${_INSTALL_UNPACK_TMPL}				\
+				${_INSTALL_TMPL}				\
+				${INSTALL_TEMPLATES.${_spkg_}}			\
+				${_FOOTER_TMPL}					\
+				${_INSTALL_DATA_TMPL}
+.  endfor
+.else	# !SUBPACKAGES
 _DEINSTALL_TEMPLATES=	${_HEADER_TMPL} ${HEADER_TEMPLATES}		\
 			${DEINSTALL_TEMPLATES}				\
 			${_DEINSTALL_TMPL}				\
@@ -145,7 +159,8 @@ _INSTALL_TEMPLATES=	${_HEADER_TMPL} ${HEADER_TEMPLATES}		\
 			${_INSTALL_TMPL}				\
 			${INSTALL_TEMPLATES}				\
 			${_FOOTER_TMPL}					\
-			${_INSTALL_DATA_TMPL}				\
+			${_INSTALL_DATA_TMPL}
+.endif	# SUBPACKAGES
 
 _DEINSTALL_TEMPLATES_DFLT=	${_HEADER_TMPL}				\
 				${_DEINSTALL_TMPL}			\
