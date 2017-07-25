@@ -15,6 +15,9 @@
 #	a message noting the actions taken.  It is either YES or NO and
 #	defaults to  YES for PKG_DEVELOPERs, otherwise NO.
 #
+# TODOleot: The various *_VARS.pkginstall here need to be adjusted for
+# TODOleot: subpackages.
+#
 _VARGROUPS+=		pkginstall
 _USER_VARS.pkginstall= \
 	FONTS_VERBOSE \
