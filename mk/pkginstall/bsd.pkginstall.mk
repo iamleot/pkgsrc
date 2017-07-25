@@ -81,8 +81,31 @@ PKG_DB_TMPDIR?=		${WRKDIR}/.pkgdb
 # point to additional script fragments.  These bits are included after
 # the main install/deinstall script fragments.
 #
-# TODOleot: All the ${PKGDIR} files should be per-spkg!
-#
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_HEADER_TMPL?=	${.CURDIR}/../../mk/pkginstall/header
+HEADER_TEMPLATES.${_spkg_}?=	# empty
+.if exists(${PKGDIR}/HEADER.${_spkg_}) && \
+    empty(HEADER_TEMPLATES.${_spkg_}:M${PKGDIR}/HEADER.${_spkg_})
+HEADER_TEMPLATES.${_spkg_}+=	${PKGDIR}/HEADER.${_spkg_}
+.endif
+DEINSTALL_TEMPLATES.${_spkg_}?=	# empty
+.if exists(${PKGDIR}/DEINSTALL.${_spkg_}) && \
+    empty(DEINSTALL_TEMPLATES.${_spkg_}:M${PKGDIR}/DEINSTALL.${_spkg_})
+DEINSTALL_TEMPLATES.${_spkg_}+=	${PKGDIR}/DEINSTALL.${_spkg_}
+.endif
+_DEINSTALL_TMPL?=	${.CURDIR}/../../mk/pkginstall/deinstall
+_INSTALL_UNPACK_TMPL?=	# empty
+_INSTALL_TMPL?=		${.CURDIR}/../../mk/pkginstall/install
+INSTALL_TEMPLATES.${_spkg_}?=	# empty
+.if exists(${PKGDIR}/INSTALL.${_spkg_}) && \
+    empty(INSTALL_TEMPLATES.${_spkg_}:M${PKGDIR}/INSTALL.${_spkg_})
+INSTALL_TEMPLATES.${_spkg_}+=	${PKGDIR}/INSTALL.${_spkg_}
+.endif
+_INSTALL_DATA_TMPL?=	# empty
+_FOOTER_TMPL?=		${.CURDIR}/../../mk/pkginstall/footer
+.  endfor
+.else # !SUBPACKAGES
 _HEADER_TMPL?=		${.CURDIR}/../../mk/pkginstall/header
 HEADER_TEMPLATES?=	# empty
 .if exists(${PKGDIR}/HEADER) && \
@@ -104,6 +127,7 @@ INSTALL_TEMPLATES+=	${PKGDIR}/INSTALL
 .endif
 _INSTALL_DATA_TMPL?=	# empty
 _FOOTER_TMPL?=		${.CURDIR}/../../mk/pkginstall/footer
+.endif	# SUBPACKAGES
 
 # _DEINSTALL_TEMPLATES and _INSTALL_TEMPLATES are the list of source
 #	files that are concatenated to form the DEINSTALL/INSTALL
