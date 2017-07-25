@@ -199,7 +199,13 @@ FILES_SUBST+=		PKG_SYSCONFBASE=${PKG_SYSCONFBASE:Q}
 FILES_SUBST+=		PKG_SYSCONFBASEDIR=${PKG_SYSCONFBASEDIR:Q}
 FILES_SUBST+=		PKG_SYSCONFDIR=${PKG_SYSCONFDIR:Q}
 FILES_SUBST+=		CONF_DEPENDS=${CONF_DEPENDS:C/:.*//:Q}
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+FILES_SUBST.${_spkg_}+=		PKGBASE.${_spkg_}=${PKGBASE.${_spkg_}:Q}
+.  endfor
+.else	# !SUBPACKAGES
 FILES_SUBST+=		PKGBASE=${PKGBASE:Q}
+.endif	# SUBPACKAGES
 
 # PKG_USERS represents the users to create for the package.  It is a
 #	space-separated list of elements of the form
