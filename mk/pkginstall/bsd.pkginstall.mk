@@ -84,6 +84,11 @@ PKG_DB_TMPDIR?=		${WRKDIR}/.pkgdb
 # point to additional script fragments.  These bits are included after
 # the main install/deinstall script fragments.
 #
+# For SUBPACKAGES the INSTALL/DEINSTALL scripts are per-spkgs, respectively
+# INSTALL.<spkg> and DEINSTALL.<spkg>.
+# Every subpcakage can also override HEADER_TEMPLATES.<spkg>,
+# DEINSTALL_TEMPLATES.<spkg> and INSTALL_TEMPLATES.<spkg>.
+#
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _HEADER_TMPL?=	${.CURDIR}/../../mk/pkginstall/header
@@ -135,6 +140,8 @@ _FOOTER_TMPL?=		${.CURDIR}/../../mk/pkginstall/footer
 # _DEINSTALL_TEMPLATES and _INSTALL_TEMPLATES are the list of source
 #	files that are concatenated to form the DEINSTALL/INSTALL
 #	scripts.
+#	For SUBPACKAGES there per-spkg and are respectively
+#	_DEINSTALL_TEMPLATES.<spkg> and _INSTALL_TEMPLATES.<spkg>
 #
 # _DEINSTALL_TEMPLATES_DFLT and _INSTALL_TEMPLATES_DFLT are the list of
 #	template files minus any user-supplied templates.
@@ -187,6 +194,9 @@ INSTALL_SRC?=		${_INSTALL_TEMPLATES}
 
 # FILES_SUBST lists what to substitute in DEINSTALL/INSTALL scripts and in
 # rc.d scripts.
+#
+# For SUBPACKAGES the FILES_SUBST list is honored by each subpackages.
+# Additional per-spkg substitutions are provided via FILES_SUBST.<spkg>
 #
 # TODOleot: This will probably need to be per-spkg with a FILES_SUBST variable
 # TODOleot: shared by every spkgs and proper FILES_SUBST.<spkg>.
