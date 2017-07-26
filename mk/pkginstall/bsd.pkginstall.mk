@@ -256,14 +256,26 @@ FILES_SUBST+=		PKGBASE=${PKGBASE:Q}
 #	the numeric UIDs and GIDs of users and groups required by this
 #	package are hardcoded into the +INSTALL script.
 #
-# TODOleot: These need to be per-spkg!
+# For SUBPACKAGES PKG_GROUPS and PKG_USERS are per-spkg and can be defined
+# via PKG_GROUPS.<spkg> and PKG_USERS.<spkg>.
 #
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PKG_GROUPS.${_spkg_}?=		# empty
+PKG_USERS.${_spkg_}?=		# empty
+_PKG_USER_HOME.${_spkg_}?=	/nonexistent
+_PKG_USER_SHELL.${_spkg_}?=	${NOLOGIN}
+FILES_SUBST.${_spkg_}+=		PKG_USER_HOME=${_PKG_USER_HOME.${_spkg_}:Q}
+FILES_SUBST.${_spkg_}+=		PKG_USER_SHELL=${_PKG_USER_SHELL.${_spkg_}:Q}
+.  endfor
+.else	# !SUBPACKAGES
 PKG_GROUPS?=		# empty
 PKG_USERS?=		# empty
 _PKG_USER_HOME?=	/nonexistent
 _PKG_USER_SHELL?=	${NOLOGIN}
 FILES_SUBST+=		PKG_USER_HOME=${_PKG_USER_HOME:Q}
 FILES_SUBST+=		PKG_USER_SHELL=${_PKG_USER_SHELL:Q}
+.endif	# SUBPACKAGES
 
 USE_GAMESGROUP?=	no
 SETGIDGAME?=            ${USE_GAMESGROUP}
