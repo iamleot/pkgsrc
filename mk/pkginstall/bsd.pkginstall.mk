@@ -332,11 +332,21 @@ _BUILD_DEFS+=	GAMES_GROUP GAMES_USER GAMEDATAMODE GAMEDIRMODE GAMEMODE
 # compile without changing something.
 #
 .if !empty(OPSYS:MInterix)
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.    for user in ${PKG_USERS.${_spkg_}:C/\\\\//g:C/:.*//}
+.      if !empty(PKG_GROUPS.${_spkg_}:M${user})
+PKG_FAIL_REASON+=	"User and group '${user}' cannot have the same name on Interix"
+.      endif
+.    endfor
+.  endfor
+.else	# !SUBPACKAGES
 .  for user in ${PKG_USERS:C/\\\\//g:C/:.*//}
 .    if !empty(PKG_GROUPS:M${user})
 PKG_FAIL_REASON+=	"User and group '${user}' cannot have the same name on Interix"
 .    endif
 .  endfor
+.endif	# SUBPACKAGES
 .endif
 
 .if !empty(PKG_USERS) || !empty(PKG_GROUPS)
