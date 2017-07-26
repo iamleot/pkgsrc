@@ -200,6 +200,8 @@ INSTALL_SRC?=		${_INSTALL_TEMPLATES}
 #
 # TODOleot: This will probably need to be per-spkg with a FILES_SUBST variable
 # TODOleot: shared by every spkgs and proper FILES_SUBST.<spkg>.
+# TODOleot: While the definition was adjusted to use FILES_SUBST.<spkg> the
+# TODOleot: usage of FILES_SUBST are still not adjusted!
 #
 FILES_SUBST+=		PREFIX=${PREFIX:Q}
 FILES_SUBST+=		LOCALBASE=${LOCALBASE:Q}
