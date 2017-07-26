@@ -277,6 +277,7 @@ FILES_SUBST+=		PKG_USER_HOME=${_PKG_USER_HOME:Q}
 FILES_SUBST+=		PKG_USER_SHELL=${_PKG_USER_SHELL:Q}
 .endif	# SUBPACKAGES
 
+# TODOleot: these should be per-spkg!
 USE_GAMESGROUP?=	no
 SETGIDGAME?=            ${USE_GAMESGROUP}
 # If USE_GAMESGROUP == yes, then we need the "games" group.
