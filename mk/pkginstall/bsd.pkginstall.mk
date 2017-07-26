@@ -279,9 +279,15 @@ FILES_SUBST+=		PKG_USER_HOME=${_PKG_USER_HOME:Q}
 FILES_SUBST+=		PKG_USER_SHELL=${_PKG_USER_SHELL:Q}
 .endif	# SUBPACKAGES
 
-# TODOleot: these should be per-spkg!
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+USE_GAMESGROUP.${_spkg_}?=	no
+SETGIDGAME.${_spkg_}?=		${USE_GAMESGROUP.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 USE_GAMESGROUP?=	no
 SETGIDGAME?=            ${USE_GAMESGROUP}
+.endif	# SUBPACKAGES
 # If USE_GAMESGROUP == yes, then we need the "games" group.
 # SETGIDGAME is a deprecated alias for USE_GAMESGROUP.
 #
@@ -294,14 +300,30 @@ SETGIDGAME?=            ${USE_GAMESGROUP}
 # phased out because it conflicts with a like-named build variable in
 # the NetBSD base system.
 #
+# For SUBPACKAGES USE_GAMESGROUP and SETGIDGAME are per-subpackage and
+# respectively USE_GAMESGROUP.<spkg> and SETGIDGAME.<spkg>
+#
 # For now we also create the "games" user; this should not be used and
 # should be removed at some point.
+#
+# TODOleot: Adjust _BUILD_DEFS for SUBPACKAGES case.
+#
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.if (defined(USE_GAMESGROUP.${_spkg_}) && !empty(USE_GAMESGROUP.${_spkg_}:M[yY][eE][sS])) ||\
+    (defined(SETGIDGAME.${_spkg_}) && !empty(SETGIDGAME.${_spkg_}:M[yY][eE][sS]))
+PKG_GROUPS.${_spkg_}+=	${GAMES_GROUP}
+PKG_USERS.${_spkg_}+=	${GAMES_USER}:${GAMES_GROUP}
+_BUILD_DEFS+=	GAMES_GROUP GAMES_USER GAMEDATAMODE GAMEDIRMODE GAMEMODE
+.  endfor
+.else	# !SUBPACKAGES
 .if (defined(USE_GAMESGROUP) && !empty(USE_GAMESGROUP:M[yY][eE][sS])) ||\
     (defined(SETGIDGAME) && !empty(SETGIDGAME:M[yY][eE][sS]))
 PKG_GROUPS+=	${GAMES_GROUP}
 PKG_USERS+=	${GAMES_USER}:${GAMES_GROUP}
 _BUILD_DEFS+=	GAMES_GROUP GAMES_USER GAMEDATAMODE GAMEDIRMODE GAMEMODE
 .endif
+.endif	# SUBPACKAGES
 
 # Interix is very special in that users and groups cannot have the
 # same name.  Interix.mk tries to work around this by overriding
