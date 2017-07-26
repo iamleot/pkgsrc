@@ -256,6 +256,8 @@ FILES_SUBST+=		PKGBASE=${PKGBASE:Q}
 #	the numeric UIDs and GIDs of users and groups required by this
 #	package are hardcoded into the +INSTALL script.
 #
+# TODOleot: These need to be per-spkg!
+#
 PKG_GROUPS?=		# empty
 PKG_USERS?=		# empty
 _PKG_USER_HOME?=	/nonexistent
