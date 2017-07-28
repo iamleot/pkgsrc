@@ -109,14 +109,14 @@ DEINSTALL_TEMPLATES.${_spkg_}?=	# empty
 DEINSTALL_TEMPLATES.${_spkg_}+=	${PKGDIR}/DEINSTALL.${_spkg_}
 .endif
 _DEINSTALL_TMPL?=	${.CURDIR}/../../mk/pkginstall/deinstall
-_INSTALL_UNPACK_TMPL?=	# empty
+_INSTALL_UNPACK_TMPL.${_spkg_}?=	# empty
 _INSTALL_TMPL?=		${.CURDIR}/../../mk/pkginstall/install
 INSTALL_TEMPLATES.${_spkg_}?=	# empty
 .if exists(${PKGDIR}/INSTALL.${_spkg_}) && \
     empty(INSTALL_TEMPLATES.${_spkg_}:M${PKGDIR}/INSTALL.${_spkg_})
 INSTALL_TEMPLATES.${_spkg_}+=	${PKGDIR}/INSTALL.${_spkg_}
 .endif
-_INSTALL_DATA_TMPL?=	# empty
+_INSTALL_DATA_TMPL.${_spkg_}?=	# empty
 _FOOTER_TMPL?=		${.CURDIR}/../../mk/pkginstall/footer
 .  endfor
 .else # !SUBPACKAGES
@@ -159,11 +159,11 @@ _DEINSTALL_TEMPLATES.${_spkg_}=	${_HEADER_TMPL} ${HEADER_TEMPLATES.${_spkg_}}	\
 				${_DEINSTALL_TMPL}				\
 				${_FOOTER_TMPL}
 _INSTALL_TEMPLATES.${_spkg_}=	${_HEADER_TMPL} ${HEADER_TEMPLATES.${_spkg_}}	\
-				${_INSTALL_UNPACK_TMPL}				\
+				${_INSTALL_UNPACK_TMPL.${_spkg_}}		\
 				${_INSTALL_TMPL}				\
 				${INSTALL_TEMPLATES.${_spkg_}}			\
 				${_FOOTER_TMPL}					\
-				${_INSTALL_DATA_TMPL}
+				${_INSTALL_DATA_TMPL.${_spkg_}}
 .  endfor
 .else	# !SUBPACKAGES
 _DEINSTALL_TEMPLATES=	${_HEADER_TMPL} ${HEADER_TEMPLATES}		\
