@@ -391,6 +391,21 @@ _INSTALL_UNPACK_TMPL+=		${_INSTALL_USERGROUP_FILE}
 _INSTALL_DATA_TMPL+=		${_INSTALL_USERGROUP_DATAFILE}
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.    for _group_ in ${PKG_GROUPS.${_spkg_}}
+.      if defined(USERGROUP_PHASE)
+# Determine the numeric GID of each group.
+USE_TOOLS+=	perl
+PKG_GID.${_group_}_cmd=							\
+	if ${TEST} ! -x ${PERL5}; then ${ECHO} ""; exit 0; fi;		\
+	${PERL5} -le 'print scalar getgrnam shift' ${_group_}
+PKG_GID.${_group_}?=	${PKG_GID.${_group_}_cmd:sh:M*}
+.      endif
+_PKG_GROUPS.${_spkg_}+=	${_group_}:${PKG_GID.${_group_}}
+.    endfor
+.  endfor
+.else	# !SUBPACKAGES
 .for _group_ in ${PKG_GROUPS}
 .  if defined(USERGROUP_PHASE)
 # Determine the numeric GID of each group.
@@ -402,7 +417,25 @@ PKG_GID.${_group_}?=	${PKG_GID.${_group_}_cmd:sh:M*}
 .  endif
 _PKG_GROUPS+=	${_group_}:${PKG_GID.${_group_}}
 .endfor
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.    for _entry_ in ${PKG_USERS.${_spkg_}}
+.      for e in ${_entry_:C/\:.*//}
+.        if defined(USERGROUP_PHASE)
+# Determine the numeric UID of each user.
+USE_TOOLS+=	perl
+PKG_UID.${e}_cmd=							\
+	if ${TEST} ! -x ${PERL5}; then ${ECHO} ""; exit 0; fi;		\
+	${PERL5} -le 'print scalar getpwnam shift' ${e}
+PKG_UID.${e}?=	${PKG_UID.${e}_cmd:sh:M*}
+.        endif
+_PKG_USERS.${_spkg_}+=	${_entry_}:${PKG_UID.${e}}:${PKG_GECOS.${e}:Q}:${PKG_HOME.${e}:Q}:${PKG_SHELL.${e}:Q}
+.      endfor
+.    endfor
+.  endfor
+.else	# !SUBPACKAGES
 .for _entry_ in ${PKG_USERS}
 .  for e in ${_entry_:C/\:.*//}
 .    if defined(USERGROUP_PHASE)
@@ -416,6 +449,7 @@ PKG_UID.${e}?=	${PKG_UID.${e}_cmd:sh:M*}
 _PKG_USERS+=	${_entry_}:${PKG_UID.${e}}:${PKG_GECOS.${e}:Q}:${PKG_HOME.${e}:Q}:${PKG_SHELL.${e}:Q}
 .  endfor
 .endfor
+.endif	# SUBPACKAGES
 
 ${_INSTALL_USERGROUP_DATAFILE}:
 	${RUN}${MKDIR} ${.TARGET:H}
