@@ -499,7 +499,7 @@ ${_INSTALL_USERGROUP_FILE.${_spkg_}}:					\
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}								\
 	${SED}	-e "/^# platform-specific adduser\/addgroup functions/r${_INSTALL_USERGROUPFUNCS_FILE.${_spkg_}}" ../../mk/pkginstall/usergroup |			\
-	${SED} ${FILES_SUBST_SED} > ${.TARGET}
+	${SED} ${FILES_SUBST_SED.${_spkg_}} > ${.TARGET}
 	${RUN}								\
 	if ${_ZERO_FILESIZE_P} ${_INSTALL_USERGROUP_DATAFILE.${_spkg_}}; then	\
 		${RM} -f ${.TARGET};					\
