@@ -71,7 +71,13 @@ _FUNC_STRIP_PREFIX= \
 	    }' s="$$1" prefix=${PREFIX:Q}/ /dev/null;			\
 	}
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_PKGINSTALL_DIR.${_spkg_}=	${WRKDIR}/.pkginstall.${_spkg_}
+.  endfor
+.else # !SUBPACKAGES
 _PKGINSTALL_DIR=	${WRKDIR}/.pkginstall
+.endif	# SUBPACKAGES
 
 # XXX This should not be duplicated from the install module, but we
 # XXX need this until pkginstall is refactored.
