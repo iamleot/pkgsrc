@@ -367,15 +367,29 @@ DEPENDS+=		${_USER_DEPENDS}
 .endif
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_INSTALL_USERGROUP_FILE.${_spkg_}=	${_PKGINSTALL_DIR.${_spkg_}}/usergroup
+.  endfor
+.else	# !SUBPACKAGES
 _INSTALL_USERGROUP_FILE=	${_PKGINSTALL_DIR}/usergroup
+.endif	# SUBPACKAGES
 .if exists(../../mk/pkginstall/usergroupfuncs.${OPSYS})
 _INSTALL_USERGROUPFUNCS_FILE?=	../../mk/pkginstall/usergroupfuncs.${OPSYS}
 .else
 _INSTALL_USERGROUPFUNCS_FILE?=	../../mk/pkginstall/usergroupfuncs
 .endif
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_INSTALL_USERGROUP_DATAFILE.${_spkg_}=	${_PKGINSTALL_DIR.${_spkg_}}/usergroup-data
+_INSTALL_UNPACK_TMPL.${_spkg_}+=	${_INSTALL_USERGROUP_FILE.${_spkg_}}
+_INSTALL_DATA_TMPL.${_spkg_}+=		${_INSTALL_USERGROUP_DATAFILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 _INSTALL_USERGROUP_DATAFILE=	${_PKGINSTALL_DIR}/usergroup-data
 _INSTALL_UNPACK_TMPL+=		${_INSTALL_USERGROUP_FILE}
 _INSTALL_DATA_TMPL+=		${_INSTALL_USERGROUP_DATAFILE}
+.endif	# SUBPACKAGES
 
 .for _group_ in ${PKG_GROUPS}
 .  if defined(USERGROUP_PHASE)
