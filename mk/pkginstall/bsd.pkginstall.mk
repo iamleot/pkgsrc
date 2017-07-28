@@ -452,6 +452,26 @@ _PKG_USERS+=	${_entry_}:${PKG_UID.${e}}:${PKG_GECOS.${e}:Q}:${PKG_HOME.${e}:Q}:$
 .endfor
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_USERGROUP_DATAFILE.${_spkg_}}:
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	set -- dummy ${_PKG_GROUPS.${_spkg_}:C/\:*$//}; shift;		\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		i="$$1"; shift;						\
+		${ECHO} "# GROUP: $$i";					\
+	done
+	${RUN}								\
+	set -- dummy ${_PKG_USERS.${_spkg_}:C/\:*$//}; shift;		\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		i="$$1"; shift;						\
+		${ECHO} "# USER: $$i";					\
+	done
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_USERGROUP_DATAFILE}:
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}								\
@@ -468,7 +488,25 @@ ${_INSTALL_USERGROUP_DATAFILE}:
 		i="$$1"; shift;						\
 		${ECHO} "# USER: $$i";					\
 	done
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_USERGROUP_FILE.${_spkg_}}: ${_INSTALL_USERGROUP_DATAFILE.${_spkg_}}
+${_INSTALL_USERGROUP_FILE.${_spkg_}}:					\
+		../../mk/pkginstall/usergroup				\
+		${INSTALL_USERGROUPFUNCS_FILE.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	${SED}	-e "/^# platform-specific adduser\/addgroup functions/r${_INSTALL_USERGROUPFUNCS_FILE.${_spkg_}}" ../../mk/pkginstall/usergroup |			\
+	${SED} ${FILES_SUBST_SED} > ${.TARGET}
+	${RUN}								\
+	if ${_ZERO_FILESIZE_P} ${_INSTALL_USERGROUP_DATAFILE.${_spkg_}}; then	\
+		${RM} -f ${.TARGET};					\
+		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
+	fi
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_USERGROUP_FILE}: ${_INSTALL_USERGROUP_DATAFILE}
 ${_INSTALL_USERGROUP_FILE}:						\
 		../../mk/pkginstall/usergroup				\
@@ -482,6 +520,7 @@ ${_INSTALL_USERGROUP_FILE}:						\
 		${RM} -f ${.TARGET};					\
 		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
 	fi
+.endif	# SUBPACKAGES
 
 _INSTALL_USERGROUP_UNPACKER=	${_PKGINSTALL_DIR}/usergroup-unpack
 
