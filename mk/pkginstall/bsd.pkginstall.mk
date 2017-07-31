@@ -522,8 +522,36 @@ ${_INSTALL_USERGROUP_FILE}:						\
 	fi
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_INSTALL_USERGROUP_UNPACKER.${_spkg_}=	${_PKGINSTALL_DIR.${_spkg_}}/usergroup-unpack
+.  endfor
+.else	# !SUBPACKAGES
 _INSTALL_USERGROUP_UNPACKER=	${_PKGINSTALL_DIR}/usergroup-unpack
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_USERGROUP_UNPACKER.${_spkg_}}:				\
+		${_INSTALL_USERGROUP_FILE.${_spkg_}}			\
+		${_INSTALL_USERGROUP_DATAFILE.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	exec 1>${.TARGET};						\
+	${ECHO} "#!${SH}";						\
+	${ECHO} "";							\
+	${ECHO} "CAT="${CAT:Q};						\
+	${ECHO} "CHMOD="${CHMOD:Q};					\
+	${ECHO} "SED="${SED:Q};						\
+	${ECHO} "";							\
+	${ECHO} "SELF=\$$0";						\
+	${ECHO} "STAGE=UNPACK";						\
+	${ECHO} "";							\
+	${CAT}	${_INSTALL_USERGROUP_FILE.${_spkg_}}			\
+		${_INSTALL_USERGROUP_DATAFILE.${_spkg_}}
+	${RUN}${CHMOD} +x ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_USERGROUP_UNPACKER}:						\
 		${_INSTALL_USERGROUP_FILE}				\
 		${_INSTALL_USERGROUP_DATAFILE}
@@ -542,6 +570,7 @@ ${_INSTALL_USERGROUP_UNPACKER}:						\
 	${CAT}	${_INSTALL_USERGROUP_FILE}				\
 		${_INSTALL_USERGROUP_DATAFILE}
 	${RUN}${CHMOD} +x ${.TARGET}
+.endif	# SUBPACKAGES
 
 .if defined(USERGROUP_PHASE)
 .  if !empty(USERGROUP_PHASE:M*configure)
