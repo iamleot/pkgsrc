@@ -590,11 +590,21 @@ _INSTALL_USERGROUP_CHECK=						\
 create-usergroup: su-target
 	@${STEP_MSG} "Requiring users and groups for ${PKGNAME}"
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+PRE_CMD.su-create-usergroup.${_spkg_}=							\
+	if ${_INSTALL_USERGROUP_CHECK} -g ${_PKG_GROUPS.${_spkg_}:C/\:*$//} &&		\
+	   ${_INSTALL_USERGROUP_CHECK} -u ${_PKG_USERS.${_spkg_}:C/\:*$//}; then	\
+		exit 0;									\
+	fi
+.  endfor
+.else	# !SUBPACKAGES
 PRE_CMD.su-create-usergroup=						\
 	if ${_INSTALL_USERGROUP_CHECK} -g ${_PKG_GROUPS:C/\:*$//} &&	\
 	   ${_INSTALL_USERGROUP_CHECK} -u ${_PKG_USERS:C/\:*$//}; then	\
 		exit 0;							\
 	fi
+.endif	# SUBPACKAGES
 
 .PHONY: su-create-usergroup
 su-create-usergroup: ${_INSTALL_USERGROUP_UNPACKER}
