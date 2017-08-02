@@ -606,6 +606,26 @@ PRE_CMD.su-create-usergroup=						\
 	fi
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.PHONY: su-create-usergroup.${_spkg_}
+su-create-usergroup.${_spkg_}: ${_INSTALL_USERGROUP_UNPACKER.${_spkg_}}
+	${RUN}								\
+	cd ${_PKGINSTALL_DIR.${_spkg_}} &&				\
+	${SH} ${_INSTALL_USERGROUP_UNPACKER.${_spkg_}};			\
+	exitcode=1;							\
+	if ${TEST} -f ./+USERGROUP &&					\
+	   ./+USERGROUP ADD ${_PKG_DBDIR}/${PKGNAME.${_spkg_}} &&	\
+	   ./+USERGROUP CHECK-ADD ${_PKG_DBDIR}/${PKGNAME.${_spkg_}}; then	\
+		exitcode=0;						\
+	fi;								\
+	${RM} -f ${_INSTALL_USERGROUP_FILE.${_spkg_}:Q}			\
+		${_INSTALL_USERGROUP_DATAFILE.${_spkg_}:Q}		\
+		${_INSTALL_USERGROUP_UNPACKER.${_spkg_}:Q}		\
+		./+USERGROUP;						\
+	exit $$exitcode
+.  endfor
+.else	# !SUBPACKAGES
 .PHONY: su-create-usergroup
 su-create-usergroup: ${_INSTALL_USERGROUP_UNPACKER}
 	${RUN}								\
@@ -622,6 +642,7 @@ su-create-usergroup: ${_INSTALL_USERGROUP_UNPACKER}
 		${_INSTALL_USERGROUP_UNPACKER:Q}			\
 		./+USERGROUP;						\
 	exit $$exitcode
+.endif	# SUBPACKAGES
 
 # SPECIAL_PERMS are lists that look like:
 #		file user group mode
