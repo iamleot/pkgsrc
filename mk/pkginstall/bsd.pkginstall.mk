@@ -658,6 +658,8 @@ su-create-usergroup: ${_INSTALL_USERGROUP_UNPACKER}
 #	The special permissions may not directly recorded (as file
 #	attributes) in the binary package file.
 #
+# For SUBPACKAGES SPECIAL_PERMS are per-subpackage via SPECIAL_PERMS.<spkg>.
+#
 # SETUID_ROOT_PERMS is a convenience definition to note an executable is
 # meant to be setuid-root, and should be used as follows:
 #
