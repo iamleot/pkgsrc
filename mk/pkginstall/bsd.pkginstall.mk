@@ -709,6 +709,21 @@ _INSTALL_UNPACK_TMPL+=		${_INSTALL_PERMS_FILE}
 _INSTALL_DATA_TMPL+=		${_INSTALL_PERMS_DATAFILE}
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_PERMS_DATAFILE.${_spkg_}}:
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${SPECIAL_PERMS.${_spkg_}}; shift;			\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		file="$$1"; owner="$$2"; group="$$3"; mode="$$4";	\
+		shift; shift; shift; shift;				\
+		file=`strip_prefix "$$file"`;				\
+		${ECHO} "# PERMS: $$file $$mode $$owner $$group";	\
+	done
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_PERMS_DATAFILE}:
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${_FUNC_STRIP_PREFIX};					\
@@ -720,7 +735,22 @@ ${_INSTALL_PERMS_DATAFILE}:
 		file=`strip_prefix "$$file"`;				\
 		${ECHO} "# PERMS: $$file $$mode $$owner $$group";	\
 	done
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_PERMS_FILE.${_spkg_}}: ${_INSTALL_PERMS_DATAFILE.${_spkg_}}
+${_INSTALL_PERMS_FILE.${_spkg_}}: ../../mk/pkginstall/perms
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	${SED} ${FILES_SUBST_SED} ../../mk/pkginstall/perms > ${.TARGET}
+	${RUN}								\
+	if ${_ZERO_FILESIZE_P} ${_INSTALL_PERMS_DATAFILE.${_spkg_}}; then		\
+		${RM} -f ${.TARGET};					\
+		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
+	fi
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_PERMS_FILE}: ${_INSTALL_PERMS_DATAFILE}
 ${_INSTALL_PERMS_FILE}: ../../mk/pkginstall/perms
 	${RUN}${MKDIR} ${.TARGET:H}
@@ -731,6 +761,7 @@ ${_INSTALL_PERMS_FILE}: ../../mk/pkginstall/perms
 		${RM} -f ${.TARGET};					\
 		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
 	fi
+.endif	# SUBPACKAGES
 
 # CONF_FILES
 # REQD_FILES
