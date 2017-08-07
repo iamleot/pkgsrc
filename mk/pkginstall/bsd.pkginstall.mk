@@ -964,6 +964,63 @@ _pkginstall-postinstall-check: .PHONY
 	done
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_FILES_DATAFILE.${_spkg_}}:
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${_INSTALL_RCD_SCRIPTS.${_spkg_}}; shift;		\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		script="$$1"; shift;					\
+		file="${RCD_SCRIPTS_DIR:S/^${PREFIX}\///}/$$script";	\
+		egfile="${RCD_SCRIPTS_EXAMPLEDIR}/$$script";		\
+		${ECHO} "# FILE: $$file cr $$egfile ${RCD_SCRIPTS_MODE.${_spkg_}}"; \
+	done
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${CONF_FILES.${_spkg_}}; shift;			\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		egfile="$$1"; file="$$2";				\
+		shift; shift;						\
+		egfile=`strip_prefix "$$egfile"`;			\
+		file=`strip_prefix "$$file"`;				\
+		${ECHO} "# FILE: $$file c $$egfile ${CONF_FILES_MODE.${_spkg_}}"; \
+	done
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${REQD_FILES.${_spkg_}}; shift;			\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		egfile="$$1"; file="$$2";				\
+		shift; shift;						\
+		egfile=`strip_prefix "$$egfile"`;			\
+		file=`strip_prefix "$$file"`;				\
+		${ECHO} "# FILE: $$file cf $$egfile ${REQD_FILES_MODE.${_spkg_}}"; \
+	done
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${CONF_FILES_PERMS.${_spkg_}}; shift;		\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		egfile="$$1"; file="$$2";				\
+		owner="$$3"; group="$$4"; mode="$$5";			\
+		shift; shift; shift; shift; shift;			\
+		egfile=`strip_prefix "$$egfile"`;			\
+		file=`strip_prefix "$$file"`;				\
+		${ECHO} "# FILE: $$file c $$egfile $$mode $$owner $$group"; \
+	done
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${REQD_FILES_PERMS.${_spkg_}}; shift;		\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		egfile="$$1"; file="$$2";				\
+		owner="$$3"; group="$$4"; mode="$$5";			\
+		shift; shift; shift; shift; shift;			\
+		egfile=`strip_prefix "$$egfile"`;			\
+		file=`strip_prefix "$$file"`;				\
+		${ECHO} "# FILE: $$file cf $$egfile $$mode $$owner $$group"; \
+	done
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_FILES_DATAFILE}:
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${_FUNC_STRIP_PREFIX};					\
@@ -1017,6 +1074,7 @@ ${_INSTALL_FILES_DATAFILE}:
 		file=`strip_prefix "$$file"`;				\
 		${ECHO} "# FILE: $$file cf $$egfile $$mode $$owner $$group"; \
 	done
+.endif	# SUBPACKAGES
 
 ${_INSTALL_FILES_FILE}: ${_INSTALL_FILES_DATAFILE}
 ${_INSTALL_FILES_FILE}: ../../mk/pkginstall/files
