@@ -1108,6 +1108,9 @@ ${_INSTALL_FILES_FILE}: ../../mk/pkginstall/files
 #	is ignored; however, all directories listed in REQD_DIRS should
 #	be under ${PREFIX}.
 #
+# For SUBPACKAGES OWN_DIRS, MAKE_DIRS, REQD_DIRS are per-subpackage and
+# available as OWN_DIRS.<spkg>, MAKE_DIRS.<spkg>, REQD_DIRS.<spkg>.
+#
 # OWN_DIRS_PERMS contains a list of "directory owner group mode" sublists
 #	representing directories for this package that should be
 #	created/destroyed by the INSTALL/DEINSTALL scripts.  MAKE_DIRS_PERMS
@@ -1117,29 +1120,52 @@ ${_INSTALL_FILES_FILE}: ../../mk/pkginstall/files
 #	ignored; however, all directories listed in REQD_DIRS should be
 #	under ${PREFIX}.
 #
+# For SUBPACKAGES OWN_DIRS_PERMS, MAKE_DIRS_PERMS, REQD_DIRS_PERMS are
+# per-subpackage and available as OWN_DIRS.<spkg>, MAKE_DIRS.<spkg>,
+# REQD_DIRS_PERMS.<spkg>.
+#
 # PKG_SYSCONFDIR_PERMS contains a list of "owner group mode" for
 #	${PKG_SYSCONFDIR}, and only takes effect if PKG_SYSCONFSUBDIR
 #	is non-empty.  This is a special case to handle setting
 #	special permissions for ${PKG_SYSCONFDIR}, as ${PKG_SYSCONFDIR}
 #	is (effectively) automatically added to MAKE_DIRS_PERMS.
 #
+# XXXleot: should PKG_SYSCONFDIR_PERMS be per-spkg?
+#
 # If any directory pathnames are relative, then they are taken to be
 # relative to ${PREFIX}.
 #
-# TODOleot: These needs to be adjusted to be per-spkg and eventually permit
-# TODOleot: having a shared non-dotted-spkg variables for every spkgs.
-#
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+MAKE_DIRS.${_spkg_}?=		# empty
+MAKE_DIRS_PERMS.${_spkg_}?=	# empty
+REQD_DIRS.${_spkg_}?=		# empty
+REQD_DIRS_PERMS.${_spkg_}?=	# empty
+OWN_DIRS.${_spkg_}?=		# empty
+OWN_DIRS_PERMS.${_spkg_}?=	# empty
+.  endfor
+.else	# !SUBPACKAGES
 MAKE_DIRS?=		# empty
 MAKE_DIRS_PERMS?=	# empty
 REQD_DIRS?=		# empty
 REQD_DIRS_PERMS?=	# empty
 OWN_DIRS?=		# empty
 OWN_DIRS_PERMS?=	# empty
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_INSTALL_DIRS_FILE.${_spkg_}=	${_PKGINSTALL_DIR}/dirs
+_INSTALL_DIRS_DATAFILE.${_spkg_}=	${_PKGINSTALL_DIR}/dirs-data
+_INSTALL_UNPACK_TMPL.${_spkg_}+=	${_INSTALL_DIRS_FILE}
+_INSTALL_DATA_TMPL.${_spkg_}+=	${_INSTALL_DIRS_DATAFILE}
+.  endfor
+.else	# !SUBPACKAGES
 _INSTALL_DIRS_FILE=	${_PKGINSTALL_DIR}/dirs
 _INSTALL_DIRS_DATAFILE=	${_PKGINSTALL_DIR}/dirs-data
 _INSTALL_UNPACK_TMPL+=	${_INSTALL_DIRS_FILE}
 _INSTALL_DATA_TMPL+=	${_INSTALL_DIRS_DATAFILE}
+.endif	# SUBPACKAGES
 
 ${_INSTALL_DIRS_DATAFILE}:
 	${RUN}${MKDIR} ${.TARGET:H}
