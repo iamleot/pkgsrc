@@ -812,8 +812,6 @@ ${_INSTALL_PERMS_FILE}: ../../mk/pkginstall/perms
 #
 # Keywords: etc conf configuration
 #
-# TODOleot: These needs to be per-spkg!
-#
 
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
