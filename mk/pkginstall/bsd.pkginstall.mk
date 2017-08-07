@@ -843,17 +843,36 @@ RCD_SCRIPTS_EXAMPLEDIR=	share/examples/rc.d
 MESSAGE_SUBST+=		RCD_SCRIPTS_DIR=${RCD_SCRIPTS_DIR}
 MESSAGE_SUBST+=		RCD_SCRIPTS_EXAMPLEDIR=${RCD_SCRIPTS_EXAMPLEDIR}
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_INSTALL_FILES_FILE.${_spkg_}=		${_PKGINSTALL_DIR.${_spkg_}}/files
+_INSTALL_FILES_DATAFILE.${_spkg_}=	${_PKGINSTALL_DIR.${_spkg_}}/files-data
+_INSTALL_UNPACK_TMPL.${_spkg_}+=	${_INSTALL_FILES_FILE.${_spkg_}}
+_INSTALL_DATA_TMPL.${_spkg_}+=		${_INSTALL_FILES_DATAFILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 _INSTALL_FILES_FILE=		${_PKGINSTALL_DIR}/files
 _INSTALL_FILES_DATAFILE=	${_PKGINSTALL_DIR}/files-data
 _INSTALL_UNPACK_TMPL+=		${_INSTALL_FILES_FILE}
 _INSTALL_DATA_TMPL+=		${_INSTALL_FILES_DATAFILE}
+.endif	# SUBPACKAGES
 
 # Only generate init scripts if we are using rc.d
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_INSTALL_RCD_SCRIPTS.${_spkg_}=	# empty
+
+.if ${INIT_SYSTEM} == "rc.d"
+_INSTALL_RCD_SCRIPTS.${_spkg_}=	${RCD_SCRIPTS.${_spkg_}}
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 _INSTALL_RCD_SCRIPTS=	# empty
 
 .if ${INIT_SYSTEM} == "rc.d"
 _INSTALL_RCD_SCRIPTS=	${RCD_SCRIPTS}
 .endif
+.endif	# SUBPACKAGES
 
 privileged-install-hook: _pkginstall-postinstall-check
 _pkginstall-postinstall-check: .PHONY
