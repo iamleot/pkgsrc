@@ -773,8 +773,14 @@ ${_INSTALL_PERMS_FILE}: ../../mk/pkginstall/perms
 #	However, all files listed in REQD_FILES should be under ${PREFIX}.
 #	(XXX: Why?)
 #
+# For SUBPACKAGES these variables are per-subpackage and available as
+# CONF_FILES.<spkg> and REQD_FILES.<spkg>.
+#
 # CONF_FILES_MODE and REQD_FILES_MODE are the file permissions for the
 # files in CONF_FILES and REQD_FILES, respectively.
+#
+# For SUBPACKAGES these variables are per-subpackage and available as
+# CONF_FILES_MODE.<spkg> and REQD_FILES_MODE.<spkg>.
 #
 # CONF_FILES_PERMS
 # REQD_FILES_PERMS
@@ -790,10 +796,16 @@ ${_INSTALL_PERMS_FILE}: ../../mk/pkginstall/perms
 #	However, all files listed in REQD_FILES_PERMS should be under
 #	${PREFIX}. (XXX: Why?)
 #
+# For SUBPACKAGES these variables are per-subpackage and available as
+# CONF_FILES_PERMS.<spkg> and REQD_FILES_PERMS.<spkg>.
+#
 # RCD_SCRIPTS lists the basenames of the rc.d scripts.  They are
 #	expected to be found in ${PREFIX}/share/examples/rc.d, and
 #	the scripts will be copied into ${RCD_SCRIPTS_DIR} with
 #	${RCD_SCRIPTS_MODE} permissions.
+#
+# For SUBPACKAGES RCD_SCRIPTS is per-subpackage and available as
+# RCD_SCRIPTS.<spkg>.
 #
 # If any file pathnames are relative, then they are taken to be relative
 # to ${PREFIX}.
@@ -803,14 +815,31 @@ ${_INSTALL_PERMS_FILE}: ../../mk/pkginstall/perms
 # TODOleot: These needs to be per-spkg!
 #
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+CONF_FILES.${_spkg_}?=		# empty
+CONF_FILES_MODE.${_spkg_}?=	0644
+CONF_FILES_PERMS.${_spkg_}?=	# empty
+.  endfor
+.else	# !SUBPACKAGES
 CONF_FILES?=		# empty
 CONF_FILES_MODE?=	0644
 CONF_FILES_PERMS?=	# empty
+.endif	# SUBPACKAGES
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+RCD_SCRIPTS.${_spkg_}?=		# empty
+RCD_SCRIPTS_MODE.${_spkg_}?=	0755
+RCD_SCRIPTS_SHELL.${_spkg_}?=	${SH}
+FILES_SUBST.${_spkg_}+=		RCD_SCRIPTS_SHELL=${RCD_SCRIPTS_SHELL.${_spkg_}:Q}
+.  endfor
+.else	# !SUBPACKAGES
 RCD_SCRIPTS?=		# empty
 RCD_SCRIPTS_MODE?=	0755
-RCD_SCRIPTS_EXAMPLEDIR=	share/examples/rc.d
 RCD_SCRIPTS_SHELL?=	${SH}
 FILES_SUBST+=		RCD_SCRIPTS_SHELL=${RCD_SCRIPTS_SHELL:Q}
+.endif	# SUBPACKAGES
+RCD_SCRIPTS_EXAMPLEDIR=	share/examples/rc.d
 MESSAGE_SUBST+=		RCD_SCRIPTS_DIR=${RCD_SCRIPTS_DIR}
 MESSAGE_SUBST+=		RCD_SCRIPTS_EXAMPLEDIR=${RCD_SCRIPTS_EXAMPLEDIR}
 
