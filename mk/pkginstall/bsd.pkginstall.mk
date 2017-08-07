@@ -1076,6 +1076,20 @@ ${_INSTALL_FILES_DATAFILE}:
 	done
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_FILES_FILE.${_spkg_}}: ${_INSTALL_FILES_DATAFILE.${_spkg_}}
+${_INSTALL_FILES_FILE.${_spkg_}}: ../../mk/pkginstall/files
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	${SED} ${FILES_SUBST_SED.${_spkg_}} ../../mk/pkginstall/files > ${.TARGET}
+	${RUN}								\
+	if ${_ZERO_FILESIZE_P} ${_INSTALL_FILES_DATAFILE.${_spkg_}}; then	\
+		${RM} -f ${.TARGET};					\
+		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
+	fi
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_FILES_FILE}: ${_INSTALL_FILES_DATAFILE}
 ${_INSTALL_FILES_FILE}: ../../mk/pkginstall/files
 	${RUN}${MKDIR} ${.TARGET:H}
@@ -1086,6 +1100,7 @@ ${_INSTALL_FILES_FILE}: ../../mk/pkginstall/files
 		${RM} -f ${.TARGET};					\
 		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
 	fi
+.endif	# SUBPACKAGES
 
 # OWN_DIRS contains a list of directories for this package that should be
 #       created and should attempt to be destroyed by the INSTALL/DEINSTALL
