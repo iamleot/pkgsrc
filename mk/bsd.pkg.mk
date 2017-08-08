@@ -436,8 +436,14 @@ PKG_SYSCONFBASEDIR=	${PKG_SYSCONFDIR.${PKG_SYSCONFVAR}}
 PKG_SYSCONFDIR_PERMS?=	${REAL_ROOT_USER} ${REAL_ROOT_GROUP} 755
 .endif	# SUBPACKAGES
 
-# TODOleot: Properly handle the SUBPACKAGES case
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+ALL_ENV+=		PKG_SYSCONFDIR.${_spkg_}=${PKG_SYSCONFDIR.${_spkg_}:Q}
+.  endfor
+.else # !SUBPACKAGES
 ALL_ENV+=		PKG_SYSCONFDIR=${PKG_SYSCONFDIR:Q}
+.endif	# SUBPACKAGES
+# TODOleot: Adjust PKG_SYSCONFDIR for the SUBPACKAGES case
 _BUILD_DEFS+=		PKG_SYSCONFBASEDIR PKG_SYSCONFDIR
 
 # These are all of the tools use by pkgsrc Makefiles.  This should
