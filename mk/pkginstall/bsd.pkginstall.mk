@@ -1328,6 +1328,20 @@ ${_INSTALL_DIRS_DATAFILE}:
 	done
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_DIRS_FILE.${_spkg_}}: ${_INSTALL_DIRS_DATAFILE.${_spkg_}}
+${_INSTALL_DIRS_FILE.${_spkg_}}: ../../mk/pkginstall/dirs
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	${SED} ${FILES_SUBST_SED.${_spkg_}} ../../mk/pkginstall/dirs > ${.TARGET}
+	${RUN}								\
+	if ${_ZERO_FILESIZE_P} ${_INSTALL_DIRS_DATAFILE.${_spkg_}}; then	\
+		${RM} -f ${.TARGET};					\
+		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
+	fi
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_DIRS_FILE}: ${_INSTALL_DIRS_DATAFILE}
 ${_INSTALL_DIRS_FILE}: ../../mk/pkginstall/dirs
 	${RUN}${MKDIR} ${.TARGET:H}
@@ -1338,6 +1352,7 @@ ${_INSTALL_DIRS_FILE}: ../../mk/pkginstall/dirs
 		${RM} -f ${.TARGET};					\
 		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
 	fi
+.endif	# SUBPACKAGES
 
 # INFO_DIR
 #	If defined, specifies the directory path containing the "dir"
