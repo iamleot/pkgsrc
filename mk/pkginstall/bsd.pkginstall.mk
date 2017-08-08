@@ -215,6 +215,7 @@ FILES_SUBST+=		X11BASE=${X11BASE:Q}
 FILES_SUBST+=		VARBASE=${VARBASE:Q}
 FILES_SUBST+=		PKG_SYSCONFBASE=${PKG_SYSCONFBASE:Q}
 FILES_SUBST+=		PKG_SYSCONFBASEDIR=${PKG_SYSCONFBASEDIR:Q}
+# TODOleot: PKG_SYSCONFDIR should be per-spkg
 FILES_SUBST+=		PKG_SYSCONFDIR=${PKG_SYSCONFDIR:Q}
 FILES_SUBST+=		CONF_DEPENDS=${CONF_DEPENDS:C/:.*//:Q}
 .if !empty(SUBPACKAGES)
@@ -1167,6 +1168,87 @@ _INSTALL_UNPACK_TMPL+=	${_INSTALL_DIRS_FILE}
 _INSTALL_DATA_TMPL+=	${_INSTALL_DIRS_DATAFILE}
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_DIRS_DATAFILE.${_spkg_}}:
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	exec 1>>${.TARGET};						\
+	case ${PKG_SYSCONFSUBDIR.${_spkg_}:M*:Q}${CONF_FILES.${_spkg_}:M*:Q}${CONF_FILES_PERMS.${_spkg_}:M*:Q}"" in \
+	"")	;;							\
+	*)	case ${PKG_SYSCONFSUBDIR.${_spkg_}:M*:Q}"" in			\
+		"")	${ECHO} "# DIR: ${PKG_SYSCONFDIR.${_spkg_}:S/${PREFIX}\///} m" ;; \
+		*)	set -- dummy ${PKG_SYSCONFDIR.${_spkg_}} ${PKG_SYSCONFDIR_PERMS.${_spkg_}}; shift; \
+			while ${TEST} $$# -gt 0; do			\
+				dir="$$1"; owner="$$2";			\
+				group="$$3"; mode="$$4";		\
+				shift; shift; shift; shift;		\
+				dir=`strip_prefix "$$dir"`;		\
+				${ECHO} "# DIR: $$dir m $$mode $$owner $$group"; \
+			done;						\
+			;;						\
+		esac;							\
+		;;							\
+	esac
+	${RUN}								\
+	exec 1>>${.TARGET};						\
+	case ${_INSTALL_RCD_SCRIPTS.${_spkg_}:M*:Q}"" in		\
+	"")	;;							\
+	*)	${ECHO} "# DIR: ${RCD_SCRIPTS_DIR:S/${PREFIX}\///} m" ;; \
+	esac
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${MAKE_DIRS.${_spkg_}}; shift;			\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		dir="$$1"; shift;					\
+		dir=`strip_prefix "$$dir"`;				\
+		${ECHO} "# DIR: $$dir m";				\
+	done
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${REQD_DIRS.${_spkg_}}; shift;			\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		dir="$$1"; shift;					\
+		dir=`strip_prefix "$$dir"`;				\
+		${ECHO} "# DIR: $$dir fm";				\
+	done
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${OWN_DIRS.${_spkg_}}; shift;			\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		dir="$$1"; shift;					\
+		dir=`strip_prefix "$$dir"`;				\
+		${ECHO} "# DIR: $$dir mo";				\
+	done
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${MAKE_DIRS_PERMS.${_spkg_}}; shift;		\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		dir="$$1"; owner="$$2"; group="$$3"; mode="$$4";	\
+		shift; shift; shift; shift;				\
+		dir=`strip_prefix "$$dir"`;				\
+		${ECHO} "# DIR: $$dir m $$mode $$owner $$group";	\
+	done
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${REQD_DIRS_PERMS.${_spkg_}}; shift;		\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		dir="$$1"; owner="$$2"; group="$$3"; mode="$$4";	\
+		shift; shift; shift; shift;				\
+		dir=`strip_prefix "$$dir"`;				\
+		${ECHO} "# DIR: $$dir fm $$mode $$owner $$group";	\
+	done
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	set -- dummy ${OWN_DIRS_PERMS.${_spkg_}}; shift;		\
+	exec 1>>${.TARGET};						\
+	while ${TEST} $$# -gt 0; do					\
+		dir="$$1"; owner="$$2"; group="$$3"; mode="$$4";	\
+		shift; shift; shift; shift;				\
+		dir=`strip_prefix "$$dir"`;				\
+		${ECHO} "# DIR: $$dir mo $$mode $$owner $$group";	\
+	done
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_DIRS_DATAFILE}:
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${_FUNC_STRIP_PREFIX};					\
@@ -1244,6 +1326,7 @@ ${_INSTALL_DIRS_DATAFILE}:
 		dir=`strip_prefix "$$dir"`;				\
 		${ECHO} "# DIR: $$dir mo $$mode $$owner $$group";	\
 	done
+.endif	# SUBPACKAGES
 
 ${_INSTALL_DIRS_FILE}: ${_INSTALL_DIRS_DATAFILE}
 ${_INSTALL_DIRS_FILE}: ../../mk/pkginstall/dirs
