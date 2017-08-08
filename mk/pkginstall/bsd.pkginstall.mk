@@ -216,13 +216,14 @@ FILES_SUBST+=		VARBASE=${VARBASE:Q}
 FILES_SUBST+=		PKG_SYSCONFBASE=${PKG_SYSCONFBASE:Q}
 FILES_SUBST+=		PKG_SYSCONFBASEDIR=${PKG_SYSCONFBASEDIR:Q}
 # TODOleot: PKG_SYSCONFDIR should be per-spkg
-FILES_SUBST+=		PKG_SYSCONFDIR=${PKG_SYSCONFDIR:Q}
 FILES_SUBST+=		CONF_DEPENDS=${CONF_DEPENDS:C/:.*//:Q}
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
+FILES_SUBST.${_spkg_}+=		PKG_SYSCONFDIR=${PKG_SYSCONFDIR.${_spkg_}:Q}
 FILES_SUBST.${_spkg_}+=		PKGBASE.${_spkg_}=${PKGBASE.${_spkg_}:Q}
 .  endfor
 .else	# !SUBPACKAGES
+FILES_SUBST+=		PKG_SYSCONFDIR=${PKG_SYSCONFDIR:Q}
 FILES_SUBST+=		PKGBASE=${PKGBASE:Q}
 .endif	# SUBPACKAGES
 
@@ -1131,7 +1132,8 @@ ${_INSTALL_FILES_FILE}: ../../mk/pkginstall/files
 #	special permissions for ${PKG_SYSCONFDIR}, as ${PKG_SYSCONFDIR}
 #	is (effectively) automatically added to MAKE_DIRS_PERMS.
 #
-# XXXleot: should PKG_SYSCONFDIR_PERMS be per-spkg?
+# For SUBPACKAGES PKG_SYSCONFDIR_PERMS is per-subpackage and available as
+# PKG_SYSCONFDIR_PERMS.<spkg>.
 #
 # If any directory pathnames are relative, then they are taken to be
 # relative to ${PREFIX}.

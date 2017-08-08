@@ -39,6 +39,7 @@
 #	its configuration files. It may be changed by the package to
 #	point to a subdirectory of PKG_SYSCONFBASE.
 #
+# For SUBPACKAGES this is per-spkg and available as PKG_SYSCONFDIR.<spkg>.
 
 # TODO:PKG_SYSCONFBASEDIR
 #

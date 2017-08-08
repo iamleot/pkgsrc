@@ -16,6 +16,8 @@
 #	When set to "yes", VARBASE and PKG_SYSCONFDIR are checked in
 #	addition to LOCALBASE.
 #
+# TODOleot: PKG_SYSCONFDIR checks should be adjusted for SUBPACKAGES!
+#
 # Package-settable variables:
 #
 # CHECK_FILES_SKIP
