@@ -404,6 +404,7 @@ FAIL?=			${SH} ${PKGSRCDIR}/mk/scripts/fail
 #
 # Config file related settings - see doc/pkgsrc.txt
 #
+# TODOleot: PKG_SYSCONFDIR should be per-spkg!
 PKG_SYSCONFVAR?=	${PKGBASE}
 PKG_SYSCONFSUBDIR?=	# empty
 PKG_SYSCONFBASEDIR=	${PKG_SYSCONFBASE}
