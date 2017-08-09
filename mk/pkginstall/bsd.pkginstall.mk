@@ -1513,6 +1513,8 @@ install-script-data-ocaml-findlib-register:
 #	removed from the shell database, /etc/shells.  If a pathname
 #	is relative, then it is taken to be relative to ${PREFIX}.
 #
+# XXXleot: This does not support SUBPACKAGES.
+#
 PKG_SHELL?=		# empty
 
 _INSTALL_SHELL_FILE=		${_PKGINSTALL_DIR}/shell
@@ -1549,6 +1551,8 @@ ${_INSTALL_SHELL_FILE}: ../../mk/pkginstall/shell
 #
 #	Default value: ${LDCONFIG}
 #
+# XXXleot: This does not support SUBPACKAGES.
+#
 LDCONFIG_ADD_CMD?=		${_LDCONFIG_ADD_CMD.${OPSYS}}
 LDCONFIG_REMOVE_CMD?=		${_LDCONFIG_REMOVE_CMD.${OPSYS}}
 _LDCONFIG_ADD_CMD.${OPSYS}?=	${LDCONFIG}
@@ -1580,6 +1584,8 @@ ${_INSTALL_SHLIBS_FILE}: ../../mk/pkginstall/shlibs
 #	    ttf		TrueType fonts
 #	    type1	Type1 fonts
 #	    x11		Generic X fonts, e.g. PCF, SNF, BDF, etc.
+#
+# XXXleot: This does not support SUBPACKAGES.
 #
 FONTS_DIRS.ttf?=	# empty
 FONTS_DIRS.type1?=	# empty
