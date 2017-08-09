@@ -1485,6 +1485,7 @@ install-script-data-info-files:
 .endif	# SUBPACKAGES
 
 # OCAML_FINDLIB_REGISTER
+# XXXleot: Does not support SUBPACKAGES ATM!
 _INSTALL_OFR_FILE=	${_PKGINSTALL_DIR}/ocaml-findlib-register
 _INSTALL_UNPACK_TMPL+=		${_INSTALL_OFR_FILE}
 
