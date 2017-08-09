@@ -1380,17 +1380,49 @@ _INSTALL_UNPACK_TMPL+=		${_INSTALL_INFO_FILES_FILE}
 _INSTALL_DATA_TMPL+=		${_INSTALL_INFO_FILES_DATAFILE}
 .endif	# SUBPACKAGES
 
-# TODOleot: INFO_FILES should be per-spkg!
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.if defined(INFO_FILES.${_spkg_})
+USE_TOOLS+=	install-info:run
+FILES_SUBST+=	INSTALL_INFO=${INSTALL_INFO:Q}
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 .if defined(INFO_FILES)
 USE_TOOLS+=	install-info:run
 FILES_SUBST+=	INSTALL_INFO=${INSTALL_INFO:Q}
 .endif
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_INFO_FILES_DATAFILE.${_spkg_}}:
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${RM} -f ${.TARGET}
+	${RUN}${TOUCH} ${TOUCH_ARGS} ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_INFO_FILES_DATAFILE}:
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${RM} -f ${.TARGET}
 	${RUN}${TOUCH} ${TOUCH_ARGS} ${.TARGET}
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_INFO_FILES_FILE.${_spkg_}}: ${_INSTALL_INFO_FILES_DATAFILE.${_spkg_}}
+${_INSTALL_INFO_FILES_FILE.${_spkg_}}: ../../mk/pkginstall/info-files
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	${SED} ${FILES_SUBST_SED.${_spkg_}} ../../mk/pkginstall/info-files > ${.TARGET}
+.if !defined(INFO_FILES.${_spkg_})
+	${RUN}								\
+	if ${_ZERO_FILESIZE_P} ${_INSTALL_INFO_FILES_DATAFILE.${_spkg_}}; then	\
+		${RM} -f ${.TARGET};					\
+		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
+	fi
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_INFO_FILES_FILE}: ${_INSTALL_INFO_FILES_DATAFILE}
 ${_INSTALL_INFO_FILES_FILE}: ../../mk/pkginstall/info-files
 	${RUN}${MKDIR} ${.TARGET:H}
@@ -1403,10 +1435,34 @@ ${_INSTALL_INFO_FILES_FILE}: ../../mk/pkginstall/info-files
 		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
 	fi
 .endif
+.endif	# SUBPACKAGES
 
 .PHONY: install-script-data-info-files
 install-script-data: install-script-data-info-files
 install-script-data-info-files:
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.if defined(INFO_FILES.${_spkg_})
+	${RUN}${_FUNC_STRIP_PREFIX};					\
+	if ${TEST} -x ${INSTALL_FILE}; then				\
+		${INFO_FILES_cmd.${_spkg_}} |				\
+		while read file; do					\
+			infodir=${INFO_DIR.${_spkg_}:Q};		\
+			infodir=`strip_prefix "$$infodir"`;		\
+			case "$$infodir" in				\
+			"")	${ECHO} "# INFO: $$file"		\
+					>> ${INSTALL_FILE.${_spkg_}} ;;	\
+			*)	${ECHO} "# INFO: $$file $$infodir"	\
+					>> ${INSTALL_FILE.${_spkg_}} ;;	\
+			esac;						\
+		done;							\
+		cd ${PKG_DB_TMPDIR} && ${PKGSRC_SETENV} ${INSTALL_SCRIPTS_ENV} \
+		${_PKG_DEBUG_SCRIPT} ${INSTALL_FILE.${_spkg_}} ${PKGNAME.${_spkg_}}	\
+			UNPACK +INFO_FILES;				\
+	fi
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 .if defined(INFO_FILES)
 	${RUN}${_FUNC_STRIP_PREFIX};					\
 	if ${TEST} -x ${INSTALL_FILE}; then				\
@@ -1426,6 +1482,7 @@ install-script-data-info-files:
 			UNPACK +INFO_FILES;				\
 	fi
 .endif
+.endif	# SUBPACKAGES
 
 # OCAML_FINDLIB_REGISTER
 _INSTALL_OFR_FILE=	${_PKGINSTALL_DIR}/ocaml-findlib-register
