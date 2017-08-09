@@ -1775,6 +1775,8 @@ FILES_SUBST+=		TRUE=${TRUE:Q}
 FILES_SUBST+=		USERADD=${USERADD:Q}
 FILES_SUBST+=		XARGS=${XARGS:Q}
 
+# TODOleot: the following variables will probably need to be adjusted for
+# TODOleot: SUBPACKAGES!
 FILES_SUBST_SED=	${FILES_SUBST:S/=/@!/:S/$/!g/:S/^/ -e s!@/}
 
 PKG_REFCOUNT_DBDIR?=	${PKG_DBDIR}.refcount
