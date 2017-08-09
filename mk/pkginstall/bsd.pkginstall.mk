@@ -1363,14 +1363,24 @@ ${_INSTALL_DIRS_FILE}: ../../mk/pkginstall/dirs
 #	be needed unless "dir" is not in the same directory as the
 #	installed info files.
 #
-# TODOleot: this probably need to be per-spkg.
+# For SUBPACKAGES INFO_DIR is per-subpackage and available as INFO_DIR.<spkg>.
 #
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+_INSTALL_INFO_FILES_FILE.${_spkg_}=	${_PKGINSTALL_DIR.${_spkg_}}/info-files
+_INSTALL_INFO_FILES_DATAFILE.${_spkg_}=	${_PKGINSTALL_DIR.${_spkg_}}/info-files-data
+_INSTALL_UNPACK_TMPL.${_spkg_}+=	${_INSTALL_INFO_FILES_FILE.${_spkg_}}
+_INSTALL_DATA_TMPL.${_spkg_}+=		${_INSTALL_INFO_FILES_DATAFILE.${_spkg_}}
+.  endfor
+.else	# !SUBPACKAGES
 _INSTALL_INFO_FILES_FILE=	${_PKGINSTALL_DIR}/info-files
 _INSTALL_INFO_FILES_DATAFILE=	${_PKGINSTALL_DIR}/info-files-data
 _INSTALL_UNPACK_TMPL+=		${_INSTALL_INFO_FILES_FILE}
 _INSTALL_DATA_TMPL+=		${_INSTALL_INFO_FILES_DATAFILE}
+.endif	# SUBPACKAGES
 
+# TODOleot: INFO_FILES should be per-spkg!
 .if defined(INFO_FILES)
 USE_TOOLS+=	install-info:run
 FILES_SUBST+=	INSTALL_INFO=${INSTALL_INFO:Q}
