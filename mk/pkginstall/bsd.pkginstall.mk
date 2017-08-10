@@ -1850,16 +1850,48 @@ generate-install-scripts:						\
 .endif
 .endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_DEINSTALL_FILE_DFLT.${_spkg_}}: ${_DEINSTALL_TEMPLATES_DFLT}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${CAT} ${.ALLSRC} | ${SED} ${FILES_SUBST_SED.${_spkg_}} > ${.TARGET}
+	${RUN}${CHMOD} +x ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 ${_DEINSTALL_FILE_DFLT}: ${_DEINSTALL_TEMPLATES_DFLT}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${CAT} ${.ALLSRC} | ${SED} ${FILES_SUBST_SED} > ${.TARGET}
 	${RUN}${CHMOD} +x ${.TARGET}
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_FILE_DFLT.${_spkg_}}: ${_INSTALL_TEMPLATES_DFLT}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${CAT} ${.ALLSRC} | ${SED} ${FILES_SUBST_SED.${_spkg_}} > ${.TARGET}
+	${RUN}${CHMOD} +x ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_FILE_DFLT}: ${_INSTALL_TEMPLATES_DFLT}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}${CAT} ${.ALLSRC} | ${SED} ${FILES_SUBST_SED} > ${.TARGET}
 	${RUN}${CHMOD} +x ${.TARGET}
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_DEINSTALL_FILE.${_spkg_}}: ${DEINSTALL_SRC.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	exec 1>>${.TARGET};						\
+	case ${.ALLSRC:Q}"" in						\
+	"")	${ECHO} "#!${SH}" ;					\
+		${ECHO} "exit 0" ;;					\
+	*)	${CAT} ${.ALLSRC} | ${SED} ${FILES_SUBST_SED.${_spkg_}} ;;	\
+	esac
+	${RUN}${CHMOD} +x ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 ${_DEINSTALL_FILE}: ${DEINSTALL_SRC}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}								\
@@ -1870,7 +1902,22 @@ ${_DEINSTALL_FILE}: ${DEINSTALL_SRC}
 	*)	${CAT} ${.ALLSRC} | ${SED} ${FILES_SUBST_SED} ;;	\
 	esac
 	${RUN}${CHMOD} +x ${.TARGET}
+.endif	# SUBPACKAGES
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+${_INSTALL_FILE.${_spkg_}}: ${INSTALL_SRC.${_spkg_}}
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}								\
+	exec 1>>${.TARGET};						\
+	case ${.ALLSRC:Q}"" in						\
+	"")	${ECHO} "#!${SH}" ;					\
+		${ECHO} "exit 0" ;;					\
+	*)	${CAT} ${.ALLSRC} | ${SED} ${FILES_SUBST_SED.${_spkg_}} ;;	\
+	esac
+	${RUN}${CHMOD} +x ${.TARGET}
+.  endfor
+.else	# !SUBPACKAGES
 ${_INSTALL_FILE}: ${INSTALL_SRC}
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}								\
@@ -1881,6 +1928,7 @@ ${_INSTALL_FILE}: ${INSTALL_SRC}
 	*)	${CAT} ${.ALLSRC} | ${SED} ${FILES_SUBST_SED} ;;	\
 	esac
 	${RUN}${CHMOD} +x ${.TARGET}
+.endif	# SUBPACKAGES
 
 # rc.d scripts are automatically generated and installed into the rc.d
 # scripts example directory at the post-install step.  The following
