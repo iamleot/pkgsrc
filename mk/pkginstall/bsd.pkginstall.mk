@@ -1405,6 +1405,7 @@ ${_INSTALL_INFO_FILES_FILE.${_spkg_}}: ../../mk/pkginstall/info-files
 		${RM} -f ${.TARGET};					\
 		${TOUCH} ${TOUCH_ARGS} ${.TARGET};			\
 	fi
+.endif
 .  endfor
 .else	# !SUBPACKAGES
 ${_INSTALL_INFO_FILES_FILE}: ${_INSTALL_INFO_FILES_DATAFILE}
