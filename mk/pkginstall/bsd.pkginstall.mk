@@ -1760,12 +1760,18 @@ FILES_SUBST+=		TRUE=${TRUE:Q}
 FILES_SUBST+=		USERADD=${USERADD:Q}
 FILES_SUBST+=		XARGS=${XARGS:Q}
 
-# TODOleot: the following variables will probably need to be adjusted for
-# TODOleot: SUBPACKAGES!
 FILES_SUBST_SED=	${FILES_SUBST:S/=/@!/:S/$/!g/:S/^/ -e s!@/}
+
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+FILES_SUBST_SED.${_spkg_}=	${FILES_SUBST_SED} ${FILES_SUBST.${_spkg_}:S/=/@!/:S/$/!g/:S/^/ -e s!@/}
+.  endfor
+.endif
 
 PKG_REFCOUNT_DBDIR?=	${PKG_DBDIR}.refcount
 
+# TODOleot: Probably INSTALL_SCRIPTS_ENV should be similar to FILES_SUBST_SED
+# TODOleot: and adapted per-spkg
 INSTALL_SCRIPTS_ENV=	PKG_PREFIX=${PREFIX}
 INSTALL_SCRIPTS_ENV+=	PKG_METADATA_DIR=${_PKG_DBDIR}/${PKGNAME}
 INSTALL_SCRIPTS_ENV+=	PKG_REFCOUNT_DBDIR=${PKG_REFCOUNT_DBDIR}
