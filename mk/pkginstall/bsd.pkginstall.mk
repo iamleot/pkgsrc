@@ -1801,6 +1801,33 @@ _INSTALL_FILE_DFLT=	${_PKGINSTALL_DIR}/INSTALL.default
 .endif	# SUBPACKAGES
 
 .PHONY: generate-install-scripts
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+generate-install-scripts:						\
+		${_DEINSTALL_FILE.${_spkg_}} ${_INSTALL_FILE.${_spkg_}}	\
+		${_DEINSTALL_FILE_DFLT.${_spkg_}} ${_INSTALL_FILE_DFLT.${_spkg_}}
+.  endfor
+generate-install-scripts:						\
+.  for _spkg_ in ${SUBPACKAGES}
+.if !exists(${DEINSTALL_FILE.${_spkg_}}) || !exists(${INSTALL_FILE.${_spkg_}})
+	${RUN}${MKDIR} ${INSTALL_FILE.${_spkg_}:H}
+	${RUN}${MKDIR} ${DEINSTALL_FILE.${_spkg_}:H}
+	${RUN}								\
+	if ${CMP} -s ${_INSTALL_FILE_DFLT.${_spkg_}:Q} ${_INSTALL_FILE.${_spkg_}:Q}; then	\
+		${TRUE};						\
+	else								\
+		${CP} -f ${_INSTALL_FILE.${_spkg_}} ${INSTALL_FILE.${_spkg_}};		\
+		${CP} -f ${_DEINSTALL_FILE.${_spkg_}} ${DEINSTALL_FILE.${_spkg_}};	\
+	fi
+	${RUN}								\
+	if ${CMP} -s ${_DEINSTALL_FILE_DFLT.${_spkg_}:Q} ${_DEINSTALL_FILE.${_spkg_}:Q}; then \
+		${TRUE};						\
+	else								\
+		${CP} -f ${_DEINSTALL_FILE.${_spkg_}} ${DEINSTALL_FILE.${_spkg_}};		\
+	fi
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 generate-install-scripts:						\
 		${_DEINSTALL_FILE} ${_INSTALL_FILE}			\
 		${_DEINSTALL_FILE_DFLT} ${_INSTALL_FILE_DFLT}
@@ -1821,6 +1848,7 @@ generate-install-scripts:						\
 		${CP} -f ${_DEINSTALL_FILE} ${DEINSTALL_FILE};		\
 	fi
 .endif
+.endif	# SUBPACKAGES
 
 ${_DEINSTALL_FILE_DFLT}: ${_DEINSTALL_TEMPLATES_DFLT}
 	${RUN}${MKDIR} ${.TARGET:H}
