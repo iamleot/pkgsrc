@@ -1142,10 +1142,10 @@ OWN_DIRS_PERMS?=	# empty
 
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
-_INSTALL_DIRS_FILE.${_spkg_}=		${_PKGINSTALL_DIR}/dirs
-_INSTALL_DIRS_DATAFILE.${_spkg_}=	${_PKGINSTALL_DIR}/dirs-data
-_INSTALL_UNPACK_TMPL.${_spkg_}+=	${_INSTALL_DIRS_FILE}
-_INSTALL_DATA_TMPL.${_spkg_}+=		${_INSTALL_DIRS_DATAFILE}
+_INSTALL_DIRS_FILE.${_spkg_}=		${_PKGINSTALL_DIR.${_spkg_}}/dirs
+_INSTALL_DIRS_DATAFILE.${_spkg_}=	${_PKGINSTALL_DIR.${_spkg_}}/dirs-data
+_INSTALL_UNPACK_TMPL.${_spkg_}+=	${_INSTALL_DIRS_FILE.${_spkg_}}
+_INSTALL_DATA_TMPL.${_spkg_}+=		${_INSTALL_DIRS_DATAFILE.${_spkg_}}
 .  endfor
 .else	# !SUBPACKAGES
 _INSTALL_DIRS_FILE=	${_PKGINSTALL_DIR}/dirs
