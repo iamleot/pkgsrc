@@ -876,86 +876,70 @@ _INSTALL_RCD_SCRIPTS=	${RCD_SCRIPTS}
 
 privileged-install-hook: _pkginstall-postinstall-check
 _pkginstall-postinstall-check: .PHONY
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
 	${RUN} p="${DESTDIR}${PREFIX}";					\
 	${_FUNC_STRIP_PREFIX};						\
 	canon() { f=`strip_prefix "$$1"`; case $$f in [!/]*) f="$$p/$$f"; esac; echo "$$f"; }; \
 	needargs() { [ $$3 -ge $$2 ] || ${FAIL_MSG} "[bsd.pkginstall.mk] $$1 must have a multiple of $$2 words. Rest: $$4"; }; \
-.if !empty(SUBPACKAGES)
-.  for _spkg_ in ${SUBPACKAGES}
 	set args ${_INSTALL_RCD_SCRIPTS.${_spkg_}}; shift;		\
 	while [ $$# -gt 0 ]; do						\
 		egfile=`canon "${RCD_SCRIPTS_EXAMPLEDIR}/$$1"`; shift;	\
 		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "RCD_SCRIPT $$egfile does not exist."; \
 	done;								\
-.  endfor
-.else	# !SUBPACKAGES
-	set args ${_INSTALL_RCD_SCRIPTS}; shift;			\
-	while [ $$# -gt 0 ]; do						\
-		egfile=`canon "${RCD_SCRIPTS_EXAMPLEDIR}/$$1"`; shift;	\
-		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "RCD_SCRIPT $$egfile does not exist."; \
-	done;								\
-.endif	# SUBPACKAGES
-.if !empty(SUBPACKAGES)
-.  for _spkg_ in ${SUBPACKAGES}
 	set args ${CONF_FILES.${_spkg_}}; shift;			\
 	while [ $$# -gt 0 ]; do						\
 		needargs CONF_FILES 2 $$# "$$*";			\
 		egfile=`canon "$$1"`; shift 2;				\
 		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "CONF_FILE $$egfile does not exist."; \
 	done;								\
-.  endfor
-.else	# !SUBPACKAGES
-	set args ${CONF_FILES}; shift;					\
-	while [ $$# -gt 0 ]; do						\
-		needargs CONF_FILES 2 $$# "$$*";			\
-		egfile=`canon "$$1"`; shift 2;				\
-		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "CONF_FILE $$egfile does not exist."; \
-	done;								\
-.endif	# SUBPACKAGES
-.if !empty(SUBPACKAGES)
-.  for _spkg_ in ${SUBPACKAGES}
 	set args ${REQD_FILES.${_spkg_}}; shift;			\
 	while [ $$# -gt 0 ]; do						\
 		needargs REDQ_FILES 2 $$# "$$*";			\
 		egfile=`canon "$$1"`; shift 2;				\
 		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "REQD_FILE $$egfile does not exist."; \
 	done;								\
-.  endfor
-.else	# !SUBPACKAGES
-	set args ${REQD_FILES}; shift;					\
-	while [ $$# -gt 0 ]; do						\
-		needargs REDQ_FILES 2 $$# "$$*";			\
-		egfile=`canon "$$1"`; shift 2;				\
-		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "REQD_FILE $$egfile does not exist."; \
-	done;								\
-.endif	# SUBPACKAGES
-.if !empty(SUBPACKAGES)
-.  for _spkg_ in ${SUBPACKAGES}
 	set args ${CONF_FILES_PERMS.${_spkg_}}; shift;			\
 	while [ $$# -gt 0 ]; do						\
 		needargs CONF_FILES_PERMS 5 $$# "$$*";			\
 		egfile=`canon "$$1"`; shift 5;				\
 		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "CONF_FILES_PERMS $$egfile does not exist."; \
 	done;								\
+	set args ${REQD_FILES_PERMS.${_spkg_}}; shift;			\
+	while [ $$# -gt 0 ]; do						\
+		needargs REQD_FILES_PERMS 5 $$# "$$*";			\
+		egfile=`canon "$$1"`; shift 5;				\
+		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "REQD_FILES_PERMS $$egfile does not exist."; \
+	done								
 .  endfor
 .else	# !SUBPACKAGES
+	${RUN} p="${DESTDIR}${PREFIX}";					\
+	${_FUNC_STRIP_PREFIX};						\
+	canon() { f=`strip_prefix "$$1"`; case $$f in [!/]*) f="$$p/$$f"; esac; echo "$$f"; }; \
+	needargs() { [ $$3 -ge $$2 ] || ${FAIL_MSG} "[bsd.pkginstall.mk] $$1 must have a multiple of $$2 words. Rest: $$4"; }; \
+	set args ${_INSTALL_RCD_SCRIPTS}; shift;			\
+	while [ $$# -gt 0 ]; do						\
+		egfile=`canon "${RCD_SCRIPTS_EXAMPLEDIR}/$$1"`; shift;	\
+		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "RCD_SCRIPT $$egfile does not exist."; \
+	done;								\
+	set args ${CONF_FILES}; shift;					\
+	while [ $$# -gt 0 ]; do						\
+		needargs CONF_FILES 2 $$# "$$*";			\
+		egfile=`canon "$$1"`; shift 2;				\
+		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "CONF_FILE $$egfile does not exist."; \
+	done;								\
+	set args ${REQD_FILES}; shift;					\
+	while [ $$# -gt 0 ]; do						\
+		needargs REDQ_FILES 2 $$# "$$*";			\
+		egfile=`canon "$$1"`; shift 2;				\
+		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "REQD_FILE $$egfile does not exist."; \
+	done;								\
 	set args ${CONF_FILES_PERMS}; shift;				\
 	while [ $$# -gt 0 ]; do						\
 		needargs CONF_FILES_PERMS 5 $$# "$$*";			\
 		egfile=`canon "$$1"`; shift 5;				\
 		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "CONF_FILES_PERMS $$egfile does not exist."; \
 	done;								\
-.endif	# SUBPACKAGES
-.if !empty(SUBPACKAGES)
-.  for _spkg_ in ${SUBPACKAGES}
-	set args ${REQD_FILES_PERMS.${_spkg_}}; shift;			\
-	while [ $$# -gt 0 ]; do						\
-		needargs REQD_FILES_PERMS 5 $$# "$$*";			\
-		egfile=`canon "$$1"`; shift 5;				\
-		[ -f "$$egfile" ] || [ -c "$$egfile" ] || ${FAIL_MSG} "REQD_FILES_PERMS $$egfile does not exist."; \
-	done								\
-.  endfor
-.else	# !SUBPACKAGES
 	set args ${REQD_FILES_PERMS}; shift;				\
 	while [ $$# -gt 0 ]; do						\
 		needargs REQD_FILES_PERMS 5 $$# "$$*";			\
