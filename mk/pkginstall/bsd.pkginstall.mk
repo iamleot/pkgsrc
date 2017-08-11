@@ -1956,6 +1956,33 @@ generate-rcd-scripts:	# do nothing
 post-install: install-rcd-scripts
 install-rcd-scripts:	# do nothing
 
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.for _script_ in ${_INSTALL_RCD_SCRIPTS.${_spkg_}}
+RCD_SCRIPT_SRC.${_script_}?=	${FILESDIR}/${_script_}.sh
+RCD_SCRIPT_WRK.${_script_}?=	${WRKDIR}/.rc.d/${_script_}
+
+.  if !empty(RCD_SCRIPT_SRC.${_script_})
+generate-rcd-scripts: ${RCD_SCRIPT_WRK.${_script_}}
+${RCD_SCRIPT_WRK.${_script_}}: ${RCD_SCRIPT_SRC.${_script_}}
+	@${STEP_MSG} "Creating ${.TARGET}"
+	${RUN}${MKDIR} ${.TARGET:H}
+	${RUN}${CAT} ${.ALLSRC} | ${SED} ${FILES_SUBST_SED.${_spkg_}} > ${.TARGET}
+	${RUN}${CHMOD} +x ${.TARGET}
+
+install-rcd-scripts: install-rcd-${_script_}
+install-rcd-${_script_}: ${RCD_SCRIPT_WRK.${_script_}}
+	${RUN}								\
+	if [ -f ${RCD_SCRIPT_WRK.${_script_}} ]; then			\
+		${MKDIR} ${DESTDIR}${PREFIX}/${RCD_SCRIPTS_EXAMPLEDIR};		\
+		${INSTALL_SCRIPT} ${RCD_SCRIPT_WRK.${_script_}}		\
+			${DESTDIR}${PREFIX}/${RCD_SCRIPTS_EXAMPLEDIR}/${_script_}; \
+	fi
+.  endif
+GENERATE_PLIST.${_spkg_}+=	${ECHO} ${RCD_SCRIPTS_EXAMPLEDIR}/${_script_};
+PRINT_PLIST_AWK+=		/^${RCD_SCRIPTS_EXAMPLEDIR:S|/|\\/|g}\/${_script_}/ { next; }
+.  endfor
+.else	# !SUBPACKAGES
 .for _script_ in ${_INSTALL_RCD_SCRIPTS}
 RCD_SCRIPT_SRC.${_script_}?=	${FILESDIR}/${_script_}.sh
 RCD_SCRIPT_WRK.${_script_}?=	${WRKDIR}/.rc.d/${_script_}
@@ -1980,6 +2007,7 @@ install-rcd-${_script_}: ${RCD_SCRIPT_WRK.${_script_}}
 GENERATE_PLIST+=	${ECHO} ${RCD_SCRIPTS_EXAMPLEDIR}/${_script_};
 PRINT_PLIST_AWK+=	/^${RCD_SCRIPTS_EXAMPLEDIR:S|/|\\/|g}\/${_script_}/ { next; }
 .endfor
+.endif	# SUBPACKAGES
 
 _PKGINSTALL_TARGETS+=	acquire-pkginstall-lock
 _PKGINSTALL_TARGETS+=	real-pkginstall
