@@ -1946,8 +1946,6 @@ ${_INSTALL_FILE}: ${INSTALL_SRC}
 #
 # If the source rc.d script is not present, then the automatic handling
 # doesn't occur.
-#
-# TODOleot: RCD_SCRIPTS should be per-spkg.
 
 .PHONY: generate-rcd-scripts
 generate-rcd-scripts:	# do nothing
