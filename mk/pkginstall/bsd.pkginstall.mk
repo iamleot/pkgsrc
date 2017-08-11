@@ -1807,7 +1807,7 @@ generate-install-scripts:						\
 		${_DEINSTALL_FILE.${_spkg_}} ${_INSTALL_FILE.${_spkg_}}	\
 		${_DEINSTALL_FILE_DFLT.${_spkg_}} ${_INSTALL_FILE_DFLT.${_spkg_}}
 .  endfor
-generate-install-scripts:						\
+generate-install-scripts:
 .  for _spkg_ in ${SUBPACKAGES}
 .if !exists(${DEINSTALL_FILE.${_spkg_}}) || !exists(${INSTALL_FILE.${_spkg_}})
 	${RUN}${MKDIR} ${INSTALL_FILE.${_spkg_}:H}
@@ -1981,6 +1981,7 @@ install-rcd-${_script_}: ${RCD_SCRIPT_WRK.${_script_}}
 .  endif
 GENERATE_PLIST.${_spkg_}+=	${ECHO} ${RCD_SCRIPTS_EXAMPLEDIR}/${_script_};
 PRINT_PLIST_AWK+=		/^${RCD_SCRIPTS_EXAMPLEDIR:S|/|\\/|g}\/${_script_}/ { next; }
+.endfor
 .  endfor
 .else	# !SUBPACKAGES
 .for _script_ in ${_INSTALL_RCD_SCRIPTS}
