@@ -1941,6 +1941,9 @@ ${_INSTALL_FILE}: ${INSTALL_SRC}
 #				the rc.d script (defaults to
 #				${FILESDIR}/<script>.sh)
 #
+# For SUBPACKAGES RCD_SCRIPTS is per-subpackage and available as
+# RCD_SCRIPTS.<spkg>.
+#
 # If the source rc.d script is not present, then the automatic handling
 # doesn't occur.
 #
