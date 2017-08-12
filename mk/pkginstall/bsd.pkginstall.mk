@@ -204,18 +204,12 @@ INSTALL_SRC?=		${_INSTALL_TEMPLATES}
 # For SUBPACKAGES the FILES_SUBST list is honored by each subpackages.
 # Additional per-spkg substitutions are provided via FILES_SUBST.<spkg>
 #
-# TODOleot: This will probably need to be per-spkg with a FILES_SUBST variable
-# TODOleot: shared by every spkgs and proper FILES_SUBST.<spkg>.
-# TODOleot: While the definition was adjusted to use FILES_SUBST.<spkg> the
-# TODOleot: usage of FILES_SUBST are still not adjusted!
-#
 FILES_SUBST+=		PREFIX=${PREFIX:Q}
 FILES_SUBST+=		LOCALBASE=${LOCALBASE:Q}
 FILES_SUBST+=		X11BASE=${X11BASE:Q}
 FILES_SUBST+=		VARBASE=${VARBASE:Q}
 FILES_SUBST+=		PKG_SYSCONFBASE=${PKG_SYSCONFBASE:Q}
 FILES_SUBST+=		PKG_SYSCONFBASEDIR=${PKG_SYSCONFBASEDIR:Q}
-# TODOleot: PKG_SYSCONFDIR should be per-spkg
 FILES_SUBST+=		CONF_DEPENDS=${CONF_DEPENDS:C/:.*//:Q}
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
