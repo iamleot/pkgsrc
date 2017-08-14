@@ -737,7 +737,7 @@ ${_INSTALL_PERMS_FILE.${_spkg_}}: ${_INSTALL_PERMS_DATAFILE.${_spkg_}}
 ${_INSTALL_PERMS_FILE.${_spkg_}}: ../../mk/pkginstall/perms
 	${RUN}${MKDIR} ${.TARGET:H}
 	${RUN}								\
-	${SED} ${FILES_SUBST_SED} ../../mk/pkginstall/perms > ${.TARGET}
+	${SED} ${FILES_SUBST_SED.${_spkg_}} ../../mk/pkginstall/perms > ${.TARGET}
 	${RUN}								\
 	if ${_ZERO_FILESIZE_P} ${_INSTALL_PERMS_DATAFILE.${_spkg_}}; then		\
 		${RM} -f ${.TARGET};					\
