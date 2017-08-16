@@ -640,7 +640,6 @@ ${_DEPENDS_PLIST}: ${PLIST}
 	${CAT} ${PLIST}; } > ${.TARGET}
 .endif	# SUBPACKAGES
 
-# TODOleot: SUBPACKAGES-ify more _CONTENTS_TARGETS!
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _PKG_CREATE_ARGS.${_spkg_}+=				-l -U
