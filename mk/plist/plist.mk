@@ -409,18 +409,23 @@ ${_PLIST_NOKEYWORDS}: ${PLIST}
 		{ print }'
 .endif	# SUBPACKAGES
 
-#
-# TODOleot: This need to be modified for SUBPACKAGES!
-# TODOleot: Doing that does not seem trivial and also
-# TODOleot: pkginstall/bsd.pkginstall.mk need to be refactored regarding
-# TODOleot: this changes.
-#
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.if defined(INFO_FILES.${_spkg_})
+INFO_FILES_cmd.${_spkg_}=						\
+	${CAT} ${PLIST.${_spkg_}} |					\
+	${PKGSRC_SETENV} ${_PLIST_AWK_ENV} ${AWK} ${_PLIST_INFO_AWK} |	\
+	${AWK} '($$0 !~ "-[0-9]*(\\.gz)?$$") { print }'
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 .if defined(INFO_FILES)
 INFO_FILES_cmd=								\
 	${CAT} ${PLIST} |						\
 	${PKGSRC_SETENV} ${_PLIST_AWK_ENV} ${AWK} ${_PLIST_INFO_AWK} |	\
 	${AWK} '($$0 !~ "-[0-9]*(\\.gz)?$$") { print }'
 .endif
+.endif	# SUBPACKAGES
 
 ######################################################################
 ### plist-clean (PRIVATE)
