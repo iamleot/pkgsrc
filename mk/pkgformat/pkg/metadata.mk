@@ -654,22 +654,22 @@ _PKG_CREATE_ARGS.${_spkg_}+=	${PKG_PRESERVE.${_spkg_}:D	-n ${_PRESERVE_FILE.${_s
 _PKG_CREATE_ARGS.${_spkg_}+=				-S ${_SIZE_ALL_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=				-s ${_SIZE_PKG_FILE.${_spkg_}}
 _PKG_CREATE_ARGS.${_spkg_}+=	${ALL_CONFLICTS.${_spkg_}:D		-C ${ALL_CONFLICTS.${_spkg_}:Q}}
-_PKG_CREATE_ARGS.${_spkg_}+=	${INSTALL_FILE:D	${_INSTALL_ARG_cmd:sh}}
-_PKG_CREATE_ARGS.${_spkg_}+=	${DEINSTALL_FILE:D	${_DEINSTALL_ARG_cmd:sh}}
+_PKG_CREATE_ARGS.${_spkg_}+=	${INSTALL_FILE.${_spkg_}:D	${_INSTALL_ARG_cmd.${_spkg_}:sh}}
+_PKG_CREATE_ARGS.${_spkg_}+=	${DEINSTALL_FILE.${_spkg_}:D	${_DEINSTALL_ARG_cmd.${_spkg_}:sh}}
 
 _PKG_ARGS_INSTALL.${_spkg_}+=	${_PKG_CREATE_ARGS.${_spkg_}}
 _PKG_ARGS_INSTALL.${_spkg_}+=	-I ${PREFIX} -p ${DESTDIR}${PREFIX}
 
-_DEINSTALL_ARG_cmd=	if ${TEST} -f ${DEINSTALL_FILE}; then		\
-				${ECHO} "-k "${DEINSTALL_FILE:Q};	\
-			else						\
-				${ECHO};				\
-			fi
-_INSTALL_ARG_cmd=	if ${TEST} -f ${INSTALL_FILE}; then		\
-				${ECHO} "-i "${INSTALL_FILE:Q};		\
-			else						\
-				${ECHO};				\
-			fi
+_DEINSTALL_ARG_cmd.${_spkg_}=	if ${TEST} -f ${DEINSTALL_FILE.${_spkg_}}; then		\
+					${ECHO} "-k "${DEINSTALL_FILE.${_spkg_}:Q};	\
+				else							\
+					${ECHO};					\
+				fi
+_INSTALL_ARG_cmd.${_spkg_}=	if ${TEST} -f ${INSTALL_FILE.${_spkg_}}; then		\
+					${ECHO} "-i "${INSTALL_FILE.${_spkg_}:Q};	\
+				else							\
+					${ECHO};					\
+				fi
 
 _CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_INFO_FILE.${_spkg_}}
 _CONTENTS_TARGETS.${_spkg_}+=	${_BUILD_VERSION_FILE}
