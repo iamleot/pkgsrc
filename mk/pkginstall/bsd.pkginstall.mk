@@ -1423,7 +1423,7 @@ install-script-data-info-files:
 .  for _spkg_ in ${SUBPACKAGES}
 .if defined(INFO_FILES.${_spkg_})
 	${RUN}${_FUNC_STRIP_PREFIX};					\
-	if ${TEST} -x ${INSTALL_FILE}; then				\
+	if ${TEST} -x ${INSTALL_FILE.${_spkg_}}; then			\
 		${INFO_FILES_cmd.${_spkg_}} |				\
 		while read file; do					\
 			infodir=${INFO_DIR.${_spkg_}:Q};		\
