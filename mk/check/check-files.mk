@@ -39,6 +39,7 @@ CHECK_FILES?=		no
 CHECK_FILES_STRICT?=	no
 
 # Info index files updated when a new info file is added.
+# TODOleot: Also check INFO_FILES.<spkg>
 .if defined(INFO_FILES)
 CHECK_FILES_SKIP+=	${PREFIX}/.*/dir
 .endif
