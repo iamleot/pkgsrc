@@ -367,15 +367,20 @@ DEPENDS+=		${_USER_DEPENDS}
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _INSTALL_USERGROUP_FILE.${_spkg_}=	${_PKGINSTALL_DIR.${_spkg_}}/usergroup
+.if exists(../../mk/pkginstall/usergroupfuncs.${OPSYS})
+_INSTALL_USERGROUPFUNCS_FILE.${_spkg_}?=	../../mk/pkginstall/usergroupfuncs.${OPSYS}
+.else
+_INSTALL_USERGROUPFUNCS_FILE.${_spkg_}?=	../../mk/pkginstall/usergroupfuncs
+.endif
 .  endfor
 .else	# !SUBPACKAGES
 _INSTALL_USERGROUP_FILE=	${_PKGINSTALL_DIR}/usergroup
-.endif	# SUBPACKAGES
 .if exists(../../mk/pkginstall/usergroupfuncs.${OPSYS})
 _INSTALL_USERGROUPFUNCS_FILE?=	../../mk/pkginstall/usergroupfuncs.${OPSYS}
 .else
 _INSTALL_USERGROUPFUNCS_FILE?=	../../mk/pkginstall/usergroupfuncs
 .endif
+.endif	# SUBPACKAGES
 .if !empty(SUBPACKAGES)
 .  for _spkg_ in ${SUBPACKAGES}
 _INSTALL_USERGROUP_DATAFILE.${_spkg_}=	${_PKGINSTALL_DIR.${_spkg_}}/usergroup-data
