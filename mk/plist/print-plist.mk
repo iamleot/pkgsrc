@@ -23,6 +23,7 @@ _PRINT_PLIST_AWK_SUBST+=						\
 
 _PRINT_PLIST_AWK_SUBST+=}
 
+# TODOleot: At least INFO_FILES will need adjustment for SUBPACKAGES
 _PRINT_PLIST_AWK_IGNORE=	($$0 ~ /^${PKG_DBDIR:S|^${PREFIX}/||:S|/|\\/|g}\//)
 _PRINT_PLIST_AWK_IGNORE+=	|| ($$0 ~ /emul\/linux\/proc/)
 .if defined(INFO_FILES)
