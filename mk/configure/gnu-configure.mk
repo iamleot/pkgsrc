@@ -65,10 +65,17 @@ GNU_CONFIGURE_INFODIR?=	${GNU_CONFIGURE_PREFIX}/${PKGINFODIR}
 .else
 GNU_CONFIGURE_INFODIR?=	${GNU_CONFIGURE_PREFIX}/info
 .endif
-# TODOleot: Also handle INFO_FILES.<spkg>
+.if !empty(SUBPACKAGES)
+.  for _spkg_ in ${SUBPACKAGES}
+.if defined(INFO_FILES.${_spkg_}) && !empty(CONFIGURE_HAS_INFODIR:M[yY][eE][sS])
+CONFIGURE_ARGS+=	--infodir=${GNU_CONFIGURE_INFODIR:Q}
+.endif
+.  endfor
+.else	# !SUBPACKAGES
 .if defined(INFO_FILES) && !empty(CONFIGURE_HAS_INFODIR:M[yY][eE][sS])
 CONFIGURE_ARGS+=	--infodir=${GNU_CONFIGURE_INFODIR:Q}
 .endif
+.endif	# SUBPACKAGES
 
 # PKGMANDIR is the subdirectory of ${PREFIX} into which the man and
 # catman pages are installed unless the software was configured with
