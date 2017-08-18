@@ -217,6 +217,9 @@ _PLIST_AWK_ENV+=	${PLIST_AWK_ENV}
 # PLIST_SUBST contains package-settable "${variable}" to "value"
 # substitutions for PLISTs
 #
+# TODOleot: Some variables need to be per-spkg. It is probably a good idea
+# TODOleot: to introduce a PLIST_SUBST.<spkg> and separate the one that
+# TODOleot: need adjustments there.
 PLIST_SUBST+=	OPSYS=${OPSYS:Q}					\
 		OS_VERSION=${OS_VERSION:Q}				\
 		MACHINE_ARCH=${MACHINE_ARCH:Q}				\
