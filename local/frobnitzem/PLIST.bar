@@ -1,2 +1,3 @@
 @comment $NetBSD$
 bin/frobnitzem-bar
+share/examples/frobnitzem-bar/bar.conf

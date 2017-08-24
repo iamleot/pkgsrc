@@ -24,6 +24,12 @@ WRKSRC=		${WRKDIR}/frobnitzem
 
 NO_BUILD=	yes
 
+PKG_USERS.foo=	foo:foo
+PKG_GROUPS.foo=	foo
+
+EGDIR.bar=		${PREFIX}/share/examples/${PKGBASE.bar}
+CONF_FILES.bar=		${EGDIR.bar}/bar.conf ${PKG_SYSCONFDIR}/bar.conf
+
 do-extract:
 	${CP} -r ${FILESDIR}/frobnitzem ${WRKDIR}
 
@@ -32,5 +38,9 @@ do-install:
 	${INSTALL_SCRIPT} ${WRKSRC}/frobnitzem-foo ${DESTDIR}${PREFIX}/bin
 	${INSTALL_SCRIPT} ${WRKSRC}/frobnitzem-bar ${DESTDIR}${PREFIX}/bin
 	${INSTALL_SCRIPT} ${WRKSRC}/frobnitzem-baz ${DESTDIR}${PREFIX}/bin
+
+post-install:
+	${INSTALL_DATA_DIR} ${DESTDIR}${EGDIR.bar}
+	${INSTALL_DATA} ${.CURDIR}/files/bar.conf ${DESTDIR}${EGDIR.bar}
 
 .include "../../mk/bsd.pkg.mk"
